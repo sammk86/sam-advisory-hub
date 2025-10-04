@@ -407,3 +407,108 @@ model EmailNotification {
   @@index([sentAt])
   @@map("email_notifications")
 }
+
+// Newsletter System
+model NewsletterSubscriber {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  firstName     String?
+  lastName      String?
+  interests     String[] // ["software-engineering", "leadership", "career-transition", "technical-advisory"]
+  source        String   // "landing-page", "popup", "footer", "referral"
+  status        SubscriberStatus @default(ACTIVE)
+  subscribedAt  DateTime @default(now())
+  unsubscribedAt DateTime?
+  lastEngagement DateTime?
+  
+  // Email tracking
+  totalEmailsReceived Int @default(0)
+  totalEmailsOpened   Int @default(0)
+  totalEmailsClicked Int @default(0)
+  
+  // Relations
+  campaigns NewsletterCampaign[]
+  emailTracking EmailTracking[]
+  
+  @@index([email])
+  @@index([status])
+  @@index([subscribedAt])
+  @@index([interests])
+  @@map("newsletter_subscribers")
+}
+
+enum SubscriberStatus {
+  ACTIVE
+  UNSUBSCRIBED
+  BOUNCED
+  COMPLAINED
+}
+
+model NewsletterCampaign {
+  id          String   @id @default(cuid())
+  title       String
+  subject     String
+  content     String   // HTML content
+  textContent String   // Plain text version
+  status      CampaignStatus @default(DRAFT)
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Analytics
+  totalSent     Int @default(0)
+  totalOpened   Int @default(0)
+  totalClicked Int @default(0)
+  totalUnsubscribed Int @default(0)
+  totalBounced Int @default(0)
+  
+  // Relations
+  subscribers NewsletterSubscriber[]
+  emailTracking EmailTracking[]
+  
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([sentAt])
+  @@map("newsletter_campaigns")
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  FAILED
+}
+
+model EmailTracking {
+  id           String   @id @default(cuid())
+  campaignId   String
+  subscriberId String
+  email        String
+  messageId    String?  // Resend message ID
+  status       EmailStatus
+  openedAt     DateTime?
+  clickedAt     DateTime?
+  bouncedAt    DateTime?
+  complainedAt DateTime?
+  createdAt    DateTime @default(now())
+  
+  campaign   NewsletterCampaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  subscriber NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  
+  @@unique([campaignId, subscriberId])
+  @@index([email])
+  @@index([status])
+  @@map("email_tracking")
+}
+
+enum EmailStatus {
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  COMPLAINED
+  UNSUBSCRIBED
+}

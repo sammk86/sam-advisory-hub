@@ -13,7 +13,8 @@ import {
   Menu, 
   X,
   Bell,
-  Search
+  Search,
+  Send
 } from 'lucide-react'
 import { useState } from 'react'
 import { LoadingPage } from '@/components/ui/LoadingStates'
@@ -78,6 +79,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       name: 'Pending Approvals',
       href: '/admin/users/pending',
       icon: Bell,
+      current: false,
+    },
+    {
+      name: 'Newsletter',
+      href: '/admin/newsletter',
+      icon: Mail,
+      current: false,
+    },
+    {
+      name: 'Campaigns',
+      href: '/admin/newsletter/campaigns',
+      icon: Send,
+      current: false,
+    },
+    {
+      name: 'Services',
+      href: '/admin/services',
+      icon: Users,
       current: false,
     },
     {

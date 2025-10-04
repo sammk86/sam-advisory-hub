@@ -27,12 +27,12 @@ export async function sendEmail(data: EmailData): Promise<{ success: boolean; me
     }
 
     if (!process.env.FROM_EMAIL) {
-      throw new Error('FROM_EMAIL is not configured')
+      console.warn('FROM_EMAIL is not configured, using Resend default domain')
     }
 
     // Send email via Resend
     const result = await resend.emails.send({
-      from: process.env.FROM_EMAIL,
+      from: process.env.FROM_EMAIL || 'onboarding@resend.dev', // Fallback to Resend's default domain
       to: data.to,
       subject: data.subject,
       html: data.html,
@@ -69,7 +69,7 @@ export async function sendEmail(data: EmailData): Promise<{ success: boolean; me
         type: data.type,
         subject: data.subject,
         body: data.text,
-        status: EmailStatus.FAILED,
+        status: EmailStatus.BOUNCED,
         sentAt: new Date(),
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
       },
@@ -141,7 +141,7 @@ export async function retryFailedEmails(): Promise<{ success: boolean; retried: 
   try {
     const failedEmails = await prisma.emailNotification.findMany({
       where: {
-        status: EmailStatus.FAILED,
+        status: EmailStatus.BOUNCED,
         sentAt: {
           gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
         },
@@ -221,7 +221,7 @@ export async function getEmailStats(): Promise<{
         case EmailStatus.SENT:
           result.sent = stat._count.status
           break
-        case EmailStatus.FAILED:
+        case EmailStatus.BOUNCED:
           result.failed = stat._count.status
           break
         case EmailStatus.DELIVERED:
@@ -258,7 +258,7 @@ export async function validateEmailConfig(): Promise<{ valid: boolean; errors: s
   }
 
   if (!process.env.FROM_EMAIL) {
-    errors.push('FROM_EMAIL is not configured')
+    console.warn('FROM_EMAIL is not configured, using Resend default domain')
   }
 
   if (!process.env.SUPPORT_EMAIL) {
@@ -282,5 +282,360 @@ export async function validateEmailConfig(): Promise<{ valid: boolean; errors: s
   return {
     valid: errors.length === 0,
     errors,
+  }
+}
+
+// Newsletter-specific email functions
+export async function sendNewsletterEmail(
+  campaignId: string,
+  subscriberId: string,
+  email: string,
+  subject: string,
+  htmlContent: string,
+  textContent: string
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  try {
+    // Validate required environment variables
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY is not configured')
+    }
+
+    if (!process.env.FROM_EMAIL) {
+      console.warn('FROM_EMAIL is not configured, using Resend default domain')
+    }
+
+    // Send email via Resend
+    const result = await resend.emails.send({
+      from: process.env.FROM_EMAIL || 'onboarding@resend.dev', // Fallback to Resend's default domain
+      to: email,
+      subject: subject,
+      html: htmlContent,
+      text: textContent,
+    })
+
+    if (result.error) {
+      throw new Error(`Resend error: ${result.error.message}`)
+    }
+
+    // Create email tracking record
+    await prisma.emailTracking.create({
+      data: {
+        campaignId,
+        subscriberId,
+        email,
+        messageId: result.data?.id,
+        status: 'SENT',
+      },
+    })
+
+    // Update subscriber email count
+    await prisma.newsletterSubscriber.update({
+      where: { id: subscriberId },
+      data: {
+        totalEmailsReceived: {
+          increment: 1,
+        },
+      },
+    })
+
+    return {
+      success: true,
+      messageId: result.data?.id,
+    }
+  } catch (error) {
+    console.error('Newsletter email sending failed:', error)
+
+    // Create failed tracking record
+    await prisma.emailTracking.create({
+      data: {
+        campaignId,
+        subscriberId,
+        email,
+        status: 'BOUNCED',
+        bouncedAt: new Date(),
+      },
+    })
+
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+export async function sendBulkNewsletterEmails(
+  campaignId: string,
+  subscribers: Array<{
+    id: string
+    email: string
+    firstName?: string
+  }>,
+  subject: string,
+  htmlContent: string,
+  textContent: string
+): Promise<{ success: boolean; sent: number; failed: number; errors: string[] }> {
+  const results = await Promise.allSettled(
+    subscribers.map(subscriber => 
+      sendNewsletterEmail(
+        campaignId,
+        subscriber.id,
+        subscriber.email,
+        subject,
+        htmlContent,
+        textContent
+      )
+    )
+  )
+
+  const processedResults = results.map((result, index) => {
+    if (result.status === 'fulfilled') {
+      return { success: result.value.success, error: result.value.error }
+    } else {
+      return { success: false, error: result.reason?.message || 'Unknown error' }
+    }
+  })
+
+  const successCount = processedResults.filter(r => r.success).length
+  const failedCount = processedResults.filter(r => !r.success).length
+  const errors = processedResults.filter(r => !r.success).map(r => r.error).filter(Boolean) as string[]
+
+  return {
+    success: failedCount === 0,
+    sent: successCount,
+    failed: failedCount,
+    errors,
+  }
+}
+
+export async function updateEmailTrackingStatus(
+  messageId: string,
+  status: 'DELIVERED' | 'OPENED' | 'CLICKED' | 'BOUNCED' | 'COMPLAINED' | 'UNSUBSCRIBED'
+): Promise<void> {
+  try {
+    const updateData: any = { status }
+    
+    switch (status) {
+      case 'OPENED':
+        updateData.openedAt = new Date()
+        break
+      case 'CLICKED':
+        updateData.clickedAt = new Date()
+        break
+      case 'BOUNCED':
+        updateData.bouncedAt = new Date()
+        break
+      case 'COMPLAINED':
+        updateData.complainedAt = new Date()
+        break
+    }
+
+    await prisma.emailTracking.updateMany({
+      where: { messageId },
+      data: updateData,
+    })
+
+    // Update campaign analytics
+    if (status === 'OPENED') {
+      await prisma.newsletterCampaign.updateMany({
+        where: {
+          emailTracking: {
+            some: { messageId }
+          }
+        },
+        data: {
+          totalOpened: { increment: 1 }
+        }
+      })
+
+      // Update subscriber engagement
+      await prisma.newsletterSubscriber.updateMany({
+        where: {
+          emailTracking: {
+            some: { messageId }
+          }
+        },
+        data: {
+          totalEmailsOpened: { increment: 1 },
+          lastEngagement: new Date()
+        }
+      })
+    }
+
+    if (status === 'CLICKED') {
+      await prisma.newsletterCampaign.updateMany({
+        where: {
+          emailTracking: {
+            some: { messageId }
+          }
+        },
+        data: {
+          totalClicked: { increment: 1 }
+        }
+      })
+
+      // Update subscriber engagement
+      await prisma.newsletterSubscriber.updateMany({
+        where: {
+          emailTracking: {
+            some: { messageId }
+          }
+        },
+        data: {
+          totalEmailsClicked: { increment: 1 },
+          lastEngagement: new Date()
+        }
+      })
+    }
+
+    if (status === 'BOUNCED') {
+      await prisma.newsletterCampaign.updateMany({
+        where: {
+          emailTracking: {
+            some: { messageId }
+          }
+        },
+        data: {
+          totalBounced: { increment: 1 }
+        }
+      })
+
+      // Update subscriber status
+      await prisma.newsletterSubscriber.updateMany({
+        where: {
+          emailTracking: {
+            some: { messageId }
+          }
+        },
+        data: {
+          status: 'BOUNCED'
+        }
+      })
+    }
+
+    if (status === 'UNSUBSCRIBED') {
+      await prisma.newsletterCampaign.updateMany({
+        where: {
+          emailTracking: {
+            some: { messageId }
+          }
+        },
+        data: {
+          totalUnsubscribed: { increment: 1 }
+        }
+      })
+
+      // Update subscriber status
+      await prisma.newsletterSubscriber.updateMany({
+        where: {
+          emailTracking: {
+            some: { messageId }
+          }
+        },
+        data: {
+          status: 'UNSUBSCRIBED',
+          unsubscribedAt: new Date()
+        }
+      })
+    }
+
+  } catch (error) {
+    console.error('Error updating email tracking status:', error)
+  }
+}
+
+export async function getNewsletterAnalytics(): Promise<{
+  totalSubscribers: number
+  activeSubscribers: number
+  unsubscribedCount: number
+  totalCampaigns: number
+  averageOpenRate: number
+  averageClickRate: number
+  recentCampaigns: Array<{
+    id: string
+    title: string
+    sentAt: string
+    openRate: number
+    clickRate: number
+  }>
+}> {
+  try {
+    // Get subscriber counts
+    const subscriberStats = await prisma.newsletterSubscriber.groupBy({
+      by: ['status'],
+      _count: { status: true }
+    })
+
+    const totalSubscribers = subscriberStats.reduce((sum, stat) => sum + stat._count.status, 0)
+    const activeSubscribers = subscriberStats.find(s => s.status === 'ACTIVE')?._count.status || 0
+    const unsubscribedCount = subscriberStats.find(s => s.status === 'UNSUBSCRIBED')?._count.status || 0
+
+    // Get campaign stats
+    const totalCampaigns = await prisma.newsletterCampaign.count()
+
+    // Get recent campaigns with analytics
+    const recentCampaigns = await prisma.newsletterCampaign.findMany({
+      where: {
+        status: 'SENT',
+        sentAt: { not: null }
+      },
+      orderBy: { sentAt: 'desc' },
+      take: 5,
+      select: {
+        id: true,
+        title: true,
+        sentAt: true,
+        totalSent: true,
+        totalOpened: true,
+        totalClicked: true
+      }
+    })
+
+    const campaignsWithRates = recentCampaigns.map(campaign => {
+      const openRate = campaign.totalSent > 0 ? (campaign.totalOpened / campaign.totalSent) * 100 : 0
+      const clickRate = campaign.totalSent > 0 ? (campaign.totalClicked / campaign.totalSent) * 100 : 0
+      
+      return {
+        id: campaign.id,
+        title: campaign.title,
+        sentAt: campaign.sentAt?.toISOString() || '',
+        openRate: isNaN(openRate) ? 0 : openRate,
+        clickRate: isNaN(clickRate) ? 0 : clickRate
+      }
+    })
+
+    // Calculate average rates
+    const averageOpenRate = campaignsWithRates.length > 0 
+      ? campaignsWithRates.reduce((sum, c) => sum + c.openRate, 0) / campaignsWithRates.length 
+      : 0
+
+    const averageClickRate = campaignsWithRates.length > 0 
+      ? campaignsWithRates.reduce((sum, c) => sum + c.clickRate, 0) / campaignsWithRates.length 
+      : 0
+
+    // Ensure we have valid numbers
+    const safeAverageOpenRate = isNaN(averageOpenRate) ? 0 : averageOpenRate
+    const safeAverageClickRate = isNaN(averageClickRate) ? 0 : averageClickRate
+
+    return {
+      totalSubscribers,
+      activeSubscribers,
+      unsubscribedCount,
+      totalCampaigns,
+      averageOpenRate: safeAverageOpenRate,
+      averageClickRate: safeAverageClickRate,
+      recentCampaigns: campaignsWithRates
+    }
+
+  } catch (error) {
+    console.error('Error getting newsletter analytics:', error)
+    return {
+      totalSubscribers: 0,
+      activeSubscribers: 0,
+      unsubscribedCount: 0,
+      totalCampaigns: 0,
+      averageOpenRate: 0,
+      averageClickRate: 0,
+      recentCampaigns: []
+    }
   }
 }

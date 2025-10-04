@@ -3,74 +3,66 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
+    // Parse query parameters
     const { searchParams } = new URL(request.url)
-    const type = searchParams.get('type')
+    const type = searchParams.get('type') || ''
+    const limit = parseInt(searchParams.get('limit') || '10')
 
-    // Build where clause
+    // Build where clause - only published services
     const where: any = {
-      status: 'PUBLISHED', // Only return published services
+      status: 'PUBLISHED'
     }
-
-    if (type && ['MENTORSHIP', 'ADVISORY'].includes(type)) {
+    
+    if (type) {
       where.type = type
     }
 
+    // Get published services
     const services = await prisma.service.findMany({
       where,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
       select: {
         id: true,
         name: true,
         description: true,
         type: true,
-        status: true,
         singleSessionPrice: true,
         monthlyPlanPrice: true,
         hourlyRate: true,
         createdAt: true,
-        mentorshipProgram: {
-          select: {
-            format: true,
-            learningOutcomes: true,
-            sampleCurriculum: true,
-          },
-        },
-        advisoryService: {
-          select: {
-            idealClientProfile: true,
-            scopeOfWork: true,
-            expectedOutcomes: true,
-            sampleDeliverables: true,
-            packages: {
-              select: {
-                id: true,
-                name: true,
-                hours: true,
-                price: true,
-                description: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
+      }
     })
+
+    // Format services for public display
+    const formattedServices = services.map(service => ({
+      id: service.id,
+      name: service.name,
+      description: service.description,
+      type: service.type,
+      pricing: {
+        singleSession: service.singleSessionPrice ? service.singleSessionPrice / 100 : null,
+        monthly: service.monthlyPlanPrice ? service.monthlyPlanPrice / 100 : null,
+        hourly: service.hourlyRate ? service.hourlyRate / 100 : null,
+      },
+      createdAt: service.createdAt,
+    }))
 
     return NextResponse.json({
       success: true,
-      data: { services },
-    })
-  } catch (error) {
-    console.error('Get services error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: 'DATABASE_ERROR',
-          message: 'Failed to fetch services',
-        },
+      data: {
+        services: formattedServices,
+        total: services.length,
       },
-      { status: 500 }
-    )
+    })
+
+  } catch (error) {
+    console.error('Services fetch error:', error)
+
+    return NextResponse.json({
+      success: false,
+      message: 'Failed to fetch services',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }, { status: 500 })
   }
 }
-

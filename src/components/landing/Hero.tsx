@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Users, Target, Zap, Star, Play, CheckCircle } from 'lucide-react'
+import { ArrowRight, Users, Target, Zap, Star, Play, CheckCircle, Mail } from 'lucide-react'
 import { motion } from 'framer-motion'
 import ClientOnly from '@/components/animations/ClientOnly'
+import NewsletterSignupForm from '@/components/newsletter/NewsletterSignupForm'
 
 export default function Hero() {
   return (
@@ -53,6 +54,70 @@ export default function Hero() {
       </ClientOnly>
 
       <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+        {/* Newsletter Signup - Top of Page */}
+        <div className="text-center mb-16">
+          <ClientOnly fallback={
+            <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/40 p-8 max-w-4xl mx-auto">
+              <div className="flex items-center justify-center space-x-3 mb-6">
+                <Mail className="w-8 h-8 text-blue-600" />
+                <h2 className="text-2xl font-bold text-gray-900">Stay Updated</h2>
+              </div>
+              <p className="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
+                Get the latest insights on career growth and mentorship delivered to your inbox.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
+                <input
+                  type="email"
+                  placeholder="Enter your email address"
+                  className="flex-1 px-6 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900 placeholder-gray-500"
+                />
+                <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-xl transition-all duration-300">
+                  Subscribe Now
+                </button>
+              </div>
+            </div>
+          }>
+            <motion.div 
+              className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/40 p-8 max-w-4xl mx-auto"
+              initial={{ opacity: 0, y: -30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              whileHover={{ scale: 1.02, y: -5 }}
+            >
+              <div className="flex items-center justify-center space-x-3 mb-6">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <Mail className="w-8 h-8 text-blue-600" />
+                </motion.div>
+                <h2 className="text-2xl font-bold text-gray-900">Stay Updated</h2>
+              </div>
+              <p className="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
+                Get the latest insights on career growth and mentorship delivered to your inbox.
+              </p>
+              <NewsletterSignupForm 
+                variant="hero"
+                showInterests={false}
+                placeholder="Enter your email address"
+                buttonText="Subscribe Now"
+                onSuccess={() => {
+                  // Track successful subscription
+                  if (typeof window !== 'undefined' && window.gtag) {
+                    window.gtag('event', 'newsletter_signup', {
+                      event_category: 'engagement',
+                      event_label: 'hero-top',
+                    })
+                  }
+                }}
+                onError={(error) => {
+                  console.error('Newsletter subscription error:', error)
+                }}
+              />
+            </motion.div>
+          </ClientOnly>
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Column - Content */}
           <div className="text-center lg:text-left">
@@ -194,6 +259,7 @@ export default function Hero() {
                 </motion.div>
               </ClientOnly>
             </div>
+
 
             {/* Social Proof Stats */}
             <ClientOnly fallback={

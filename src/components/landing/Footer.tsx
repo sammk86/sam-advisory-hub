@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Mail, Phone, MapPin, Twitter, Github, Heart } from 'lucide-react'
+import NewsletterSignupForm from '@/components/newsletter/NewsletterSignupForm'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -122,16 +123,25 @@ export default function Footer() {
             {/* Newsletter */}
             <div className="mt-8">
               <h4 className="font-semibold mb-4">Stay Updated</h4>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
-                />
-                <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-r-lg transition-colors">
-                  Subscribe
-                </button>
-              </div>
+              <p className="text-sm text-gray-400 mb-4">
+                Get the latest insights on career growth and mentorship
+              </p>
+              <NewsletterSignupForm 
+                variant="footer"
+                showInterests={true}
+                onSuccess={(subscriber) => {
+                  // Track successful subscription
+                  if (typeof window !== 'undefined' && window.gtag) {
+                    window.gtag('event', 'newsletter_signup', {
+                      event_category: 'engagement',
+                      event_label: 'footer',
+                    })
+                  }
+                }}
+                onError={(error) => {
+                  console.error('Newsletter subscription error:', error)
+                }}
+              />
             </div>
           </div>
         </div>
