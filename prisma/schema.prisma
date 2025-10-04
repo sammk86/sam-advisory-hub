@@ -1,0 +1,409 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  name             String?
+  image            String?
+  password         String?
+  role             UserRole  @default(CLIENT)
+  emailVerified    DateTime?
+  stripeCustomerId String?   @unique
+  
+  // User Confirmation Fields
+  isConfirmed      Boolean?  @default(false)
+  confirmedAt      DateTime?
+  confirmedBy      String?
+  rejectionReason  String?
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  accounts           Account[]
+  sessions           Session[]
+  enrollments        Enrollment[]
+  meetings           Meeting[]
+  emailNotifications EmailNotification[]
+
+  @@index([email])
+  @@index([role])
+  @@index([stripeCustomerId])
+  @@index([isConfirmed])
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+// Services (Polymorphic for Mentorship and Advisory)
+model Service {
+  id          String        @id @default(cuid())
+  name        String
+  description String
+  type        ServiceType
+  status      ServiceStatus @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Pricing
+  singleSessionPrice Int? // in cents
+  monthlyPlanPrice   Int? // in cents
+  hourlyRate         Int? // in cents
+
+  // Service-specific data
+  mentorshipProgram MentorshipProgram?
+  advisoryService   AdvisoryService?
+
+  // Relations
+  enrollments Enrollment[]
+
+  @@map("services")
+}
+
+enum ServiceType {
+  MENTORSHIP
+  ADVISORY
+}
+
+enum ServiceStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// Mentorship Program Details
+model MentorshipProgram {
+  id               String        @id @default(cuid())
+  serviceId        String        @unique
+  format           ProgramFormat
+  learningOutcomes String[]
+  sampleCurriculum String?
+  defaultRoadmap   Json? // Template roadmap structure
+
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@map("mentorship_programs")
+}
+
+enum ProgramFormat {
+  INDIVIDUAL
+  GROUP
+}
+
+// Advisory Service Details
+model AdvisoryService {
+  id                 String   @id @default(cuid())
+  serviceId          String   @unique
+  idealClientProfile String
+  scopeOfWork        String
+  expectedOutcomes   String[]
+  sampleDeliverables String[]
+
+  service  Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  packages AdvisoryPackage[]
+
+  @@map("advisory_services")
+}
+
+// Advisory Packages
+model AdvisoryPackage {
+  id                String @id @default(cuid())
+  advisoryServiceId String
+  name              String
+  hours             Int
+  price             Int    // in cents
+  description       String?
+
+  advisoryService AdvisoryService @relation(fields: [advisoryServiceId], references: [id], onDelete: Cascade)
+  enrollments     Enrollment[]
+
+  @@map("advisory_packages")
+}
+
+// Enrollment & Progress Tracking
+model Enrollment {
+  id       String           @id @default(cuid())
+  userId   String
+  serviceId String
+  planType PlanType
+  status   EnrollmentStatus @default(ACTIVE)
+  enrolledAt DateTime       @default(now())
+
+  // Advisory-specific
+  advisoryPackageId String?
+  hoursRemaining    Int?
+
+  // Payment tracking
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service         Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  advisoryPackage AdvisoryPackage? @relation(fields: [advisoryPackageId], references: [id])
+
+  // Progress tracking
+  roadmap      Roadmap?
+  deliverables Deliverable[]
+  meetings     Meeting[]
+  payments     Payment[]
+
+  @@unique([userId, serviceId])
+  @@index([userId])
+  @@index([serviceId])
+  @@index([status])
+  @@map("enrollments")
+}
+
+enum PlanType {
+  SINGLE_SESSION
+  MONTHLY_PLAN
+  CONSULTATION
+  PACKAGE
+  RETAINER
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  COMPLETED
+}
+
+// Roadmaps (Mentorship)
+model Roadmap {
+  id           String @id @default(cuid())
+  enrollmentId String @unique
+  title        String
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  enrollment Enrollment  @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  milestones Milestone[]
+
+  @@map("roadmaps")
+}
+
+model Milestone {
+  id          String     @id @default(cuid())
+  roadmapId   String
+  title       String
+  description String?
+  order       Int
+  status      TaskStatus @default(NOT_STARTED)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  roadmap Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+
+  @@map("milestones")
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  milestoneId String
+  title       String
+  description String?
+  resources   String[] // URLs, documents
+  dueDate     DateTime?
+  status      TaskStatus @default(NOT_STARTED)
+  order       Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+// Deliverables (Advisory)
+model Deliverable {
+  id           String            @id @default(cuid())
+  enrollmentId String
+  title        String
+  description  String
+  type         DeliverableType
+  status       DeliverableStatus @default(NOT_STARTED)
+  dueDate      DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  enrollment Enrollment        @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  files      DeliverableFile[]
+
+  @@map("deliverables")
+}
+
+model DeliverableFile {
+  id            String @id @default(cuid())
+  deliverableId String
+  fileName      String
+  fileUrl       String
+  fileSize      Int
+  mimeType      String
+  version       Int      @default(1)
+  uploadedAt    DateTime @default(now())
+
+  deliverable Deliverable @relation(fields: [deliverableId], references: [id], onDelete: Cascade)
+
+  @@map("deliverable_files")
+}
+
+enum DeliverableType {
+  REPORT
+  STRATEGIC_PLAN
+  ARCHITECTURE_REVIEW
+  CODE_REVIEW
+  RECOMMENDATION_DOCUMENT
+  CUSTOM
+}
+
+enum DeliverableStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  UNDER_REVIEW
+  COMPLETED
+}
+
+// Meetings & Communication
+model Meeting {
+  id           String        @id @default(cuid())
+  enrollmentId String
+  title        String
+  description  String?
+  scheduledAt  DateTime
+  duration     Int // in minutes
+  status       MeetingStatus @default(SCHEDULED)
+  videoLink    String?
+  agenda       String?
+  notes        String?
+  recordingUrl String?
+
+  // Advisory-specific
+  hoursConsumed Int?
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  attendees  User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([enrollmentId])
+  @@index([scheduledAt])
+  @@map("meetings")
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// Payment & Billing
+model Payment {
+  id              String        @id @default(cuid())
+  enrollmentId    String
+  stripePaymentId String        @unique
+  amount          Int // in cents
+  currency        String        @default("usd")
+  status          PaymentStatus
+  paymentType     PlanType
+  description     String?
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+// NextAuth.js Tables
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+// Email Notification Tracking
+model EmailNotification {
+  id           String   @id @default(cuid())
+  userId       String
+  type         String   // 'welcome', 'confirmation', 'rejection'
+  sentAt       DateTime
+  status       String   // 'sent', 'failed', 'pending'
+  errorMessage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([sentAt])
+  @@map("email_notifications")
+}
