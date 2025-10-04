@@ -292,3 +292,4 @@ describe('Email Templates Tests', () => {
     })
   })
 })
+

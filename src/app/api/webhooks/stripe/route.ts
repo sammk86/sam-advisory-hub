@@ -483,3 +483,4 @@ async function createDefaultRoadmap(enrollmentId: string, serviceId: string) {
     console.error('Error creating default roadmap:', error)
   }
 }
+

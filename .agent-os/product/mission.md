@@ -82,3 +82,4 @@ Unlike separate booking and payment systems, we provide end-to-end client lifecy
 - **Admin Analytics Dashboard:** Unified metrics across both service types with revenue breakdown and client engagement analytics
 - **Newsletter Management System:** Lead capture and nurturing system with automated email sequences and campaign analytics
 - **Communication System:** Built-in messaging with service-specific templates and announcement broadcasting
+

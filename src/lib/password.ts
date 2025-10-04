@@ -173,3 +173,4 @@ export function getPasswordStrengthScore(password: string): {
 
   return { score, feedback }
 }
+

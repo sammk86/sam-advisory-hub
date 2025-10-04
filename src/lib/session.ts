@@ -246,3 +246,4 @@ export class ClientSessionStorage {
     return session ? !SessionValidator.isSessionExpired(session) : false
   }
 }
+

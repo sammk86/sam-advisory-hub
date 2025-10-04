@@ -53,3 +53,4 @@ export default function StatusBadge({ status, variant = 'default', size = 'md' }
     </span>
   )
 }
+

@@ -131,3 +131,4 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
 AnimatedInput.displayName = 'AnimatedInput'
 
 export default AnimatedInput
+

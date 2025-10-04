@@ -39,3 +39,4 @@ declare module 'next-auth/jwt' {
     rejectionReason?: string | null
   }
 }
+
