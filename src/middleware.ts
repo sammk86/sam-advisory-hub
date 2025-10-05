@@ -15,6 +15,12 @@ export default withAuth(
       '/pending',
       '/rejected',
       '/test-users',
+      '/about',
+      '/blogs',
+      '/videos',
+      '/insights',
+      '/calendar',
+      '/contact',
     ]
 
     if (skipConfirmationRoutes.includes(pathname)) {
@@ -57,6 +63,10 @@ export default withAuth(
         const publicRoutes = [
           '/',
           '/about',
+          '/blogs',
+          '/videos',
+          '/insights',
+          '/calendar',
           '/services',
           '/pricing',
           '/contact',
@@ -67,6 +77,14 @@ export default withAuth(
           '/rejected',
           '/test-users',
         ]
+
+        // Allow access to static files in public folder
+        if (pathname.startsWith('/animations/') || 
+            pathname.startsWith('/data/') || 
+            pathname.startsWith('/images/') ||
+            pathname.startsWith('/icons/')) {
+          return true
+        }
 
         if (publicRoutes.includes(pathname)) {
           return true

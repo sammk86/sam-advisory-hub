@@ -37,3 +37,4 @@ export default function StripeProvider({ children, clientSecret }: StripeProvide
   )
 }
 
+

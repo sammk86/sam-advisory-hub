@@ -3,11 +3,15 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/components/providers/auth-provider'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'MentorshipHub - Professional Development Platform',
-  description: 'Comprehensive platform for mentorship programs and advisory services',
+  title: 'Dr. Sam Mokhtari - Data & AI Expert | Mentor & Advisor',
+  description: 'Data & AI expert with 15+ years experience. Offering mentorship, consulting, and strategic guidance for organizations and professionals.',
 }
 
 export default function RootLayout({
@@ -16,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className} suppressHydrationWarning={true}>
+    <html lang="en" className={inter.variable}>
+      <body className="font-sans" suppressHydrationWarning={true}>
         <AuthProvider>
           {children}
         </AuthProvider>
