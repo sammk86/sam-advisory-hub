@@ -2,13 +2,9 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { FaExternalLinkAlt } from "react-icons/fa";
+import { fetchBlogs, BlogPost } from "@/lib/blog-parser";
 
-interface Blog {
-  title: string;
-  description: string;
-  link: string;
-  tags: string[];
-}
+interface Blog extends BlogPost {}
 
 const BlogCard: React.FC<{ blog: Blog }> = ({ blog }) => {
   return (
@@ -35,7 +31,7 @@ const BlogCard: React.FC<{ blog: Blog }> = ({ blog }) => {
             href={blog.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gradient-to-br from-primary to-accent-foreground hover:bg-slate-200 text-primary-foreground transition-all duration-200 gap-2 w-full hover:opacity-90"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gradient-magenta-cyan hover:opacity-90 text-white transition-all duration-200 gap-2 w-full"
           >
             <span>Read Article</span>
             <FaExternalLinkAlt className="w-4 h-4" />
@@ -50,11 +46,10 @@ const BlogSection = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
 
   useEffect(() => {
-    const fetchContent = async () => {
+    const loadBlogs = async () => {
       try {
-        const response = await fetch('/data/blogs.md');
-        const text = await response.text();
-        parseContent(text);
+        const blogData = await fetchBlogs();
+        setBlogs(blogData.slice(0, 3)); // Only show top 3 blogs on homepage
       } catch (error) {
         console.error('Error loading blogs:', error);
         // Fallback data if markdown file is not available
@@ -81,47 +76,9 @@ const BlogSection = () => {
       }
     };
 
-    fetchContent();
+    loadBlogs();
   }, []);
 
-  const parseContent = (text: string) => {
-    const blogsList: Blog[] = [];
-    let currentBlog: Partial<Blog> | null = null;
-
-    text.split('\n').forEach(line => {
-      if (line.startsWith('- **')) {
-        if (currentBlog && currentBlog.title) {
-          blogsList.push(currentBlog as Blog);
-        }
-        currentBlog = {
-          title: line.replace('- **', '').replace('**', '').trim()
-        };
-      } else if (line.includes('link:')) {
-        if (currentBlog) {
-          currentBlog.link = line.split('link:')[1].trim();
-        }
-      } else if (line.includes('description:')) {
-        if (currentBlog) {
-          currentBlog.description = line.split('description:')[1].trim();
-        }
-      } else if (line.includes('tags:')) {
-        if (currentBlog) {
-          currentBlog.tags = line.split('tags:')[1]
-            .trim()
-            .replace('[', '')
-            .replace(']', '')
-            .split(',')
-            .map(tag => tag.trim());
-        }
-      }
-    });
-
-    if (currentBlog && currentBlog.title) {
-      blogsList.push(currentBlog as Blog);
-    }
-
-    setBlogs(blogsList.slice(0, 3)); // Only take top 3 blogs
-  };
 
   return (
     <section className="py-16">

@@ -32,7 +32,7 @@ jest.mock('@prisma/client', () => ({
   PrismaClient: jest.fn(() => mockPrismaClient),
 }))
 
-describe('Resend Email Service Integration Tests', () => {
+describe('Brevo Email Service Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })

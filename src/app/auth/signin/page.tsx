@@ -88,7 +88,7 @@ export default function SigninPage() {
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xl">M</span>
             </div>
-            <span className="ml-2 text-2xl font-bold text-gray-900">MentorshipHub</span>
+            <span className="ml-2 text-2xl font-bold text-gray-900">SamAdvisoryHub</span>
           </div>
         </Link>
         
@@ -230,7 +230,7 @@ export default function SigninPage() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">New to MentorshipHub?</span>
+                <span className="px-2 bg-white text-gray-500">New to SamAdvisoryHub?</span>
               </div>
             </div>
 

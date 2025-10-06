@@ -102,7 +102,7 @@ describe('User Confirmation System Integration Tests', () => {
       render(<PendingPage />)
 
       expect(screen.getByText('Account Under Review')).toBeInTheDocument()
-      expect(screen.getByText('Thank you for joining MentorshipHub!')).toBeInTheDocument()
+      expect(screen.getByText('Thank you for joining SamAdvisoryHub!')).toBeInTheDocument()
       expect(screen.getByText("What's Happening?")).toBeInTheDocument()
     })
 

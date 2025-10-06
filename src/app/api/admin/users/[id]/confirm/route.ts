@@ -93,7 +93,7 @@ export async function POST(
       const emailTemplate = await renderConfirmationEmail({
         userName: user.name || 'User',
         userEmail: user.email,
-        platformName: 'MentorshipHub',
+        platformName: 'SamAdvisoryHub',
         dashboardUrl: `${process.env.NEXTAUTH_URL}/dashboard`,
         supportEmail: process.env.SUPPORT_EMAIL || 'support@mentorshiphub.com',
       })

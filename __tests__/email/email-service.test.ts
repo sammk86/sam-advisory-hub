@@ -2,13 +2,20 @@ import { sendEmail, sendBulkEmails, getEmailStatus, updateEmailStatus, retryFail
 import { prisma } from '@/lib/prisma'
 import { EmailType, EmailStatus } from '@prisma/client'
 
-// Mock Resend
-jest.mock('resend', () => ({
-  Resend: jest.fn().mockImplementation(() => ({
-    emails: {
-      send: jest.fn(),
-    },
+// Mock Brevo
+jest.mock('@getbrevo/brevo', () => ({
+  TransactionalEmailsApi: jest.fn().mockImplementation(() => ({
+    sendTransacEmail: jest.fn(),
   })),
+  SendSmtpEmail: jest.fn(),
+  SendSmtpEmailSender: jest.fn(),
+  SendSmtpEmailTo: jest.fn(),
+  TransactionalEmailsApiApiKeys: { apiKey: 'apiKey' },
+  AccountApi: jest.fn().mockImplementation(() => ({
+    getAccount: jest.fn(),
+    setApiKey: jest.fn(),
+  })),
+  AccountApiApiKeys: { apiKey: 'apiKey' },
 }))
 
 // Mock Prisma

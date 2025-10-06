@@ -102,9 +102,9 @@ export default function UserStatusDashboard({ className }: UserStatusDashboardPr
             {userStatus === 'unknown' && 'Account Status Unknown'}
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {userStatus === 'confirmed' && 'Welcome to MentorshipHub! Your account has been approved and you now have full access to our platform.'}
-            {userStatus === 'pending' && 'Thank you for joining MentorshipHub! Your account is currently being reviewed by our team.'}
-            {userStatus === 'rejected' && 'We appreciate your interest in MentorshipHub, but we\'re unable to approve your account at this time.'}
+            {userStatus === 'confirmed' && 'Welcome to SamAdvisoryHub! Your account has been approved and you now have full access to our platform.'}
+            {userStatus === 'pending' && 'Thank you for joining SamAdvisoryHub! Your account is currently being reviewed by our team.'}
+            {userStatus === 'rejected' && 'We appreciate your interest in SamAdvisoryHub, but we\'re unable to approve your account at this time.'}
             {userStatus === 'unknown' && 'We\'re having trouble determining your account status. Please contact support for assistance.'}
           </p>
         </div>

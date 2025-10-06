@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
 
 async function sendUnsubscribeConfirmationEmail(email: string, firstName?: string) {
   try {
-    const confirmationSubject = 'You have been unsubscribed from MentorshipHub Newsletter'
+    const confirmationSubject = 'You have been unsubscribed from SamAdvisoryHub Newsletter'
     const confirmationHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h1 style="color: #2563eb; margin-bottom: 20px;">Unsubscribed Successfully</h1>
@@ -161,7 +161,7 @@ async function sendUnsubscribeConfirmationEmail(email: string, firstName?: strin
         
         <p style="color: #6b7280; font-size: 14px;">
           Best regards,<br>
-          The MentorshipHub Team
+          The SamAdvisoryHub Team
         </p>
       </div>
     `
@@ -183,21 +183,30 @@ Visit: ${process.env.NEXTAUTH_URL}/services
 If you have any questions or feedback, please contact us at hello@mentorshiphub.com
 
 Best regards,
-The MentorshipHub Team
+The SamAdvisoryHub Team
     `
 
     // Note: We don't use the existing sendEmail function here since the user is unsubscribed
     // This is a one-time confirmation email
-    const { Resend } = await import('resend')
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const brevo = await import('@getbrevo/brevo')
+    const brevoApi = new brevo.TransactionalEmailsApi()
+    brevoApi.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY || '')
 
-    await resend.emails.send({
-      from: process.env.FROM_EMAIL || 'newsletter@mentorshiphub.com',
-      to: email,
-      subject: confirmationSubject,
-      html: confirmationHtml,
-      text: confirmationText,
-    })
+    const sender = new brevo.SendSmtpEmailSender()
+    sender.email = process.env.FROM_EMAIL || 'newsletter@samadvisoryhub.com'
+    sender.name = process.env.FROM_NAME || 'SamAdvisoryHub'
+
+      const toRecipients = [{}]
+      toRecipients[0].email = email
+
+    const emailData = new brevo.SendSmtpEmail()
+    emailData.sender = sender
+    emailData.to = toRecipients
+    emailData.subject = confirmationSubject
+    emailData.htmlContent = confirmationHtml
+    emailData.textContent = confirmationText
+
+    await brevoApi.sendTransacEmail(emailData)
 
   } catch (error) {
     console.error('Failed to send unsubscribe confirmation email:', error)

@@ -15,12 +15,11 @@ export default withAuth(
       '/pending',
       '/rejected',
       '/test-users',
-      '/about',
       '/blogs',
       '/videos',
       '/insights',
-      '/calendar',
       '/contact',
+      '/newsletters',
     ]
 
     if (skipConfirmationRoutes.includes(pathname)) {
@@ -62,14 +61,13 @@ export default withAuth(
         // Public routes that don't require authentication
         const publicRoutes = [
           '/',
-          '/about',
           '/blogs',
           '/videos',
           '/insights',
-          '/calendar',
           '/services',
           '/pricing',
           '/contact',
+          '/newsletters',
           '/auth/signin',
           '/auth/signup',
           '/auth/forgot-password',

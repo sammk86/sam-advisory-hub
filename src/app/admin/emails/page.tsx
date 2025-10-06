@@ -103,7 +103,7 @@ export default function EmailManagement() {
           id: '1',
           userId: 'user-1',
           type: 'WELCOME',
-          subject: 'Welcome to MentorshipHub!',
+          subject: 'Welcome to SamAdvisoryHub!',
           body: 'Thank you for joining our platform...',
           sentAt: '2024-01-20T10:30:00Z',
           status: 'DELIVERED',

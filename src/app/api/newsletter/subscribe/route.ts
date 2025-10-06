@@ -110,10 +110,10 @@ export async function POST(request: NextRequest) {
 
 async function sendWelcomeEmail(email: string, firstName?: string) {
   try {
-    const welcomeSubject = 'Welcome to MentorshipHub Newsletter! 🎉'
+    const welcomeSubject = 'Welcome to SamAdvisoryHub Newsletter! 🎉'
     const welcomeHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #2563eb; margin-bottom: 20px;">Welcome to MentorshipHub!</h1>
+        <h1 style="color: #2563eb; margin-bottom: 20px;">Welcome to SamAdvisoryHub!</h1>
         
         <p>Hi ${firstName || 'there'},</p>
         
@@ -143,13 +143,13 @@ async function sendWelcomeEmail(email: string, firstName?: string) {
         
         <p style="color: #6b7280; font-size: 14px;">
           Best regards,<br>
-          The MentorshipHub Team
+          The SamAdvisoryHub Team
         </p>
       </div>
     `
 
     const welcomeText = `
-Welcome to MentorshipHub!
+Welcome to SamAdvisoryHub!
 
 Hi ${firstName || 'there'},
 
@@ -169,7 +169,7 @@ Visit: ${process.env.NEXTAUTH_URL}/services
 If you have any questions, feel free to reach out to us at hello@mentorshiphub.com
 
 Best regards,
-The MentorshipHub Team
+The SamAdvisoryHub Team
     `
 
     await sendEmail({

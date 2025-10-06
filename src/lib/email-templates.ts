@@ -29,14 +29,14 @@ function getWelcomeTemplate(data: TemplateData): EmailTemplate {
   const platformUrl = data?.platformUrl || process.env.NEXTAUTH_URL || 'https://mentorshiphub.com'
 
   return {
-    subject: 'Welcome to MentorshipHub! Your Account is Pending Review',
+    subject: 'Welcome to SamAdvisoryHub! Your Account is Pending Review',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Welcome to MentorshipHub</title>
+        <title>Welcome to SamAdvisoryHub</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -50,12 +50,12 @@ function getWelcomeTemplate(data: TemplateData): EmailTemplate {
       <body>
         <div class="container">
           <div class="header">
-            <h1>Welcome to MentorshipHub!</h1>
+            <h1>Welcome to SamAdvisoryHub!</h1>
             <p>Your journey to professional growth starts here</p>
           </div>
           <div class="content">
             <h2>Hi ${userName},</h2>
-            <p>Thank you for joining MentorshipHub! We're excited to have you as part of our community of ambitious professionals.</p>
+            <p>Thank you for joining SamAdvisoryHub! We're excited to have you as part of our community of ambitious professionals.</p>
             
             <div style="text-align: center; margin: 30px 0;">
               <span class="status-badge">⏳ Account Under Review</span>
@@ -74,10 +74,10 @@ function getWelcomeTemplate(data: TemplateData): EmailTemplate {
             
             <p>If you have any questions, don't hesitate to reach out to our support team.</p>
             
-            <p>Best regards,<br>The MentorshipHub Team</p>
+            <p>Best regards,<br>The SamAdvisoryHub Team</p>
           </div>
           <div class="footer">
-            <p>This email was sent to you because you registered for MentorshipHub.</p>
+            <p>This email was sent to you because you registered for SamAdvisoryHub.</p>
             <p>If you didn't create an account, please ignore this email.</p>
           </div>
         </div>
@@ -85,11 +85,11 @@ function getWelcomeTemplate(data: TemplateData): EmailTemplate {
       </html>
     `,
     text: `
-Welcome to MentorshipHub!
+Welcome to SamAdvisoryHub!
 
 Hi ${userName},
 
-Thank you for joining MentorshipHub! We're excited to have you as part of our community of ambitious professionals.
+Thank you for joining SamAdvisoryHub! We're excited to have you as part of our community of ambitious professionals.
 
 ACCOUNT STATUS: Under Review
 
@@ -103,10 +103,10 @@ Explore Platform: ${platformUrl}
 If you have any questions, don't hesitate to reach out to our support team.
 
 Best regards,
-The MentorshipHub Team
+The SamAdvisoryHub Team
 
 ---
-This email was sent to you because you registered for MentorshipHub.
+This email was sent to you because you registered for SamAdvisoryHub.
 If you didn't create an account, please ignore this email.
     `,
   }
@@ -118,14 +118,14 @@ function getAccountConfirmedTemplate(data: TemplateData): EmailTemplate {
   const confirmationDate = data?.confirmationDate || new Date().toLocaleDateString()
 
   return {
-    subject: '🎉 Your MentorshipHub Account is Confirmed!',
+    subject: '🎉 Your SamAdvisoryHub Account is Confirmed!',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Account Confirmed - MentorshipHub</title>
+        <title>Account Confirmed - SamAdvisoryHub</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -140,11 +140,11 @@ function getAccountConfirmedTemplate(data: TemplateData): EmailTemplate {
         <div class="container">
           <div class="header">
             <h1>🎉 Congratulations!</h1>
-            <p>Your MentorshipHub account has been approved</p>
+            <p>Your SamAdvisoryHub account has been approved</p>
           </div>
           <div class="content">
             <h2>Hi ${userName},</h2>
-            <p>Great news! Your MentorshipHub account has been confirmed and you now have full access to our platform.</p>
+            <p>Great news! Your SamAdvisoryHub account has been confirmed and you now have full access to our platform.</p>
             
             <div style="text-align: center; margin: 30px 0;">
               <span class="success-badge">✅ Account Confirmed</span>
@@ -156,12 +156,12 @@ function getAccountConfirmedTemplate(data: TemplateData): EmailTemplate {
               <a href="${platformUrl}/dashboard" class="button">Access Your Dashboard</a>
             </div>
             
-            <p>Welcome to the MentorshipHub community! We're excited to support your professional growth.</p>
+            <p>Welcome to the SamAdvisoryHub community! We're excited to support your professional growth.</p>
             
-            <p>Best regards,<br>The MentorshipHub Team</p>
+            <p>Best regards,<br>The SamAdvisoryHub Team</p>
           </div>
           <div class="footer">
-            <p>This email was sent to you because your MentorshipHub account was confirmed.</p>
+            <p>This email was sent to you because your SamAdvisoryHub account was confirmed.</p>
             <p>If you have any questions, contact us at ${data?.supportEmail || 'support@mentorshiphub.com'}</p>
           </div>
         </div>
@@ -169,24 +169,24 @@ function getAccountConfirmedTemplate(data: TemplateData): EmailTemplate {
       </html>
     `,
     text: `
-🎉 Congratulations! Your MentorshipHub Account is Confirmed!
+🎉 Congratulations! Your SamAdvisoryHub Account is Confirmed!
 
 Hi ${userName},
 
-Great news! Your MentorshipHub account has been confirmed and you now have full access to our platform.
+Great news! Your SamAdvisoryHub account has been confirmed and you now have full access to our platform.
 
 ACCOUNT STATUS: ✅ Confirmed
 Confirmed on: ${confirmationDate}
 
 Access Your Dashboard: ${platformUrl}/dashboard
 
-Welcome to the MentorshipHub community! We're excited to support your professional growth.
+Welcome to the SamAdvisoryHub community! We're excited to support your professional growth.
 
 Best regards,
-The MentorshipHub Team
+The SamAdvisoryHub Team
 
 ---
-This email was sent to you because your MentorshipHub account was confirmed.
+This email was sent to you because your SamAdvisoryHub account was confirmed.
 If you have any questions, contact us at ${data?.supportEmail || 'support@mentorshiphub.com'}
     `,
   }
@@ -199,14 +199,14 @@ function getAccountRejectedTemplate(data: TemplateData): EmailTemplate {
   const platformUrl = data?.platformUrl || process.env.NEXTAUTH_URL || 'https://mentorshiphub.com'
 
   return {
-    subject: 'Important: Your MentorshipHub Account Status',
+    subject: 'Important: Your SamAdvisoryHub Account Status',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Account Status - MentorshipHub</title>
+        <title>Account Status - SamAdvisoryHub</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -225,7 +225,7 @@ function getAccountRejectedTemplate(data: TemplateData): EmailTemplate {
           </div>
           <div class="content">
             <h2>Hi ${userName},</h2>
-            <p>We appreciate your interest in MentorshipHub. After careful review, we're unable to approve your application at this time.</p>
+            <p>We appreciate your interest in SamAdvisoryHub. After careful review, we're unable to approve your application at this time.</p>
             
             <div style="text-align: center; margin: 30px 0;">
               <span class="rejection-badge">❌ Application Not Approved</span>
@@ -237,15 +237,15 @@ function getAccountRejectedTemplate(data: TemplateData): EmailTemplate {
             <p>This decision is not permanent. We encourage you to reapply in the future.</p>
             
             <div style="text-align: center;">
-              <a href="${platformUrl}" class="button">Learn More About MentorshipHub</a>
+              <a href="${platformUrl}" class="button">Learn More About SamAdvisoryHub</a>
             </div>
             
             <p>If you have any questions about this decision, please contact our support team.</p>
             
-            <p>Best regards,<br>The MentorshipHub Team</p>
+            <p>Best regards,<br>The SamAdvisoryHub Team</p>
           </div>
           <div class="footer">
-            <p>This email was sent to you because your MentorshipHub application was reviewed.</p>
+            <p>This email was sent to you because your SamAdvisoryHub application was reviewed.</p>
             <p>Questions? Contact us at ${supportEmail}</p>
           </div>
         </div>
@@ -253,11 +253,11 @@ function getAccountRejectedTemplate(data: TemplateData): EmailTemplate {
       </html>
     `,
     text: `
-Important: Your MentorshipHub Account Status
+Important: Your SamAdvisoryHub Account Status
 
 Hi ${userName},
 
-We appreciate your interest in MentorshipHub. After careful review, we're unable to approve your application at this time.
+We appreciate your interest in SamAdvisoryHub. After careful review, we're unable to approve your application at this time.
 
 ACCOUNT STATUS: ❌ Application Not Approved
 
@@ -271,10 +271,10 @@ Learn More: ${platformUrl}
 If you have any questions about this decision, please contact our support team.
 
 Best regards,
-The MentorshipHub Team
+The SamAdvisoryHub Team
 
 ---
-This email was sent to you because your MentorshipHub application was reviewed.
+This email was sent to you because your SamAdvisoryHub application was reviewed.
 Questions? Contact us at ${supportEmail}
     `,
   }
@@ -285,14 +285,14 @@ function getPasswordResetTemplate(data: TemplateData): EmailTemplate {
   const resetUrl = data?.resetUrl || '#'
 
   return {
-    subject: 'Reset Your MentorshipHub Password',
+    subject: 'Reset Your SamAdvisoryHub Password',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Password Reset - MentorshipHub</title>
+        <title>Password Reset - SamAdvisoryHub</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -310,7 +310,7 @@ function getPasswordResetTemplate(data: TemplateData): EmailTemplate {
           </div>
           <div class="content">
             <h2>Hi ${userName},</h2>
-            <p>We received a request to reset your MentorshipHub password. If you made this request, click the button below to create a new password.</p>
+            <p>We received a request to reset your SamAdvisoryHub password. If you made this request, click the button below to create a new password.</p>
             
             <div style="text-align: center;">
               <a href="${resetUrl}" class="button">Reset Password</a>
@@ -321,7 +321,7 @@ function getPasswordResetTemplate(data: TemplateData): EmailTemplate {
             
             <p>If you have any questions or need assistance, please contact our support team.</p>
             
-            <p>Best regards,<br>The MentorshipHub Team</p>
+            <p>Best regards,<br>The SamAdvisoryHub Team</p>
           </div>
           <div class="footer">
             <p>This email was sent because a password reset was requested for your account.</p>
@@ -332,11 +332,11 @@ function getPasswordResetTemplate(data: TemplateData): EmailTemplate {
       </html>
     `,
     text: `
-Password Reset Request - MentorshipHub
+Password Reset Request - SamAdvisoryHub
 
 Hi ${userName},
 
-We received a request to reset your MentorshipHub password. If you made this request, click the link below to create a new password.
+We received a request to reset your SamAdvisoryHub password. If you made this request, click the link below to create a new password.
 
 Reset Password: ${resetUrl}
 
@@ -346,7 +346,7 @@ ${resetUrl}
 If you have any questions or need assistance, please contact our support team.
 
 Best regards,
-The MentorshipHub Team
+The SamAdvisoryHub Team
 
 ---
 This email was sent because a password reset was requested for your account.
@@ -369,7 +369,7 @@ function getMeetingReminderTemplate(data: TemplateData): EmailTemplate {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Meeting Reminder - MentorshipHub</title>
+        <title>Meeting Reminder - SamAdvisoryHub</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -399,7 +399,7 @@ function getMeetingReminderTemplate(data: TemplateData): EmailTemplate {
             
             <p>If you need to reschedule or have any questions, please contact your mentor or our support team.</p>
             
-            <p>Best regards,<br>The MentorshipHub Team</p>
+            <p>Best regards,<br>The SamAdvisoryHub Team</p>
           </div>
           <div class="footer">
             <p>This email was sent as a reminder for your upcoming mentorship session.</p>
@@ -410,7 +410,7 @@ function getMeetingReminderTemplate(data: TemplateData): EmailTemplate {
       </html>
     `,
     text: `
-📅 Meeting Reminder - MentorshipHub
+📅 Meeting Reminder - SamAdvisoryHub
 
 Hi ${userName},
 
@@ -425,7 +425,7 @@ Join Meeting: ${meetingLink}
 If you need to reschedule or have any questions, please contact your mentor or our support team.
 
 Best regards,
-The MentorshipHub Team
+The SamAdvisoryHub Team
 
 ---
 This email was sent as a reminder for your upcoming mentorship session.
@@ -435,8 +435,8 @@ If you need to reschedule, please contact your mentor or support team.
 }
 
 function getCustomTemplate(data: TemplateData): EmailTemplate {
-  const subject = data?.subject || 'Message from MentorshipHub'
-  const content = data?.content || 'This is a custom message from MentorshipHub.'
+  const subject = data?.subject || 'Message from SamAdvisoryHub'
+  const content = data?.content || 'This is a custom message from SamAdvisoryHub.'
 
   return {
     subject,
@@ -458,14 +458,14 @@ function getCustomTemplate(data: TemplateData): EmailTemplate {
       <body>
         <div class="container">
           <div class="header">
-            <h1>MentorshipHub</h1>
+            <h1>SamAdvisoryHub</h1>
           </div>
           <div class="content">
             ${content}
-            <p>Best regards,<br>The MentorshipHub Team</p>
+            <p>Best regards,<br>The SamAdvisoryHub Team</p>
           </div>
           <div class="footer">
-            <p>This email was sent from MentorshipHub.</p>
+            <p>This email was sent from SamAdvisoryHub.</p>
           </div>
         </div>
       </body>
@@ -477,24 +477,24 @@ ${subject}
 ${content}
 
 Best regards,
-The MentorshipHub Team
+The SamAdvisoryHub Team
 
 ---
-This email was sent from MentorshipHub.
+This email was sent from SamAdvisoryHub.
     `,
   }
 }
 
 function getDefaultTemplate(data: TemplateData): EmailTemplate {
   return {
-    subject: 'Message from MentorshipHub',
+    subject: 'Message from SamAdvisoryHub',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MentorshipHub</title>
+        <title>SamAdvisoryHub</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -506,29 +506,29 @@ function getDefaultTemplate(data: TemplateData): EmailTemplate {
       <body>
         <div class="container">
           <div class="header">
-            <h1>MentorshipHub</h1>
+            <h1>SamAdvisoryHub</h1>
           </div>
           <div class="content">
-            <p>This is a message from MentorshipHub.</p>
-            <p>Best regards,<br>The MentorshipHub Team</p>
+            <p>This is a message from SamAdvisoryHub.</p>
+            <p>Best regards,<br>The SamAdvisoryHub Team</p>
           </div>
           <div class="footer">
-            <p>This email was sent from MentorshipHub.</p>
+            <p>This email was sent from SamAdvisoryHub.</p>
           </div>
         </div>
       </body>
       </html>
     `,
     text: `
-MentorshipHub
+SamAdvisoryHub
 
-This is a message from MentorshipHub.
+This is a message from SamAdvisoryHub.
 
 Best regards,
-The MentorshipHub Team
+The SamAdvisoryHub Team
 
 ---
-This email was sent from MentorshipHub.
+This email was sent from SamAdvisoryHub.
     `,
   }
 }

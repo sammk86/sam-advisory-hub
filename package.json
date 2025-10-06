@@ -32,6 +32,7 @@
   "homepage": "https://github.com/sammk86/sam-mokhtari-mentorship#readme",
   "description": "",
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.0.18",
     "@hookform/resolvers": "^5.2.2",
@@ -71,7 +72,6 @@
     "react-syntax-highlighter": "^15.6.6",
     "react-type-animation": "^3.1.0",
     "remark-gfm": "^4.0.0",
-    "resend": "^6.1.2",
     "stripe": "^19.0.0",
     "tailwind-merge": "^3.3.1",
     "typescript": "^5.9.3",

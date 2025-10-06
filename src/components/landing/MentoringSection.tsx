@@ -10,25 +10,41 @@ const MentoringSection = () => {
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-foreground">Mentoring & Services</h2>
           <Link 
-            href="/register"
+            href="/auth/signup"
             className="text-primary hover:text-primary/80 transition-colors"
           >
             Get Started
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="bg-card rounded-lg border border-border hover:border-primary transition-all p-6">
             <h3 className="text-xl font-semibold text-card-foreground mb-4">1:1 Mentoring Sessions</h3>
             <p className="text-muted-foreground mb-6">
               Get personalized guidance in Data & AI architecture, career growth, and technical leadership through structured 1:1 mentoring sessions tailored to your goals.
             </p>
             <Link
-              href="/register"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gradient-to-br from-primary to-accent-foreground hover:bg-slate-200 text-primary-foreground transition-all duration-200 gap-2 w-full hover:opacity-90"
+              href="/auth/signup"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gradient-magenta-cyan hover:opacity-90 text-white transition-all duration-200 gap-2 w-full"
             >
               <span>Start Mentorship</span>
             </Link>
+          </div>
+
+          <div className="bg-card rounded-lg border border-border hover:border-primary transition-all p-6">
+            <h3 className="text-xl font-semibold text-card-foreground mb-4">MentorCruise Profile</h3>
+            <p className="text-muted-foreground mb-6">
+              Join my mentorship program on MentorCruise with 5.0 rating from 10+ reviews. Flexible plans starting at $240/month with 7-day free trial.
+            </p>
+            <a
+              href="https://mentorcruise.com/mentor/sammokhtari/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-secondary hover:bg-secondary/90 text-white transition-all duration-200 gap-2 w-full"
+            >
+              <span>View on MentorCruise</span>
+              <FaExternalLinkAlt className="w-4 h-4" />
+            </a>
           </div>
 
           <div className="bg-card rounded-lg border border-border hover:border-primary transition-all p-6">
@@ -36,13 +52,12 @@ const MentoringSection = () => {
             <p className="text-muted-foreground mb-6">
               Comprehensive data & AI strategy consulting for organizations looking to transform their business through advanced analytics and AI solutions.
             </p>
-            <a
-              href="mailto:sam.mokhtari87@gmail.com"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gradient-to-br from-primary to-accent-foreground hover:bg-slate-200 text-primary-foreground transition-all duration-200 gap-2 w-full hover:opacity-90"
+            <Link
+              href="/auth/signup"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gradient-magenta-cyan hover:opacity-90 text-white transition-all duration-200 gap-2 w-full"
             >
-              <span>Contact for Consulting</span>
-              <FaExternalLinkAlt className="w-4 h-4" />
-            </a>
+              <span>Sign Up for Consulting</span>
+            </Link>
           </div>
         </div>
 

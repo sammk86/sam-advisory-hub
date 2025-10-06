@@ -179,7 +179,8 @@ export default function CampaignsPage() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to delete campaign')
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to delete campaign')
       }
 
       // Refresh campaigns list
@@ -541,6 +542,16 @@ export default function CampaignsPage() {
                   <p className="text-sm text-gray-500">
                     Are you sure you want to delete "{selectedCampaign.title}"? This action cannot be undone.
                   </p>
+                  {selectedCampaign.status === 'SENT' && (
+                    <p className="text-sm text-amber-600 mt-2">
+                      ⚠️ This campaign has been sent. Deleting it will remove all tracking data and analytics.
+                    </p>
+                  )}
+                  {selectedCampaign.status === 'SENDING' && (
+                    <p className="text-sm text-red-600 mt-2">
+                      ⚠️ This campaign is currently sending. Deleting it may interrupt the sending process.
+                    </p>
+                  )}
                 </div>
               </div>
               
@@ -555,7 +566,7 @@ export default function CampaignsPage() {
                 <button
                   onClick={confirmDeleteCampaign}
                   disabled={actionLoading}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {actionLoading ? 'Deleting...' : 'Delete'}
                 </button>

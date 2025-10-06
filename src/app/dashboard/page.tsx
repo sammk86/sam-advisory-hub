@@ -151,13 +151,13 @@ export default function DashboardPage() {
   if (isNewRegistration) {
     return (
       <DashboardLayout
-        title="Welcome to MentorshipHub!"
+        title="Welcome to SamAdvisoryHub!"
         description="Your enrollment has been successfully created"
       >
         <div className="text-center py-8">
           <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome to MentorshipHub!
+            Welcome to SamAdvisoryHub!
           </h1>
           <p className="text-xl text-gray-600 mb-6">
             Your enrollment has been successfully created and payment processed.

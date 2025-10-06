@@ -86,7 +86,7 @@ const VideoCard: React.FC<{ video: Video }> = ({ video }) => {
             href={`https://youtube.com/watch?v=${video.id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white transition-all duration-200 gap-2 w-full hover:opacity-90"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-secondary hover:bg-secondary/90 text-white transition-all duration-200 gap-2 w-full"
           >
             <FaYoutube className="w-5 h-5" />
             <span>Watch on YouTube</span>
@@ -219,7 +219,7 @@ const VideoSection = () => {
               href="https://www.youtube.com/@aiiwisdom"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors"
+                     className="inline-flex items-center gap-2 px-6 py-3 bg-secondary hover:bg-secondary/90 text-white rounded-full transition-colors"
             >
               <FaYoutube className="w-5 h-5" />
               <span>Visit YouTube Channel</span>

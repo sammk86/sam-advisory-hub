@@ -26,7 +26,7 @@ const HeroSection = () => {
       <div className="grid grid-cols-1 sm:grid-cols-12 gap-10">
         <div className="col-span-7 place-self-center text-center sm:text-left justify-self-start">
           <h1 className="text-foreground mb-4 text-4xl sm:text-5xl lg:text-8xl lg:leading-normal font-extrabold">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent-foreground">
+            <span className="text-gradient-magenta-cyan">
               Hello, I&apos;m{" "}
             </span>
             <br></br>
@@ -84,7 +84,7 @@ const HeroSection = () => {
                 className="w-full h-full"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent-foreground/20 rounded-lg flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-magenta-cyan opacity-20 rounded-lg flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-20 h-20 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center">
                     <span className="text-2xl font-bold text-primary-foreground">SM</span>

@@ -19,12 +19,10 @@ export default function Header() {
   }, [])
 
   const navigation = [
-    { name: 'About', href: '/about' },
-    { name: 'Insights', href: '/insights' },
-    { name: 'Services', href: '#services' },
+    { name: 'Services', href: '/services' },
     { name: 'Blogs', href: '/blogs' },
     { name: 'Videos', href: '/videos' },
-    { name: 'Calendar', href: '/calendar' },
+    { name: 'Newsletters', href: '/newsletters' },
     { name: 'Contact', href: '/contact' },
   ]
 
@@ -41,7 +39,7 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-magenta-cyan rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-base sm:text-lg">SM</span>
               </div>
               <span className="text-lg sm:text-xl font-bold text-foreground">Dr. Sam Mokhtari</span>

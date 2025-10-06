@@ -183,20 +183,20 @@ export default function CreateCampaignPage() {
         <div className="flex items-center space-x-4">
           <button
             onClick={() => router.back()}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Create Newsletter Campaign</h1>
-            <p className="text-gray-600">Create and send newsletters to your subscribers</p>
+            <h1 className="text-2xl font-bold text-foreground">Create Newsletter Campaign</h1>
+            <p className="text-muted-foreground">Create and send newsletters to your subscribers</p>
           </div>
         </div>
         
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setPreviewMode(!previewMode)}
-            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="flex items-center px-4 py-2 text-sm font-medium text-card-foreground bg-card border border-border rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             <Eye className="w-4 h-4 mr-2" />
             {previewMode ? 'Edit' : 'Preview'}
@@ -235,7 +235,7 @@ export default function CreateCampaignPage() {
               <div className="space-y-6">
                 {/* Campaign Title */}
                 <div>
-                  <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="title" className="block text-sm font-medium text-card-foreground">
                     Campaign Title
                   </label>
                   <input
@@ -243,14 +243,14 @@ export default function CreateCampaignPage() {
                     id="title"
                     value={formData.title}
                     onChange={(e) => handleInputChange('title', e.target.value)}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full border-border bg-input text-foreground rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
                     placeholder="Enter campaign title"
                   />
                 </div>
 
                 {/* Email Subject */}
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="subject" className="block text-sm font-medium text-card-foreground">
                     Email Subject
                   </label>
                   <input
@@ -258,19 +258,19 @@ export default function CreateCampaignPage() {
                     id="subject"
                     value={formData.subject}
                     onChange={(e) => handleInputChange('subject', e.target.value)}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full border-border bg-input text-foreground rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
                     placeholder="Enter email subject line"
                   />
                 </div>
 
                 {/* Content */}
                 <div>
-                  <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="content" className="block text-sm font-medium text-card-foreground">
                     Newsletter Content
                   </label>
                   {previewMode ? (
                     <div 
-                      className="mt-1 block w-full min-h-96 p-4 border border-gray-300 rounded-md bg-gray-50"
+                      className="mt-1 block w-full min-h-96 p-4 border border-border rounded-md bg-muted text-foreground"
                       dangerouslySetInnerHTML={{ __html: formData.content }}
                     />
                   ) : (
@@ -279,18 +279,18 @@ export default function CreateCampaignPage() {
                       rows={12}
                       value={formData.content}
                       onChange={(e) => handleContentChange(e.target.value)}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className="mt-1 block w-full border-border bg-input text-foreground rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
                       placeholder="Enter your newsletter content (HTML supported)"
                     />
                   )}
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     You can use HTML tags for formatting. The text version will be generated automatically.
                   </p>
                 </div>
 
                 {/* Scheduled Date */}
                 <div>
-                  <label htmlFor="scheduledAt" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="scheduledAt" className="block text-sm font-medium text-card-foreground">
                     Schedule Campaign (Optional)
                   </label>
                   <input
@@ -298,9 +298,9 @@ export default function CreateCampaignPage() {
                     id="scheduledAt"
                     value={formData.scheduledAt}
                     onChange={(e) => handleInputChange('scheduledAt', e.target.value)}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full border-border bg-input text-foreground rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
                   />
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     Leave empty to send immediately or save as draft
                   </p>
                 </div>
@@ -312,25 +312,25 @@ export default function CreateCampaignPage() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Campaign Stats */}
-          <div className="bg-white shadow rounded-lg">
+          <div className="bg-card shadow rounded-lg border border-border">
             <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Campaign Info</h3>
+              <h3 className="text-lg font-medium text-card-foreground mb-4">Campaign Info</h3>
               <div className="space-y-3">
                 <div className="flex items-center text-sm">
-                  <Mail className="w-4 h-4 text-gray-400 mr-2" />
-                  <span className="text-gray-600">Subject:</span>
-                  <span className="ml-2 font-medium">{formData.subject || 'Not set'}</span>
+                  <Mail className="w-4 h-4 text-muted-foreground mr-2" />
+                  <span className="text-muted-foreground">Subject:</span>
+                  <span className="ml-2 font-medium text-card-foreground">{formData.subject || 'Not set'}</span>
                 </div>
                 <div className="flex items-center text-sm">
-                  <Users className="w-4 h-4 text-gray-400 mr-2" />
-                  <span className="text-gray-600">Active Subscribers:</span>
-                  <span className="ml-2 font-medium">Loading...</span>
+                  <Users className="w-4 h-4 text-muted-foreground mr-2" />
+                  <span className="text-muted-foreground">Active Subscribers:</span>
+                  <span className="ml-2 font-medium text-card-foreground">Loading...</span>
                 </div>
                 {formData.scheduledAt && (
                   <div className="flex items-center text-sm">
-                    <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                    <span className="text-gray-600">Scheduled:</span>
-                    <span className="ml-2 font-medium">
+                    <Calendar className="w-4 h-4 text-muted-foreground mr-2" />
+                    <span className="text-muted-foreground">Scheduled:</span>
+                    <span className="ml-2 font-medium text-card-foreground">
                       {new Date(formData.scheduledAt).toLocaleString()}
                     </span>
                   </div>
@@ -340,14 +340,14 @@ export default function CreateCampaignPage() {
           </div>
 
           {/* Actions */}
-          <div className="bg-white shadow rounded-lg">
+          <div className="bg-card shadow rounded-lg border border-border">
             <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Actions</h3>
+              <h3 className="text-lg font-medium text-card-foreground mb-4">Actions</h3>
               <div className="space-y-3">
                 <button
                   onClick={handleSaveDraft}
                   disabled={loading || !formData.title || !formData.subject || !formData.content}
-                  className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center px-4 py-2 border border-border text-sm font-medium rounded-md text-card-foreground bg-card hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Save className="w-4 h-4 mr-2" />
                   Save as Draft
@@ -356,7 +356,7 @@ export default function CreateCampaignPage() {
                 <button
                   onClick={handleSendNow}
                   disabled={loading || !formData.title || !formData.subject || !formData.content}
-                  className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   Send Now
@@ -366,7 +366,7 @@ export default function CreateCampaignPage() {
                   <button
                     onClick={handleSchedule}
                     disabled={loading || !formData.title || !formData.subject || !formData.content}
-                    className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-secondary-foreground bg-secondary hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Calendar className="w-4 h-4 mr-2" />
                     Schedule

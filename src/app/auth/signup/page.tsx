@@ -127,7 +127,7 @@ export default function SignupPage() {
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xl">M</span>
             </div>
-            <span className="ml-2 text-2xl font-bold text-gray-900">MentorshipHub</span>
+            <span className="ml-2 text-2xl font-bold text-gray-900">SamAdvisoryHub</span>
           </div>
         </Link>
         

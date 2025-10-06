@@ -54,7 +54,7 @@ export default function MobileNav({ navigation }: MobileNavProps) {
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-lg">M</span>
                 </div>
-                <span className="ml-2 text-xl font-bold text-gray-900">MentorshipHub</span>
+                <span className="ml-2 text-xl font-bold text-gray-900">SamAdvisoryHub</span>
               </div>
               
               <nav className="mt-5 px-2 space-y-1">

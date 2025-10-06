@@ -32,13 +32,8 @@ export async function DELETE(
       }, { status: 404 })
     }
 
-    // Prevent deletion of sent campaigns
-    if (campaign.status === 'SENT' || campaign.status === 'SENDING') {
-      return NextResponse.json({
-        success: false,
-        message: 'Cannot delete sent or sending campaigns',
-      }, { status: 400 })
-    }
+    // Allow deletion of campaigns at any stage
+    // No restrictions on campaign deletion
 
     // Delete the campaign (this will cascade delete related email tracking records)
     await prisma.newsletterCampaign.delete({

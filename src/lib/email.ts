@@ -1,8 +1,9 @@
-import { Resend } from 'resend'
+import * as brevo from '@getbrevo/brevo'
 import { prisma } from '@/lib/prisma'
 import { EmailType, EmailStatus } from '@prisma/client'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const brevoApi = new brevo.TransactionalEmailsApi()
+brevoApi.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY || '')
 
 export interface EmailData {
   to: string
@@ -22,34 +23,37 @@ export interface EmailTemplate {
 export async function sendEmail(data: EmailData): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     // Validate required environment variables
-    if (!process.env.RESEND_API_KEY) {
-      throw new Error('RESEND_API_KEY is not configured')
+    if (!process.env.BREVO_API_KEY) {
+      throw new Error('BREVO_API_KEY is not configured')
     }
 
     if (!process.env.FROM_EMAIL) {
-      console.warn('FROM_EMAIL is not configured, using Resend default domain')
+      throw new Error('FROM_EMAIL is not configured')
     }
 
-    // Send email via Resend
-    const result = await resend.emails.send({
-      from: process.env.FROM_EMAIL || 'onboarding@resend.dev', // Fallback to Resend's default domain
-      to: data.to,
-      subject: data.subject,
-      html: data.html,
-      text: data.text,
-    })
+    // Prepare Brevo email data
+    const sender = new brevo.SendSmtpEmailSender()
+    sender.email = process.env.FROM_EMAIL
+    sender.name = process.env.FROM_NAME || 'SamAdvisoryHub'
 
-    if (result.error) {
-      throw new Error(`Resend error: ${result.error.message}`)
-    }
+          const toRecipients = [{}]
+          toRecipients[0].email = data.to
+
+    const emailData = new brevo.SendSmtpEmail()
+    emailData.sender = sender
+    emailData.to = toRecipients
+    emailData.subject = data.subject
+    emailData.htmlContent = data.html
+    emailData.textContent = data.text
+
+    // Send email via Brevo
+    const result = await brevoApi.sendTransacEmail(emailData)
 
     // Log email in database
     await prisma.emailNotification.create({
       data: {
         userId: data.userId,
         type: data.type,
-        subject: data.subject,
-        body: data.text,
         status: EmailStatus.SENT,
         sentAt: new Date(),
       },
@@ -57,7 +61,7 @@ export async function sendEmail(data: EmailData): Promise<{ success: boolean; me
 
     return {
       success: true,
-      messageId: result.data?.id,
+      messageId: result.messageId,
     }
   } catch (error) {
     console.error('Email sending failed:', error)
@@ -67,8 +71,6 @@ export async function sendEmail(data: EmailData): Promise<{ success: boolean; me
       data: {
         userId: data.userId,
         type: data.type,
-        subject: data.subject,
-        body: data.text,
         status: EmailStatus.BOUNCED,
         sentAt: new Date(),
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
@@ -253,29 +255,33 @@ export async function getEmailStats(): Promise<{
 export async function validateEmailConfig(): Promise<{ valid: boolean; errors: string[] }> {
   const errors: string[] = []
 
-  if (!process.env.RESEND_API_KEY) {
-    errors.push('RESEND_API_KEY is not configured')
+  if (!process.env.BREVO_API_KEY) {
+    errors.push('BREVO_API_KEY is not configured')
   }
 
   if (!process.env.FROM_EMAIL) {
-    console.warn('FROM_EMAIL is not configured, using Resend default domain')
+    errors.push('FROM_EMAIL is not configured')
   }
 
   if (!process.env.SUPPORT_EMAIL) {
     errors.push('SUPPORT_EMAIL is not configured')
   }
 
-  // Test Resend connection
-  if (process.env.RESEND_API_KEY) {
+  // Test Brevo connection
+  if (process.env.BREVO_API_KEY) {
     try {
-      // This would be a simple API call to test the connection
-      // For now, we'll just check if the key is present
-      const keyLength = process.env.RESEND_API_KEY.length
+      // Test the API key by making a simple API call
+      const keyLength = process.env.BREVO_API_KEY.length
       if (keyLength < 10) {
-        errors.push('RESEND_API_KEY appears to be invalid (too short)')
+        errors.push('BREVO_API_KEY appears to be invalid (too short)')
       }
+      
+      // Try to get account info to validate the key
+      const accountApi = new brevo.AccountApi()
+      accountApi.setApiKey(brevo.AccountApiApiKeys.apiKey, process.env.BREVO_API_KEY)
+      await accountApi.getAccount()
     } catch (error) {
-      errors.push(`Resend connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      errors.push(`Brevo connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -296,26 +302,31 @@ export async function sendNewsletterEmail(
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     // Validate required environment variables
-    if (!process.env.RESEND_API_KEY) {
-      throw new Error('RESEND_API_KEY is not configured')
+    if (!process.env.BREVO_API_KEY) {
+      throw new Error('BREVO_API_KEY is not configured')
     }
 
     if (!process.env.FROM_EMAIL) {
-      console.warn('FROM_EMAIL is not configured, using Resend default domain')
+      throw new Error('FROM_EMAIL is not configured')
     }
 
-    // Send email via Resend
-    const result = await resend.emails.send({
-      from: process.env.FROM_EMAIL || 'onboarding@resend.dev', // Fallback to Resend's default domain
-      to: email,
-      subject: subject,
-      html: htmlContent,
-      text: textContent,
-    })
+    // Prepare Brevo email data
+    const sender = new brevo.SendSmtpEmailSender()
+    sender.email = process.env.FROM_EMAIL
+    sender.name = process.env.FROM_NAME || 'SamAdvisoryHub'
 
-    if (result.error) {
-      throw new Error(`Resend error: ${result.error.message}`)
-    }
+    const toRecipients = [{}]
+    toRecipients[0].email = email
+
+    const emailData = new brevo.SendSmtpEmail()
+    emailData.sender = sender
+    emailData.to = toRecipients
+    emailData.subject = subject
+    emailData.htmlContent = htmlContent
+    emailData.textContent = textContent
+
+    // Send email via Brevo
+    const result = await brevoApi.sendTransacEmail(emailData)
 
     // Create email tracking record
     await prisma.emailTracking.create({
@@ -323,7 +334,7 @@ export async function sendNewsletterEmail(
         campaignId,
         subscriberId,
         email,
-        messageId: result.data?.id,
+        messageId: result.messageId,
         status: 'SENT',
       },
     })
@@ -340,7 +351,7 @@ export async function sendNewsletterEmail(
 
     return {
       success: true,
-      messageId: result.data?.id,
+      messageId: result.messageId,
     }
   } catch (error) {
     console.error('Newsletter email sending failed:', error)

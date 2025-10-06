@@ -60,7 +60,7 @@ export default function RejectedPage() {
             Application Not Approved
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            We appreciate your interest in MentorshipHub, but we're unable to approve your application at this time.
+            We appreciate your interest in SamAdvisoryHub, but we're unable to approve your application at this time.
           </p>
         </div>
 

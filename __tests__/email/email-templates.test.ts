@@ -16,11 +16,11 @@ describe('Email Templates Tests', () => {
     it('should return welcome template', () => {
       const template = getEmailTemplate('WELCOME', mockData)
 
-      expect(template.subject).toBe('Welcome to MentorshipHub! Your Account is Pending Review')
-      expect(template.html).toContain('Welcome to MentorshipHub!')
+      expect(template.subject).toBe('Welcome to SamAdvisoryHub! Your Account is Pending Review')
+      expect(template.html).toContain('Welcome to SamAdvisoryHub!')
       expect(template.html).toContain('John Doe')
       expect(template.html).toContain('Account Under Review')
-      expect(template.text).toContain('Welcome to MentorshipHub!')
+      expect(template.text).toContain('Welcome to SamAdvisoryHub!')
       expect(template.text).toContain('John Doe')
       expect(template.text).toContain('Under Review')
     })
@@ -28,7 +28,7 @@ describe('Email Templates Tests', () => {
     it('should return account confirmed template', () => {
       const template = getEmailTemplate('ACCOUNT_CONFIRMED', mockData)
 
-      expect(template.subject).toBe('🎉 Your MentorshipHub Account is Confirmed!')
+      expect(template.subject).toBe('🎉 Your SamAdvisoryHub Account is Confirmed!')
       expect(template.html).toContain('Congratulations!')
       expect(template.html).toContain('John Doe')
       expect(template.html).toContain('Account Confirmed')
@@ -41,7 +41,7 @@ describe('Email Templates Tests', () => {
     it('should return account rejected template', () => {
       const template = getEmailTemplate('ACCOUNT_REJECTED', mockData)
 
-      expect(template.subject).toBe('Important: Your MentorshipHub Account Status')
+      expect(template.subject).toBe('Important: Your SamAdvisoryHub Account Status')
       expect(template.html).toContain('Account Status Update')
       expect(template.html).toContain('John Doe')
       expect(template.html).toContain('Application Not Approved')
@@ -57,7 +57,7 @@ describe('Email Templates Tests', () => {
         resetUrl: 'https://mentorshiphub.com/reset?token=abc123',
       })
 
-      expect(template.subject).toBe('Reset Your MentorshipHub Password')
+      expect(template.subject).toBe('Reset Your SamAdvisoryHub Password')
       expect(template.html).toContain('Password Reset Request')
       expect(template.html).toContain('John Doe')
       expect(template.html).toContain('https://mentorshiphub.com/reset?token=abc123')
@@ -100,9 +100,9 @@ describe('Email Templates Tests', () => {
     it('should return default template for unknown type', () => {
       const template = getEmailTemplate('UNKNOWN_TYPE', mockData)
 
-      expect(template.subject).toBe('Message from MentorshipHub')
-      expect(template.html).toContain('This is a message from MentorshipHub.')
-      expect(template.text).toContain('This is a message from MentorshipHub.')
+      expect(template.subject).toBe('Message from SamAdvisoryHub')
+      expect(template.html).toContain('This is a message from SamAdvisoryHub.')
+      expect(template.text).toContain('This is a message from SamAdvisoryHub.')
     })
   })
 
@@ -180,7 +180,7 @@ describe('Email Templates Tests', () => {
     it('should include proper email footer', () => {
       const template = getEmailTemplate('WELCOME', mockData)
 
-      expect(template.html).toContain('This email was sent to you because you registered for MentorshipHub.')
+      expect(template.html).toContain('This email was sent to you because you registered for SamAdvisoryHub.')
       expect(template.html).toContain('If you didn\'t create an account, please ignore this email.')
     })
   })
@@ -227,11 +227,11 @@ describe('Email Templates Tests', () => {
   })
 
   describe('Template Branding', () => {
-    it('should include MentorshipHub branding', () => {
+    it('should include SamAdvisoryHub branding', () => {
       const template = getEmailTemplate('WELCOME', mockData)
 
-      expect(template.html).toContain('MentorshipHub')
-      expect(template.text).toContain('MentorshipHub')
+      expect(template.html).toContain('SamAdvisoryHub')
+      expect(template.text).toContain('SamAdvisoryHub')
     })
 
     it('should include consistent color scheme', () => {
@@ -253,7 +253,7 @@ describe('Email Templates Tests', () => {
     it('should handle empty data object', () => {
       const template = getEmailTemplate('WELCOME', {})
 
-      expect(template.subject).toBe('Welcome to MentorshipHub! Your Account is Pending Review')
+      expect(template.subject).toBe('Welcome to SamAdvisoryHub! Your Account is Pending Review')
       expect(template.html).toContain('Hi there,')
       expect(template.text).toContain('Hi there,')
     })
@@ -261,7 +261,7 @@ describe('Email Templates Tests', () => {
     it('should handle null data', () => {
       const template = getEmailTemplate('WELCOME', null as any)
 
-      expect(template.subject).toBe('Welcome to MentorshipHub! Your Account is Pending Review')
+      expect(template.subject).toBe('Welcome to SamAdvisoryHub! Your Account is Pending Review')
       expect(template.html).toContain('Hi there,')
       expect(template.text).toContain('Hi there,')
     })
@@ -269,7 +269,7 @@ describe('Email Templates Tests', () => {
     it('should handle undefined data', () => {
       const template = getEmailTemplate('WELCOME', undefined as any)
 
-      expect(template.subject).toBe('Welcome to MentorshipHub! Your Account is Pending Review')
+      expect(template.subject).toBe('Welcome to SamAdvisoryHub! Your Account is Pending Review')
       expect(template.html).toContain('Hi there,')
       expect(template.text).toContain('Hi there,')
     })

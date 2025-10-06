@@ -3,38 +3,55 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f1419;
-  --card: #f7f8f8;
-  --card-foreground: #0f1419;
-  --popover: #ffffff;
-  --popover-foreground: #0f1419;
-  --primary: #1e9df1;
-  --primary-foreground: #ffffff;
-  --secondary: #0f1419;
-  --secondary-foreground: #ffffff;
-  --muted: #e5e5e6;
-  --muted-foreground: #0f1419;
-  --accent: #e3ecf6;
-  --accent-foreground: #1e9df1;
-  --destructive: #f4212e;
-  --destructive-foreground: #ffffff;
-  --border: #e1eaef;
-  --input: #f7f9fa;
-  --ring: #1da1f2;
-  --chart-1: #1e9df1;
-  --chart-2: #00b87a;
-  --chart-3: #f7b928;
-  --chart-4: #17bf63;
-  --chart-5: #e0245e;
-  --sidebar: #f7f8f8;
-  --sidebar-foreground: #0f1419;
-  --sidebar-primary: #1e9df1;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e3ecf6;
-  --sidebar-accent-foreground: #1e9df1;
-  --sidebar-border: #e1e8ed;
-  --sidebar-ring: #1da1f2;
+  /* Background Colors */
+  --background: #000000;
+  --foreground: #FFFFFF;
+  --card: #1A1A1A;
+  --card-foreground: #FFFFFF;
+  --popover: #1A1A1A;
+  --popover-foreground: #FFFFFF;
+  
+  /* Primary Colors - Magenta/Pink & Blue/Cyan */
+  --primary: #E91E63;
+  --primary-foreground: #FFFFFF;
+  
+  /* Secondary Colors */
+  --secondary: #00BCD4;
+  --secondary-foreground: #FFFFFF;
+  
+  /* Accent Colors */
+  --accent: #F8BBD9;
+  --accent-foreground: #E91E63;
+  
+  /* Muted Colors */
+  --muted: #1A1A1A;
+  --muted-foreground: #B0B0B0;
+  
+  /* Border & Input */
+  --border: #333333;
+  --input: #1A1A1A;
+  --ring: #E91E63;
+  
+  /* Status Colors */
+  --destructive: #F44336;
+  --destructive-foreground: #FFFFFF;
+  
+  /* Chart Colors */
+  --chart-1: #E91E63;
+  --chart-2: #00BCD4;
+  --chart-3: #2196F3;
+  --chart-4: #F8BBD9;
+  --chart-5: #B3E5FC;
+  
+  /* Sidebar Colors */
+  --sidebar: #1A1A1A;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #E91E63;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #2D1B2E;
+  --sidebar-accent-foreground: #F8BBD9;
+  --sidebar-border: #333333;
+  --sidebar-ring: #E91E63;
   --font-sans: Open Sans, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
@@ -52,38 +69,55 @@
 }
 
 .dark {
-  --background: #000000;
-  --foreground: #e7e9ea;
-  --card: #17181c;
-  --card-foreground: #d9d9d9;
-  --popover: #000000;
-  --popover-foreground: #e7e9ea;
-  --primary: #1c9cf0;
-  --primary-foreground: #ffffff;
-  --secondary: #f0f3f4;
-  --secondary-foreground: #0f1419;
-  --muted: #181818;
-  --muted-foreground: #72767a;
-  --accent: #061622;
-  --accent-foreground: #1c9cf0;
-  --destructive: #f4212e;
-  --destructive-foreground: #ffffff;
-  --border: #242628;
-  --input: #22303c;
-  --ring: #1da1f2;
-  --chart-1: #1e9df1;
-  --chart-2: #00b87a;
-  --chart-3: #f7b928;
-  --chart-4: #17bf63;
-  --chart-5: #e0245e;
-  --sidebar: #17181c;
-  --sidebar-foreground: #d9d9d9;
-  --sidebar-primary: #1da1f2;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #061622;
-  --sidebar-accent-foreground: #1c9cf0;
-  --sidebar-border: #38444d;
-  --sidebar-ring: #1da1f2;
+  /* Background Colors */
+  --background: #121212;
+  --foreground: #FFFFFF;
+  --card: #1E1E1E;
+  --card-foreground: #FFFFFF;
+  --popover: #1E1E1E;
+  --popover-foreground: #FFFFFF;
+  
+  /* Primary Colors - Magenta/Pink & Blue/Cyan */
+  --primary: #E91E63;
+  --primary-foreground: #FFFFFF;
+  
+  /* Secondary Colors */
+  --secondary: #00BCD4;
+  --secondary-foreground: #FFFFFF;
+  
+  /* Accent Colors */
+  --accent: #2D1B2E;
+  --accent-foreground: #F8BBD9;
+  
+  /* Muted Colors */
+  --muted: #2A2A2A;
+  --muted-foreground: #B0B0B0;
+  
+  /* Border & Input */
+  --border: #3A3A3A;
+  --input: #2A2A2A;
+  --ring: #E91E63;
+  
+  /* Status Colors */
+  --destructive: #F44336;
+  --destructive-foreground: #FFFFFF;
+  
+  /* Chart Colors */
+  --chart-1: #E91E63;
+  --chart-2: #00BCD4;
+  --chart-3: #2196F3;
+  --chart-4: #F8BBD9;
+  --chart-5: #B3E5FC;
+  
+  /* Sidebar Colors */
+  --sidebar: #1E1E1E;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #E91E63;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #2D1B2E;
+  --sidebar-accent-foreground: #F8BBD9;
+  --sidebar-border: #3A3A3A;
+  --sidebar-ring: #E91E63;
   --font-sans: Open Sans, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
@@ -349,4 +383,33 @@ html {
 .card-hover:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
+}
+
+/* Custom Magenta/Cyan Gradients */
+@layer utilities {
+  .bg-gradient-magenta-cyan {
+    background: linear-gradient(135deg, #E91E63 0%, #00BCD4 100%);
+  }
+  
+  .bg-gradient-magenta-pink {
+    background: linear-gradient(135deg, #E91E63 0%, #F8BBD9 100%);
+  }
+  
+  .bg-gradient-cyan-blue {
+    background: linear-gradient(135deg, #00BCD4 0%, #2196F3 100%);
+  }
+  
+  .text-gradient-magenta-cyan {
+    background: linear-gradient(135deg, #E91E63 0%, #00BCD4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .text-gradient-magenta-pink {
+    background: linear-gradient(135deg, #E91E63 0%, #F8BBD9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }

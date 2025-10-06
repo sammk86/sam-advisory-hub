@@ -60,7 +60,7 @@ export default function PendingPage() {
             Account Under Review
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Thank you for joining MentorshipHub! Your account is currently being reviewed by our team.
+            Thank you for joining SamAdvisoryHub! Your account is currently being reviewed by our team.
           </p>
         </div>
 

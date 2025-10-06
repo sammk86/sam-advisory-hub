@@ -125,7 +125,7 @@ describe('Pending User Experience Tests', () => {
       render(<PendingPage />)
 
       expect(screen.getByText('Account Under Review')).toBeInTheDocument()
-      expect(screen.getByText(/Thank you for joining MentorshipHub!/)).toBeInTheDocument()
+      expect(screen.getByText(/Thank you for joining SamAdvisoryHub!/)).toBeInTheDocument()
       expect(screen.getByText("What's Happening?")).toBeInTheDocument()
       expect(screen.getByText('Timeline')).toBeInTheDocument()
       expect(screen.getByText('What to Expect')).toBeInTheDocument()
@@ -308,7 +308,7 @@ describe('Pending User Experience Tests', () => {
       render(<RejectedPage />)
 
       expect(screen.getByText('Application Not Approved')).toBeInTheDocument()
-      expect(screen.getByText(/We appreciate your interest in MentorshipHub/)).toBeInTheDocument()
+      expect(screen.getByText(/We appreciate your interest in SamAdvisoryHub/)).toBeInTheDocument()
       expect(screen.getByText('Review Decision')).toBeInTheDocument()
       expect(screen.getByText('Understanding Our Decision')).toBeInTheDocument()
       expect(screen.getByText('What You Can Do')).toBeInTheDocument()
@@ -406,7 +406,7 @@ describe('Pending User Experience Tests', () => {
       render(<PendingPage />)
 
       // The user name should be displayed in the welcome message
-      expect(screen.getByText(/Thank you for joining MentorshipHub!/)).toBeInTheDocument()
+      expect(screen.getByText(/Thank you for joining SamAdvisoryHub!/)).toBeInTheDocument()
     })
 
     it('should display user name in rejected page', () => {
@@ -427,7 +427,7 @@ describe('Pending User Experience Tests', () => {
       render(<RejectedPage />)
 
       // The user name should be displayed in the rejection message
-      expect(screen.getByText(/We appreciate your interest in MentorshipHub/)).toBeInTheDocument()
+      expect(screen.getByText(/We appreciate your interest in SamAdvisoryHub/)).toBeInTheDocument()
     })
 
     it('should handle missing user name gracefully', () => {
