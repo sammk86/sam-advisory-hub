@@ -14,7 +14,11 @@ import {
   X,
   Bell,
   Search,
-  Send
+  Send,
+  MessageCircle,
+  Package,
+  Target,
+  Calendar
 } from 'lucide-react'
 import { useState } from 'react'
 import { LoadingPage } from '@/components/ui/LoadingStates'
@@ -70,6 +74,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       current: false,
     },
     {
+      name: 'Messages',
+      href: '/dashboard/messages',
+      icon: MessageCircle,
+      current: false,
+    },
+    {
       name: 'User Management',
       href: '/admin/users',
       icon: Users,
@@ -97,6 +107,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       name: 'Services',
       href: '/admin/services',
       icon: Users,
+      current: false,
+    },
+    {
+      name: 'Service Assignments',
+      href: '/admin/service-assignments',
+      icon: Package,
+      current: false,
+    },
+    {
+      name: 'Meeting Requests',
+      href: '/admin/meeting-requests',
+      icon: Calendar,
+      current: false,
+    },
+    {
+      name: 'Roadmaps',
+      href: '/admin/roadmaps',
+      icon: Target,
       current: false,
     },
     {

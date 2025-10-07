@@ -2,7 +2,7 @@ import React from 'react'
 import { clsx } from 'clsx'
 
 interface StatusBadgeProps {
-  status: 'confirmed' | 'pending' | 'rejected' | 'active' | 'inactive' | 'completed' | 'cancelled'
+  status: 'confirmed' | 'pending' | 'rejected' | 'active' | 'inactive' | 'completed' | 'cancelled' | 'scheduled'
   className?: string
 }
 
@@ -43,6 +43,11 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
         return {
           label: 'Cancelled',
           className: 'bg-red-100 text-red-800 border-red-200'
+        }
+      case 'scheduled':
+        return {
+          label: 'Scheduled',
+          className: 'bg-blue-100 text-blue-800 border-blue-200'
         }
       default:
         return {

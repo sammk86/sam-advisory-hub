@@ -30,6 +30,9 @@ interface User {
   confirmedAt: string | null
   confirmedBy: string | null
   rejectionReason: string | null
+  sessionStatus: string
+  sessionActivatedAt: string | null
+  sessionActivatedBy: string | null
   createdAt: string
   updatedAt: string
 }
@@ -204,6 +207,30 @@ export default function UserManagement() {
     }
   }
 
+  const handleSessionStatusUpdate = async (userId: string, newStatus: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED') => {
+    setActionLoading(userId)
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/session-status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sessionStatus: newStatus }),
+      })
+
+      if (response.ok) {
+        // Refresh users list
+        await fetchUsers()
+      } else {
+        console.error('Error updating session status')
+      }
+    } catch (error) {
+      console.error('Error updating session status:', error)
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
   const getStatusBadge = (user: User) => {
     if (user.isConfirmed === true) {
       return <StatusBadge status="success" text="Confirmed" />
@@ -222,6 +249,19 @@ export default function UserManagement() {
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
         {role}
+      </span>
+    )
+  }
+
+  const getSessionStatusBadge = (sessionStatus: string) => {
+    const colors = {
+      ACTIVE: 'bg-green-100 text-green-800',
+      INACTIVE: 'bg-gray-100 text-gray-800',
+      SUSPENDED: 'bg-red-100 text-red-800'
+    }
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[sessionStatus as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
+        {sessionStatus}
       </span>
     )
   }
@@ -357,6 +397,9 @@ export default function UserManagement() {
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Session Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Created
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -403,6 +446,45 @@ export default function UserManagement() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getStatusBadge(user)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center space-x-2">
+                      {getSessionStatusBadge(user.sessionStatus)}
+                      {user.isConfirmed && (
+                        <div className="flex space-x-1">
+                          {user.sessionStatus !== 'ACTIVE' && (
+                            <button
+                              onClick={() => handleSessionStatusUpdate(user.id, 'ACTIVE')}
+                              disabled={actionLoading === user.id}
+                              className="text-green-600 hover:text-green-800 text-xs"
+                              title="Activate Session"
+                            >
+                              <CheckCircle className="h-3 w-3" />
+                            </button>
+                          )}
+                          {user.sessionStatus !== 'SUSPENDED' && (
+                            <button
+                              onClick={() => handleSessionStatusUpdate(user.id, 'SUSPENDED')}
+                              disabled={actionLoading === user.id}
+                              className="text-red-600 hover:text-red-800 text-xs"
+                              title="Suspend Session"
+                            >
+                              <XCircle className="h-3 w-3" />
+                            </button>
+                          )}
+                          {user.sessionStatus !== 'INACTIVE' && (
+                            <button
+                              onClick={() => handleSessionStatusUpdate(user.id, 'INACTIVE')}
+                              disabled={actionLoading === user.id}
+                              className="text-gray-600 hover:text-gray-800 text-xs"
+                              title="Deactivate Session"
+                            >
+                              <Clock className="h-3 w-3" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(user.createdAt).toLocaleDateString()}

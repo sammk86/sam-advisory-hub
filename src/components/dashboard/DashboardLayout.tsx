@@ -22,6 +22,7 @@ import {
   Briefcase
 } from 'lucide-react'
 import Button from '@/components/ui/Button'
+import MessageNotifications from '@/components/messaging/MessageNotifications'
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -45,8 +46,8 @@ export default function DashboardLayout({ children, title, description, actions 
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ] : [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
-    { name: 'Services', href: '/dashboard/services', icon: Briefcase },
     { name: 'Sessions', href: '/dashboard/sessions', icon: Calendar },
+    { name: 'Roadmap', href: '/dashboard/roadmap', icon: Target },
     { name: 'Messages', href: '/dashboard/messages', icon: MessageCircle },
     { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
     { name: 'Profile', href: '/dashboard/profile', icon: User },
@@ -91,6 +92,8 @@ export default function DashboardLayout({ children, title, description, actions 
               {navigation.map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+                const isMessages = item.name === 'Messages'
+                
                 return (
                   <Link
                     key={item.name}
@@ -102,7 +105,15 @@ export default function DashboardLayout({ children, title, description, actions 
                     }`}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <Icon className={`mr-4 h-6 w-6 ${isActive ? 'text-blue-500' : 'text-gray-400'}`} />
+                    <div className="relative mr-4">
+                      <Icon className={`h-6 w-6 ${isActive ? 'text-blue-500' : 'text-gray-400'}`} />
+                      {isMessages && (
+                        <MessageNotifications 
+                          userId={session?.user?.id || ''} 
+                          className="absolute -top-1 -right-1"
+                        />
+                      )}
+                    </div>
                     {item.name}
                   </Link>
                 )
@@ -138,6 +149,8 @@ export default function DashboardLayout({ children, title, description, actions 
               {navigation.map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+                const isMessages = item.name === 'Messages'
+                
                 return (
                   <Link
                     key={item.name}
@@ -148,7 +161,15 @@ export default function DashboardLayout({ children, title, description, actions 
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
                   >
-                    <Icon className={`mr-3 h-5 w-5 ${isActive ? 'text-blue-500' : 'text-gray-400'}`} />
+                    <div className="relative mr-3">
+                      <Icon className={`h-5 w-5 ${isActive ? 'text-blue-500' : 'text-gray-400'}`} />
+                      {isMessages && (
+                        <MessageNotifications 
+                          userId={session?.user?.id || ''} 
+                          className="absolute -top-1 -right-1"
+                        />
+                      )}
+                    </div>
                     {item.name}
                   </Link>
                 )

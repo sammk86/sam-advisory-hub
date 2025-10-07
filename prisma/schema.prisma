@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,32 +7,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User Management
 model User {
-  id               String    @id @default(cuid())
-  email            String    @unique
-  name             String?
-  image            String?
-  password         String?
-  role             UserRole  @default(CLIENT)
-  emailVerified    DateTime?
-  stripeCustomerId String?   @unique
-  
-  // User Confirmation Fields
-  isConfirmed      Boolean?  @default(false)
-  confirmedAt      DateTime?
-  confirmedBy      String?
-  rejectionReason  String?
-  
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-
-  // Relations
+  id                 String              @id @default(cuid())
+  email              String              @unique
+  name               String?
+  image              String?
+  role               UserRole            @default(CLIENT)
+  emailVerified      DateTime?
+  stripeCustomerId   String?             @unique
+  isConfirmed        Boolean?            @default(false)
+  confirmedAt        DateTime?
+  confirmedBy        String?
+  rejectionReason    String?
+  sessionStatus      SessionStatus       @default(INACTIVE)
+  sessionActivatedAt DateTime?
+  sessionActivatedBy String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  password           String?
   accounts           Account[]
-  sessions           Session[]
-  enrollments        Enrollment[]
-  meetings           Meeting[]
   emailNotifications EmailNotification[]
+  enrollments        Enrollment[]
+  sessions           Session[]
+  meetings           Meeting[]           @relation("MeetingToUser")
+  meetingRequests    MeetingRequest[]
+  approvedMeetingRequests MeetingRequest[] @relation("MeetingRequestApprover")
+  sentMessages       Message[]           @relation("MessageSender")
+  conversations      ConversationParticipant[] @relation("ConversationParticipant")
 
   @@index([email])
   @@index([role])
@@ -44,156 +42,103 @@ model User {
   @@map("users")
 }
 
-enum UserRole {
-  ADMIN
-  CLIENT
-}
-
-// Services (Polymorphic for Mentorship and Advisory)
 model Service {
-  id          String        @id @default(cuid())
-  name        String
-  description String
-  type        ServiceType
-  status      ServiceStatus @default(DRAFT)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  // Pricing
-  singleSessionPrice Int? // in cents
-  monthlyPlanPrice   Int? // in cents
-  hourlyRate         Int? // in cents
-
-  // Service-specific data
-  mentorshipProgram MentorshipProgram?
+  id                String             @id @default(cuid())
+  name              String
+  description       String
+  type              ServiceType
+  status            ServiceStatus      @default(DRAFT)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  hourlyRate        Int?
+  benefits          String[]
+  features          String[]
+  oneOffPrice       Int?
+  process           String[]
+  testimonials      Json?
   advisoryService   AdvisoryService?
-
-  // Relations
-  enrollments Enrollment[]
+  enrollments       Enrollment[]
+  mentorshipProgram MentorshipProgram?
 
   @@map("services")
 }
 
-enum ServiceType {
-  MENTORSHIP
-  ADVISORY
-}
-
-enum ServiceStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-// Mentorship Program Details
 model MentorshipProgram {
   id               String        @id @default(cuid())
   serviceId        String        @unique
   format           ProgramFormat
   learningOutcomes String[]
   sampleCurriculum String?
-  defaultRoadmap   Json? // Template roadmap structure
-
-  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  defaultRoadmap   Json?
+  service          Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@map("mentorship_programs")
 }
 
-enum ProgramFormat {
-  INDIVIDUAL
-  GROUP
-}
-
-// Advisory Service Details
 model AdvisoryService {
-  id                 String   @id @default(cuid())
-  serviceId          String   @unique
+  id                 String            @id @default(cuid())
+  serviceId          String            @unique
   idealClientProfile String
   scopeOfWork        String
   expectedOutcomes   String[]
   sampleDeliverables String[]
-
-  service  Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  packages AdvisoryPackage[]
+  packages           AdvisoryPackage[]
+  service            Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@map("advisory_services")
 }
 
-// Advisory Packages
 model AdvisoryPackage {
-  id                String @id @default(cuid())
+  id                String          @id @default(cuid())
   advisoryServiceId String
   name              String
   hours             Int
-  price             Int    // in cents
+  price             Int
   description       String?
-
-  advisoryService AdvisoryService @relation(fields: [advisoryServiceId], references: [id], onDelete: Cascade)
-  enrollments     Enrollment[]
+  advisoryService   AdvisoryService @relation(fields: [advisoryServiceId], references: [id], onDelete: Cascade)
+  enrollments       Enrollment[]
 
   @@map("advisory_packages")
 }
 
-// Enrollment & Progress Tracking
 model Enrollment {
-  id       String           @id @default(cuid())
-  userId   String
-  serviceId String
-  planType PlanType
-  status   EnrollmentStatus @default(ACTIVE)
-  enrolledAt DateTime       @default(now())
-
-  // Advisory-specific
-  advisoryPackageId String?
-  hoursRemaining    Int?
-
-  // Payment tracking
+  id                   String           @id @default(cuid())
+  userId               String
+  serviceId            String
+  planType             PlanType
+  status               EnrollmentStatus @default(ACTIVE)
+  enrolledAt           DateTime         @default(now())
+  expiresAt            DateTime?        // Added expiry date
+  advisoryPackageId    String?
+  hoursRemaining       Int?
   stripeCustomerId     String?
   stripeSubscriptionId String?
-
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  service         Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  advisoryPackage AdvisoryPackage? @relation(fields: [advisoryPackageId], references: [id])
-
-  // Progress tracking
-  roadmap      Roadmap?
-  deliverables Deliverable[]
-  meetings     Meeting[]
-  payments     Payment[]
+  deliverables         Deliverable[]
+  advisoryPackage      AdvisoryPackage? @relation(fields: [advisoryPackageId], references: [id])
+  service              Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  user                 User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meetings             Meeting[]
+  meetingRequests      MeetingRequest[]
+  payments             Payment[]
+  roadmap              Roadmap?
 
   @@unique([userId, serviceId])
   @@index([userId])
   @@index([serviceId])
   @@index([status])
+  @@index([expiresAt]) // Added index for expiry date queries
   @@map("enrollments")
 }
 
-enum PlanType {
-  SINGLE_SESSION
-  MONTHLY_PLAN
-  CONSULTATION
-  PACKAGE
-  RETAINER
-}
-
-enum EnrollmentStatus {
-  ACTIVE
-  PAUSED
-  CANCELLED
-  COMPLETED
-}
-
-// Roadmaps (Mentorship)
 model Roadmap {
-  id           String @id @default(cuid())
-  enrollmentId String @unique
+  id           String      @id @default(cuid())
+  enrollmentId String      @unique
   title        String
   description  String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  enrollment Enrollment  @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  milestones Milestone[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  milestones   Milestone[]
+  enrollment   Enrollment  @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
 
   @@map("roadmaps")
 }
@@ -207,9 +152,8 @@ model Milestone {
   status      TaskStatus @default(NOT_STARTED)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-
-  roadmap Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
-  tasks   Task[]
+  roadmap     Roadmap    @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  tasks       Task[]
 
   @@map("milestones")
 }
@@ -219,25 +163,17 @@ model Task {
   milestoneId String
   title       String
   description String?
-  resources   String[] // URLs, documents
+  resources   String[]
   dueDate     DateTime?
   status      TaskStatus @default(NOT_STARTED)
   order       Int
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-
-  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  milestone   Milestone  @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
 
   @@map("tasks")
 }
 
-enum TaskStatus {
-  NOT_STARTED
-  IN_PROGRESS
-  COMPLETED
-}
-
-// Deliverables (Advisory)
 model Deliverable {
   id           String            @id @default(cuid())
   enrollmentId String
@@ -249,120 +185,111 @@ model Deliverable {
   completedAt  DateTime?
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
-
-  enrollment Enrollment        @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  files      DeliverableFile[]
+  files        DeliverableFile[]
+  enrollment   Enrollment        @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
 
   @@map("deliverables")
 }
 
 model DeliverableFile {
-  id            String @id @default(cuid())
+  id            String      @id @default(cuid())
   deliverableId String
   fileName      String
   fileUrl       String
   fileSize      Int
   mimeType      String
-  version       Int      @default(1)
-  uploadedAt    DateTime @default(now())
-
-  deliverable Deliverable @relation(fields: [deliverableId], references: [id], onDelete: Cascade)
+  version       Int         @default(1)
+  uploadedAt    DateTime    @default(now())
+  deliverable   Deliverable @relation(fields: [deliverableId], references: [id], onDelete: Cascade)
 
   @@map("deliverable_files")
 }
 
-enum DeliverableType {
-  REPORT
-  STRATEGIC_PLAN
-  ARCHITECTURE_REVIEW
-  CODE_REVIEW
-  RECOMMENDATION_DOCUMENT
-  CUSTOM
+model MeetingRequest {
+  id            String              @id @default(cuid())
+  enrollmentId  String
+  userId        String
+  title         String
+  description   String?
+  requestedDate DateTime
+  requestedTime String              // Time in user's timezone
+  timezone      String
+  duration      Int                 @default(60)
+  status        MeetingRequestStatus @default(PENDING)
+  adminNotes    String?
+  proposedDate  DateTime?           // Admin's proposed alternative date
+  proposedTime  String?             // Admin's proposed alternative time
+  approvedAt    DateTime?
+  approvedBy    String?
+  meetingId     String?             @unique // If approved, link to created meeting
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  enrollment    Enrollment          @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approver      User?               @relation("MeetingRequestApprover", fields: [approvedBy], references: [id])
+  meeting       Meeting?            @relation(fields: [meetingId], references: [id])
+
+  @@index([enrollmentId])
+  @@index([userId])
+  @@index([status])
+  @@map("meeting_requests")
 }
 
-enum DeliverableStatus {
-  NOT_STARTED
-  IN_PROGRESS
-  UNDER_REVIEW
-  COMPLETED
-}
-
-// Meetings & Communication
 model Meeting {
-  id           String        @id @default(cuid())
-  enrollmentId String
-  title        String
-  description  String?
-  scheduledAt  DateTime
-  duration     Int // in minutes
-  status       MeetingStatus @default(SCHEDULED)
-  videoLink    String?
-  agenda       String?
-  notes        String?
-  recordingUrl String?
-
-  // Advisory-specific
+  id            String        @id @default(cuid())
+  enrollmentId  String
+  meetingRequestId String?    @unique // Link to the original request
+  title         String
+  description   String?
+  scheduledAt   DateTime
+  duration      Int
+  status        MeetingStatus @default(SCHEDULED)
+  videoLink     String?
+  agenda        String?
+  notes         String?
+  recordingUrl  String?
   hoursConsumed Int?
-
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  attendees  User[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  enrollment    Enrollment    @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  attendees     User[]        @relation("MeetingToUser")
+  meetingRequest MeetingRequest?
 
   @@index([enrollmentId])
   @@index([scheduledAt])
   @@map("meetings")
 }
 
-enum MeetingStatus {
-  SCHEDULED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-}
-
-// Payment & Billing
 model Payment {
   id              String        @id @default(cuid())
   enrollmentId    String
   stripePaymentId String        @unique
-  amount          Int // in cents
+  amount          Int
   currency        String        @default("usd")
   status          PaymentStatus
   paymentType     PlanType
   description     String?
   paidAt          DateTime?
   createdAt       DateTime      @default(now())
-
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  enrollment      Enrollment    @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
 
   @@map("payments")
 }
 
-enum PaymentStatus {
-  PENDING
-  SUCCEEDED
-  FAILED
-  REFUNDED
-}
-
-// NextAuth.js Tables
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -387,19 +314,16 @@ model VerificationToken {
   @@map("verificationtokens")
 }
 
-// Email Notification Tracking
 model EmailNotification {
   id           String   @id @default(cuid())
   userId       String
-  type         String   // 'welcome', 'confirmation', 'rejection'
+  type         String
   sentAt       DateTime
-  status       String   // 'sent', 'failed', 'pending'
+  status       String
   errorMessage String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([type])
@@ -408,28 +332,23 @@ model EmailNotification {
   @@map("email_notifications")
 }
 
-// Newsletter System
 model NewsletterSubscriber {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  firstName     String?
-  lastName      String?
-  interests     String[] // ["software-engineering", "leadership", "career-transition", "technical-advisory"]
-  source        String   // "landing-page", "popup", "footer", "referral"
-  status        SubscriberStatus @default(ACTIVE)
-  subscribedAt  DateTime @default(now())
-  unsubscribedAt DateTime?
-  lastEngagement DateTime?
-  
-  // Email tracking
-  totalEmailsReceived Int @default(0)
-  totalEmailsOpened   Int @default(0)
-  totalEmailsClicked Int @default(0)
-  
-  // Relations
-  campaigns NewsletterCampaign[]
-  emailTracking EmailTracking[]
-  
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  firstName           String?
+  lastName            String?
+  interests           String[]
+  source              String
+  status              SubscriberStatus     @default(ACTIVE)
+  subscribedAt        DateTime             @default(now())
+  unsubscribedAt      DateTime?
+  lastEngagement      DateTime?
+  totalEmailsReceived Int                  @default(0)
+  totalEmailsOpened   Int                  @default(0)
+  totalEmailsClicked  Int                  @default(0)
+  emailTracking       EmailTracking[]
+  campaigns           NewsletterCampaign[] @relation("NewsletterCampaignToNewsletterSubscriber")
+
   @@index([email])
   @@index([status])
   @@index([subscribedAt])
@@ -437,40 +356,201 @@ model NewsletterSubscriber {
   @@map("newsletter_subscribers")
 }
 
+model NewsletterCampaign {
+  id                String                 @id @default(cuid())
+  title             String
+  subject           String
+  content           String
+  textContent       String
+  status            CampaignStatus         @default(DRAFT)
+  scheduledAt       DateTime?
+  sentAt            DateTime?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  totalSent         Int                    @default(0)
+  totalOpened       Int                    @default(0)
+  totalClicked      Int                    @default(0)
+  totalUnsubscribed Int                    @default(0)
+  totalBounced      Int                    @default(0)
+  emailTracking     EmailTracking[]
+  subscribers       NewsletterSubscriber[] @relation("NewsletterCampaignToNewsletterSubscriber")
+
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([sentAt])
+  @@map("newsletter_campaigns")
+}
+
+model EmailTracking {
+  id           String               @id @default(cuid())
+  campaignId   String
+  subscriberId String
+  email        String
+  messageId    String?
+  status       EmailStatus
+  openedAt     DateTime?
+  clickedAt    DateTime?
+  bouncedAt    DateTime?
+  complainedAt DateTime?
+  createdAt    DateTime             @default(now())
+  campaign     NewsletterCampaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  subscriber   NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, subscriberId])
+  @@index([email])
+  @@index([status])
+  @@map("email_tracking")
+}
+
+model Message {
+  id            String        @id @default(cuid())
+  conversationId String
+  senderId      String
+  content       String
+  messageType   MessageType   @default(TEXT)
+  attachments   Json?         // Array of file attachments
+  isRead        Boolean       @default(false)
+  readAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  // Relations
+  conversation  Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender        User          @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  title         String?
+  lastMessageAt DateTime  @default(now())
+  isArchived    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  participants  ConversationParticipant[]
+  messages      Message[]
+  
+  @@index([lastMessageAt])
+  @@index([isArchived])
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String
+  userId         String
+  role           ParticipantRole @default(MEMBER)
+  joinedAt       DateTime     @default(now())
+  leftAt         DateTime?
+  unreadCount    Int          @default(0)
+  lastReadAt     DateTime?
+  
+  // Relations
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation("ConversationParticipant", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@index([conversationId])
+  @@map("conversation_participants")
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+enum SessionStatus {
+  INACTIVE
+  ACTIVE
+  SUSPENDED
+}
+
+enum ServiceType {
+  MENTORSHIP
+  ADVISORY
+}
+
+enum ServiceStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ProgramFormat {
+  INDIVIDUAL
+  GROUP
+}
+
+enum PlanType {
+  SINGLE_SESSION
+  MONTHLY_PLAN
+  CONSULTATION
+  PACKAGE
+  RETAINER
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  COMPLETED
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum DeliverableType {
+  REPORT
+  STRATEGIC_PLAN
+  ARCHITECTURE_REVIEW
+  CODE_REVIEW
+  RECOMMENDATION_DOCUMENT
+  CUSTOM
+}
+
+enum DeliverableStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  UNDER_REVIEW
+  COMPLETED
+}
+
+enum MeetingRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PROPOSED_ALTERNATIVE
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
 enum SubscriberStatus {
   ACTIVE
   UNSUBSCRIBED
   BOUNCED
   COMPLAINED
-}
-
-model NewsletterCampaign {
-  id          String   @id @default(cuid())
-  title       String
-  subject     String
-  content     String   // HTML content
-  textContent String   // Plain text version
-  status      CampaignStatus @default(DRAFT)
-  scheduledAt DateTime?
-  sentAt      DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Analytics
-  totalSent     Int @default(0)
-  totalOpened   Int @default(0)
-  totalClicked Int @default(0)
-  totalUnsubscribed Int @default(0)
-  totalBounced Int @default(0)
-  
-  // Relations
-  subscribers NewsletterSubscriber[]
-  emailTracking EmailTracking[]
-  
-  @@index([status])
-  @@index([scheduledAt])
-  @@index([sentAt])
-  @@map("newsletter_campaigns")
 }
 
 enum CampaignStatus {
@@ -481,28 +561,6 @@ enum CampaignStatus {
   FAILED
 }
 
-model EmailTracking {
-  id           String   @id @default(cuid())
-  campaignId   String
-  subscriberId String
-  email        String
-  messageId    String?  // Resend message ID
-  status       EmailStatus
-  openedAt     DateTime?
-  clickedAt     DateTime?
-  bouncedAt    DateTime?
-  complainedAt DateTime?
-  createdAt    DateTime @default(now())
-  
-  campaign   NewsletterCampaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  subscriber NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
-  
-  @@unique([campaignId, subscriberId])
-  @@index([email])
-  @@index([status])
-  @@map("email_tracking")
-}
-
 enum EmailStatus {
   SENT
   DELIVERED
@@ -511,4 +569,16 @@ enum EmailStatus {
   BOUNCED
   COMPLAINED
   UNSUBSCRIBED
+}
+
+enum MessageType {
+  TEXT
+  FILE
+  IMAGE
+  SYSTEM
+}
+
+enum ParticipantRole {
+  ADMIN
+  MEMBER
 }

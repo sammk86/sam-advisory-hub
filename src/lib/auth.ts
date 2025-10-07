@@ -32,6 +32,9 @@ export const authOptions: NextAuthOptions = {
             confirmedAt: true,
             confirmedBy: true,
             rejectionReason: true,
+            sessionStatus: true,
+            sessionActivatedAt: true,
+            sessionActivatedBy: true,
           }
         })
 
@@ -61,6 +64,9 @@ export const authOptions: NextAuthOptions = {
           confirmedAt: user.confirmedAt,
           confirmedBy: user.confirmedBy,
           rejectionReason: user.rejectionReason,
+          sessionStatus: user.sessionStatus,
+          sessionActivatedAt: user.sessionActivatedAt,
+          sessionActivatedBy: user.sessionActivatedBy,
         }
       }
     })
@@ -77,6 +83,9 @@ export const authOptions: NextAuthOptions = {
         token.confirmedAt = user.confirmedAt
         token.confirmedBy = user.confirmedBy
         token.rejectionReason = user.rejectionReason
+        token.sessionStatus = user.sessionStatus
+        token.sessionActivatedAt = user.sessionActivatedAt
+        token.sessionActivatedBy = user.sessionActivatedBy
       }
       return token
     },
@@ -88,6 +97,9 @@ export const authOptions: NextAuthOptions = {
         session.user.confirmedAt = token.confirmedAt as string
         session.user.confirmedBy = token.confirmedBy as string
         session.user.rejectionReason = token.rejectionReason as string
+        session.user.sessionStatus = token.sessionStatus as string
+        session.user.sessionActivatedAt = token.sessionActivatedAt as string
+        session.user.sessionActivatedBy = token.sessionActivatedBy as string
       }
       return session
     }

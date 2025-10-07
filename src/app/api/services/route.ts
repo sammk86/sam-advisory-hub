@@ -27,9 +27,12 @@ export async function GET(request: NextRequest) {
         name: true,
         description: true,
         type: true,
-        singleSessionPrice: true,
-        monthlyPlanPrice: true,
+        oneOffPrice: true,
         hourlyRate: true,
+        features: true,
+        benefits: true,
+        process: true,
+        testimonials: true,
         createdAt: true,
       }
     })
@@ -41,10 +44,13 @@ export async function GET(request: NextRequest) {
       description: service.description,
       type: service.type,
       pricing: {
-        singleSession: service.singleSessionPrice ? service.singleSessionPrice / 100 : null,
-        monthly: service.monthlyPlanPrice ? service.monthlyPlanPrice / 100 : null,
+        oneOff: service.oneOffPrice ? service.oneOffPrice / 100 : null,
         hourly: service.hourlyRate ? service.hourlyRate / 100 : null,
       },
+      features: service.features,
+      benefits: service.benefits,
+      process: service.process,
+      testimonials: service.testimonials,
       createdAt: service.createdAt,
     }))
 

@@ -14,18 +14,25 @@ interface DashboardStats {
   pendingUsers: number
   confirmedUsers: number
   rejectedUsers: number
-  totalEmails: number
-  sentEmails: number
-  failedEmails: number
+  totalEnrollments: number
+  mentorshipEnrollments: number
+  advisoryEnrollments: number
+  activeEnrollments: number
+  unreadMessagesCount: number
   systemHealth: number
 }
 
 interface RecentActivity {
   id: string
-  type: 'user_registration' | 'user_confirmation' | 'user_rejection' | 'email_sent'
+  type: 'user_registration' | 'user_confirmation' | 'user_rejection' | 'email_sent' | 'unread_message' | 'service_assignment'
   description: string
   timestamp: string
   user: string
+  userId?: string
+  conversationId?: string
+  messagePreview?: string
+  serviceId?: string
+  priority: 'high' | 'medium' | 'low'
 }
 
 export default function AdminDashboard() {
@@ -75,9 +82,11 @@ export default function AdminDashboard() {
         pendingUsers: 23,
         confirmedUsers: 1200,
         rejectedUsers: 24,
-        totalEmails: 3456,
-        sentEmails: 3400,
-        failedEmails: 56,
+        totalEnrollments: 456,
+        mentorshipEnrollments: 234,
+        advisoryEnrollments: 222,
+        activeEnrollments: 400,
+        unreadMessagesCount: 5,
         systemHealth: 99.9,
       })
       setRecentActivity([
@@ -151,7 +160,7 @@ export default function AdminDashboard() {
       </div>
       {/* Stats Grid */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <StatsCard
             title="Total Users"
             value={stats.totalUsers}
@@ -175,6 +184,16 @@ export default function AdminDashboard() {
             iconColor="text-green-600"
             change={{ value: '+8%', type: 'increase' }}
             description="vs last month"
+          />
+          <StatsCard
+            title="Unread Messages"
+            value={stats.unreadMessagesCount}
+            icon={Mail}
+            iconColor="text-red-600"
+            change={{ value: stats.unreadMessagesCount > 0 ? 'New' : 'None', type: stats.unreadMessagesCount > 0 ? 'increase' : 'neutral' }}
+            description="from users"
+            onClick={() => router.push('/dashboard/messages')}
+            clickable={true}
           />
           <StatsCard
             title="System Health"
@@ -216,19 +235,59 @@ export default function AdminDashboard() {
           <DashboardCard title="Recent Activity">
             <div className="space-y-4">
               {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                <div 
+                  key={activity.id} 
+                  className={`flex items-start space-x-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                    activity.type === 'unread_message' 
+                      ? 'bg-red-50 border border-red-200 hover:bg-red-100' 
+                      : activity.priority === 'high'
+                      ? 'bg-yellow-50 border border-yellow-200 hover:bg-yellow-100'
+                      : 'bg-gray-50 hover:bg-gray-100'
+                  }`}
+                  onClick={() => {
+                    if (activity.type === 'unread_message' && activity.conversationId) {
+                      router.push(`/dashboard/messages/${activity.conversationId}`)
+                    } else if (activity.userId) {
+                      router.push(`/admin/users`)
+                    }
+                  }}
+                >
                   <div className={`w-2 h-2 rounded-full mt-2 ${
-                    activity.type === 'enrollment' ? 'bg-blue-500' :
-                    activity.type === 'payment' ? 'bg-green-500' : 'bg-purple-500'
+                    activity.type === 'unread_message' ? 'bg-red-500' :
+                    activity.type === 'user_registration' ? 'bg-yellow-500' :
+                    activity.type === 'user_confirmation' ? 'bg-green-500' :
+                    activity.type === 'service_assignment' ? 'bg-blue-500' :
+                    'bg-purple-500'
                   }`}></div>
                   <div className="flex-1">
-                    <div className="font-medium text-gray-900">{activity.description}</div>
+                    <div className="font-medium text-gray-900 flex items-center">
+                      {activity.description}
+                      {activity.type === 'unread_message' && (
+                        <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                          UNREAD
+                        </span>
+                      )}
+                    </div>
                     <div className="text-sm text-gray-500">
                       {activity.user} • {new Date(activity.timestamp).toLocaleString()}
                     </div>
+                    {activity.messagePreview && (
+                      <div className="text-sm text-gray-600 mt-1 italic">
+                        "{activity.messagePreview}"
+                      </div>
+                    )}
                   </div>
+                  {activity.type === 'unread_message' && (
+                    <Mail className="w-4 h-4 text-red-500 mt-1" />
+                  )}
                 </div>
               ))}
+              {recentActivity.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <Activity className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                  <p>No recent activity</p>
+                </div>
+              )}
             </div>
           </DashboardCard>
 

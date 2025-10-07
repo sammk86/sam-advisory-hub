@@ -3,36 +3,93 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { CheckCircle, AlertCircle, Users, Target, Calendar, CreditCard } from 'lucide-react'
+import { 
+  CheckCircle, 
+  AlertCircle, 
+  Users, 
+  Target, 
+  Calendar, 
+  CreditCard,
+  MessageCircle,
+  Clock,
+  TrendingUp,
+  BookOpen,
+  ArrowRight,
+  Bell
+} from 'lucide-react'
 import Button from '@/components/ui/Button'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
-import PageTransition from '@/components/animations/PageTransition'
-import FadeIn from '@/components/animations/FadeIn'
-import StaggerContainer from '@/components/animations/StaggerContainer'
-import StaggerItem from '@/components/animations/StaggerItem'
+import DashboardCard from '@/components/dashboard/DashboardCard'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 
-interface Enrollment {
-  id: string
-  serviceId: string | null
-  planType: string
-  status: string
-  goals: string
-  experience: string
-  industry: string
-  createdAt: string
-  service?: {
+interface DashboardData {
+  user: {
     id: string
-    type: 'MENTORSHIP' | 'ADVISORY'
-    title: string
-    description: string
+    name: string
+    email: string
+    role: string
   }
+  roadmapProgress: Array<{
+    enrollmentId: string
+    serviceName: string
+    serviceType: string
+    progress: number
+    totalTasks: number
+    completedTasks: number
+    milestones: Array<{
+      id: string
+      title: string
+      status: string
+      totalTasks: number
+      completedTasks: number
+    }>
+    hasRoadmap: boolean
+    roadmapId?: string
+  }>
+  overallProgress: number
+  stats: {
+    totalEnrollments: number
+    totalTasks: number
+    completedTasks: number
+    overdueTasks: number
+    tasksDueSoon: number
+  }
+  latestMessages: Array<{
+    id: string
+    content: string
+    createdAt: string
+    sender: {
+      id: string
+      name: string
+      email: string
+      image?: string
+    }
+    conversationId: string
+  }>
+  upcomingSessions: any[]
+  overdueTasks: Array<{
+    id: string
+    title: string
+    dueDate: string
+    milestone: {
+      title: string
+    }
+  }>
+  tasksDueSoon: Array<{
+    id: string
+    title: string
+    dueDate: string
+    milestone: {
+      title: string
+    }
+  }>
 }
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [enrollments, setEnrollments] = useState<Enrollment[]>([])
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -55,20 +112,17 @@ export default function DashboardPage() {
       return
     }
 
-    fetchEnrollments()
+    fetchDashboardData()
   }, [session, status, router])
 
-  const fetchEnrollments = async () => {
+  const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/enrollments')
+      const response = await fetch('/api/dashboard/user')
       if (!response.ok) {
-        throw new Error('Failed to fetch enrollments')
+        throw new Error('Failed to fetch dashboard data')
       }
       const data = await response.json()
-      setEnrollments(data.enrollments || [])
-      
-      // Route to appropriate dashboard based on enrollments
-      routeToDashboard(data.enrollments || [])
+      setDashboardData(data.data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load dashboard')
     } finally {
@@ -76,46 +130,38 @@ export default function DashboardPage() {
     }
   }
 
-  const routeToDashboard = (userEnrollments: Enrollment[]) => {
-    // If this is a new registration, show success message first
-    if (isNewRegistration) {
-      return
-    }
-
-    // If user has no enrollments, show empty state on dashboard
-    if (userEnrollments.length === 0) {
-      // Stay on dashboard and show empty state
-      return
-    }
-
-    // If user has only one enrollment, route to specific dashboard
-    if (userEnrollments.length === 1) {
-      const enrollment = userEnrollments[0]
-      if (enrollment.service?.type === 'MENTORSHIP') {
-        router.push('/dashboard/mentorship')
-      } else if (enrollment.service?.type === 'ADVISORY') {
-        router.push('/dashboard/advisory')
-      }
-      return
-    }
-
-    // If user has multiple enrollments, show selection interface
-    // (handled in the render below)
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
   }
 
-  const handleContinueToService = (serviceType: 'MENTORSHIP' | 'ADVISORY') => {
-    if (serviceType === 'MENTORSHIP') {
-      router.push('/dashboard/mentorship')
-    } else {
-      router.push('/dashboard/advisory')
-    }
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date()
+    const date = new Date(dateString)
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+    
+    if (diffInHours < 1) return 'Just now'
+    if (diffInHours < 24) return `${diffInHours}h ago`
+    const diffInDays = Math.floor(diffInHours / 24)
+    if (diffInDays < 7) return `${diffInDays}d ago`
+    return formatDate(dateString)
+  }
+
+  const getProgressColor = (progress: number) => {
+    if (progress >= 80) return 'bg-green-500'
+    if (progress >= 50) return 'bg-blue-500'
+    if (progress >= 25) return 'bg-yellow-500'
+    return 'bg-red-500'
   }
 
   if (status === 'loading' || isLoading) {
     return (
       <DashboardLayout
         title="Dashboard"
-        description="Your mentorship and advisory programs"
+        description="Your learning progress and activities"
       >
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
@@ -131,7 +177,7 @@ export default function DashboardPage() {
     return (
       <DashboardLayout
         title="Dashboard"
-        description="Your mentorship and advisory programs"
+        description="Your learning progress and activities"
       >
         <div className="flex items-center justify-center py-12">
           <div className="text-center max-w-md">
@@ -216,96 +262,11 @@ export default function DashboardPage() {
     )
   }
 
-  // Show enrollment selection for users with multiple enrollments
-  if (enrollments.length > 1) {
-    const mentorshipEnrollments = enrollments.filter(e => e.service?.type === 'MENTORSHIP')
-    const advisoryEnrollments = enrollments.filter(e => e.service?.type === 'ADVISORY')
-
-    return (
-      <DashboardLayout
-        title="Welcome back!"
-        description="You have multiple active enrollments. Choose which dashboard to view"
-      >
-        <div className="grid md:grid-cols-2 gap-6">
-          {mentorshipEnrollments.length > 0 && (
-            <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center mb-4">
-                <Users className="w-8 h-8 text-blue-600 mr-3" />
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">Mentorship Programs</h3>
-                  <p className="text-gray-600">{mentorshipEnrollments.length} active enrollment(s)</p>
-                </div>
-              </div>
-              <div className="space-y-2 mb-4">
-                {mentorshipEnrollments.map((enrollment) => (
-                  <div key={enrollment.id} className="text-sm text-gray-600">
-                    • {enrollment.planType} Plan - {enrollment.status}
-                  </div>
-                ))}
-              </div>
-              <Button 
-                onClick={() => handleContinueToService('MENTORSHIP')}
-                className="w-full"
-              >
-                View Mentorship Dashboard
-              </Button>
-            </div>
-          )}
-
-          {advisoryEnrollments.length > 0 && (
-            <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center mb-4">
-                <Target className="w-8 h-8 text-purple-600 mr-3" />
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">Advisory Services</h3>
-                  <p className="text-gray-600">{advisoryEnrollments.length} active enrollment(s)</p>
-                </div>
-              </div>
-              <div className="space-y-2 mb-4">
-                {advisoryEnrollments.map((enrollment) => (
-                  <div key={enrollment.id} className="text-sm text-gray-600">
-                    • {enrollment.planType} Plan - {enrollment.status}
-                  </div>
-                ))}
-              </div>
-              <Button 
-                onClick={() => handleContinueToService('ADVISORY')}
-                className="w-full bg-purple-600 hover:bg-purple-700"
-              >
-                View Advisory Dashboard
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid md:grid-cols-3 gap-4">
-            <Button variant="outline" className="flex items-center justify-center space-x-2">
-              <Calendar className="w-4 h-4" />
-              <span>Schedule Session</span>
-            </Button>
-            <Button variant="outline" className="flex items-center justify-center space-x-2">
-              <CreditCard className="w-4 h-4" />
-              <span>Billing & Payments</span>
-            </Button>
-            <Button variant="outline" className="flex items-center justify-center space-x-2">
-              <Users className="w-4 h-4" />
-              <span>Contact Support</span>
-            </Button>
-          </div>
-        </div>
-      </DashboardLayout>
-    )
-  }
-
-  // Show empty state for users with no enrollments
-  if (enrollments.length === 0) {
+  if (!dashboardData) {
     return (
       <DashboardLayout
         title="Dashboard"
-        description="Your mentorship and advisory programs"
+        description="Your learning progress and activities"
       >
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -313,22 +274,21 @@ export default function DashboardPage() {
           </div>
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">No Active Programs</h2>
           <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            You don't have any active mentorship or advisory programs yet. 
-            Browse our available services to get started on your professional development journey.
+            You don't have any active programs. Contact the admin to get started.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
+              onClick={() => router.push('/dashboard/messages')}
+              className="px-6 py-3"
+            >
+              Contact Admin
+            </Button>
+            <Button 
+              variant="outline"
               onClick={() => router.push('/services')}
               className="px-6 py-3"
             >
               Browse Services
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => router.push('/contact')}
-              className="px-6 py-3"
-            >
-              Contact Us
             </Button>
           </div>
         </div>
@@ -336,13 +296,293 @@ export default function DashboardPage() {
     )
   }
 
-  // Fallback - should not reach here due to routing logic
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Dashboard Loading...</h2>
-        <p className="text-gray-600">Redirecting you to the appropriate dashboard...</p>
+    <DashboardLayout
+      title="Dashboard"
+      description="Your learning progress and activities"
+    >
+      <div className="space-y-6">
+        {/* Welcome Section */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
+          <h1 className="text-2xl font-bold mb-2">
+            Welcome back, {dashboardData.user.name || 'there'}!
+          </h1>
+          <p className="text-blue-100">
+            Here's your learning progress and latest updates
+          </p>
+        </div>
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <DashboardCard>
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Target className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Overall Progress</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData.overallProgress}%</p>
+              </div>
+            </div>
+          </DashboardCard>
+
+          <DashboardCard>
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Completed Tasks</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {dashboardData.stats.completedTasks}/{dashboardData.stats.totalTasks}
+                </p>
+              </div>
+            </div>
+          </DashboardCard>
+
+          <DashboardCard>
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-red-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Overdue Tasks</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.overdueTasks}</p>
+              </div>
+            </div>
+          </DashboardCard>
+
+          <DashboardCard>
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <Clock className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Due Soon</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.tasksDueSoon}</p>
+              </div>
+            </div>
+          </DashboardCard>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Roadmap Progress */}
+          <div className="lg:col-span-2">
+            <DashboardCard title="Your Roadmaps" subtitle={`${dashboardData.roadmapProgress.length} active program(s)`}>
+              <div className="space-y-6">
+                {dashboardData.roadmapProgress.map((roadmap) => (
+                  <div key={roadmap.enrollmentId} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{roadmap.serviceName}</h3>
+                        <p className="text-sm text-gray-600">{roadmap.serviceType}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-gray-900">{roadmap.progress}%</p>
+                        <p className="text-sm text-gray-600">
+                          {roadmap.completedTasks}/{roadmap.totalTasks} tasks
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="mb-4">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(roadmap.progress)}`}
+                          style={{ width: `${roadmap.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* Milestones */}
+                    {roadmap.milestones.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-medium text-gray-700">Milestones:</h4>
+                        {roadmap.milestones.map((milestone) => (
+                          <div key={milestone.id} className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600">{milestone.title}</span>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-gray-500">
+                                {milestone.completedTasks}/{milestone.totalTasks}
+                              </span>
+                              <StatusBadge status={milestone.status.toLowerCase() as any} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {roadmap.hasRoadmap && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => router.push(`/dashboard/roadmap`)}
+                          className="w-full"
+                        >
+                          View Full Roadmap
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </DashboardCard>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Latest Messages */}
+            <DashboardCard title="Latest Messages" subtitle={`${dashboardData.latestMessages.length} message(s)`}>
+              <div className="space-y-3">
+                {dashboardData.latestMessages.length > 0 ? (
+                  dashboardData.latestMessages.map((message) => (
+                    <div key={message.id} className="border border-gray-200 rounded-lg p-3">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <MessageCircle className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900">
+                            {message.sender.name || 'Admin'}
+                          </p>
+                          <p className="text-sm text-gray-600 truncate">
+                            {message.content}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {formatTimeAgo(message.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <MessageCircle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600">No messages yet</p>
+                  </div>
+                )}
+                
+                {dashboardData.latestMessages.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push('/dashboard/messages')}
+                    className="w-full"
+                  >
+                    View All Messages
+                  </Button>
+                )}
+              </div>
+            </DashboardCard>
+
+            {/* Overdue Tasks */}
+            {dashboardData.overdueTasks.length > 0 && (
+              <DashboardCard title="Overdue Tasks" subtitle={`${dashboardData.overdueTasks.length} task(s)`}>
+                <div className="space-y-3">
+                  {dashboardData.overdueTasks.slice(0, 3).map((task) => (
+                    <div key={task.id} className="border border-red-200 bg-red-50 rounded-lg p-3">
+                      <div className="flex items-start space-x-3">
+                        <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-red-900">{task.title}</p>
+                          <p className="text-xs text-red-700">{task.milestone.title}</p>
+                          <p className="text-xs text-red-600 mt-1">
+                            Due: {formatDate(task.dueDate)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {dashboardData.overdueTasks.length > 3 && (
+                    <p className="text-sm text-gray-600 text-center">
+                      +{dashboardData.overdueTasks.length - 3} more overdue tasks
+                    </p>
+                  )}
+                </div>
+              </DashboardCard>
+            )}
+
+            {/* Tasks Due Soon */}
+            {dashboardData.tasksDueSoon.length > 0 && (
+              <DashboardCard title="Due Soon" subtitle={`${dashboardData.tasksDueSoon.length} task(s)`}>
+                <div className="space-y-3">
+                  {dashboardData.tasksDueSoon.slice(0, 3).map((task) => (
+                    <div key={task.id} className="border border-yellow-200 bg-yellow-50 rounded-lg p-3">
+                      <div className="flex items-start space-x-3">
+                        <Clock className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-yellow-900">{task.title}</p>
+                          <p className="text-xs text-yellow-700">{task.milestone.title}</p>
+                          <p className="text-xs text-yellow-600 mt-1">
+                            Due: {formatDate(task.dueDate)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {dashboardData.tasksDueSoon.length > 3 && (
+                    <p className="text-sm text-gray-600 text-center">
+                      +{dashboardData.tasksDueSoon.length - 3} more tasks due soon
+                    </p>
+                  )}
+                </div>
+              </DashboardCard>
+            )}
+
+            {/* Quick Actions */}
+            <DashboardCard title="Quick Actions">
+              <div className="space-y-3">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/dashboard/roadmap')}
+                  className="w-full justify-start"
+                >
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  View Roadmap
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/dashboard/messages')}
+                  className="w-full justify-start"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Messages
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    // If user has active services, open calendar directly
+                    if (dashboardData.roadmapProgress.length > 0) {
+                      const calendlyUrl = 'https://calendly.com/sam-mokhtari'
+                      window.open(calendlyUrl, '_blank')
+                    } else {
+                      // Otherwise, go to sessions page
+                      router.push('/dashboard/sessions')
+                    }
+                  }}
+                  className="w-full justify-start"
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Schedule Session
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/dashboard/billing')}
+                  className="w-full justify-start"
+                >
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Billing
+                </Button>
+              </div>
+            </DashboardCard>
+          </div>
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   )
 }

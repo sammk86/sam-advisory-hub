@@ -13,6 +13,9 @@ declare module 'next-auth' {
       confirmedAt?: string | null
       confirmedBy?: string | null
       rejectionReason?: string | null
+      sessionStatus: string
+      sessionActivatedAt?: string | null
+      sessionActivatedBy?: string | null
     }
   }
 
@@ -26,6 +29,9 @@ declare module 'next-auth' {
     confirmedAt?: string | null
     confirmedBy?: string | null
     rejectionReason?: string | null
+    sessionStatus: string
+    sessionActivatedAt?: string | null
+    sessionActivatedBy?: string | null
   }
 }
 
@@ -37,6 +43,9 @@ declare module 'next-auth/jwt' {
     confirmedAt?: string | null
     confirmedBy?: string | null
     rejectionReason?: string | null
+    sessionStatus: string
+    sessionActivatedAt?: string | null
+    sessionActivatedBy?: string | null
   }
 }
 

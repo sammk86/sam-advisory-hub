@@ -1,11 +1,9 @@
-'use client'
-
 import Header from '@/components/landing/Header'
 import Footer from '@/components/landing/Footer'
 import SuccessStoriesSection from '@/components/landing/SuccessStoriesSection'
 import Link from 'next/link'
-import { ArrowRight, Users, Target, Clock, CheckCircle, Star, Zap, DollarSign, Loader2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { ArrowRight, Users, Target, Clock, CheckCircle, Star, Zap, DollarSign } from 'lucide-react'
+import { PrismaClient } from '@prisma/client'
 
 interface Service {
   id: string
@@ -13,52 +11,47 @@ interface Service {
   description: string
   type: 'MENTORSHIP' | 'ADVISORY'
   pricing: {
-    singleSession: number | null
-    monthly: number | null
+    oneOff: number | null
     hourly: number | null
   }
   createdAt: string
 }
 
-interface ServicesResponse {
-  success: boolean
-  data: {
-    services: Service[]
-    total: number
-  }
-}
+const prisma = new PrismaClient()
 
-export default function ServicesPage() {
-  const [services, setServices] = useState<Service[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export default async function ServicesPage() {
+  let services: Service[] = []
+  let error: string | null = null
 
-  useEffect(() => {
-    fetchServices()
-  }, [])
-
-  const fetchServices = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const response = await fetch('/api/services')
-      if (!response.ok) {
-        throw new Error('Failed to fetch services')
+  try {
+    const dbServices = await prisma.service.findMany({
+      where: { status: 'PUBLISHED' },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        type: true,
+        oneOffPrice: true,
+        hourlyRate: true,
+        createdAt: true,
       }
-      
-      const data: ServicesResponse = await response.json()
-      if (data.success && data.data.services) {
-        setServices(data.data.services)
-      } else {
-        throw new Error('Failed to load services')
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load services')
-      console.error('Services fetch error:', err)
-    } finally {
-      setLoading(false)
-    }
+    })
+
+    services = dbServices.map(service => ({
+      id: service.id,
+      name: service.name,
+      description: service.description,
+      type: service.type,
+      pricing: {
+        oneOff: service.oneOffPrice ? service.oneOffPrice / 100 : null,
+        hourly: service.hourlyRate ? service.hourlyRate / 100 : null,
+      },
+      createdAt: service.createdAt.toISOString(),
+    }))
+  } catch (err) {
+    console.error('Error fetching services:', err)
+    error = 'Failed to load services'
   }
 
   const formatPrice = (price: number | null) => {
@@ -136,23 +129,11 @@ export default function ServicesPage() {
 
         {/* Services Grid */}
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
-          {loading ? (
-            <div className="lg:col-span-2 flex items-center justify-center py-12">
-              <div className="text-center">
-                <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-                <p className="text-muted-foreground">Loading services...</p>
-              </div>
-            </div>
-          ) : error ? (
+          {error ? (
             <div className="lg:col-span-2 flex items-center justify-center py-12">
               <div className="text-center">
                 <p className="text-destructive mb-4">Failed to load services</p>
-                <button 
-                  onClick={fetchServices}
-                  className="text-primary hover:text-primary/80 font-medium"
-                >
-                  Try again
-                </button>
+                <p className="text-muted-foreground text-sm">Please try refreshing the page</p>
               </div>
             </div>
           ) : services.length === 0 ? (
@@ -209,7 +190,7 @@ export default function ServicesPage() {
                   <div className="bg-card/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-border">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-muted-foreground text-sm sm:text-base">
-                        {service.pricing.monthly ? 'Starting from' : service.pricing.hourly ? 'Hourly rate' : 'Pricing'}
+                        {service.pricing.oneOff ? 'One-time fee' : service.pricing.hourly ? 'Hourly rate' : 'Pricing'}
                       </span>
                       <div className="flex items-center space-x-1">
                         {[1, 2, 3, 4, 5].map((i) => (
@@ -220,20 +201,24 @@ export default function ServicesPage() {
                     </div>
                     <div className="flex items-baseline space-x-2">
                       <span className="text-2xl sm:text-3xl font-bold text-card-foreground">
-                        {formatPrice(service.pricing.monthly || service.pricing.singleSession || service.pricing.hourly) || 'Contact us'}
+                        {formatPrice(service.pricing.oneOff || service.pricing.hourly) || 'Contact us'}
                       </span>
                       <span className="text-muted-foreground">
-                        {service.pricing.monthly ? '/month' : service.pricing.hourly ? '/hour' : ''}
+                        {service.pricing.oneOff ? '' : service.pricing.hourly ? '/hour' : ''}
                       </span>
                     </div>
                   </div>
 
                   <Link
-                    href={`/register?service=${service.type.toLowerCase()}`}
+                    href={
+                      service.name.toLowerCase().includes('team upskilling') 
+                        ? '/services/team-upskilling'
+                        : `/services/${service.type.toLowerCase()}`
+                    }
                     className={`group w-full ${getServiceButtonColor(service.type)} text-white py-3 sm:py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl`}
                   >
                     <span>
-                      {service.type === 'MENTORSHIP' ? 'Start Mentorship Journey' : 'Book Advisory Session'}
+                      {service.type === 'MENTORSHIP' ? 'Learn More & Register' : 'Learn More & Register'}
                     </span>
                     <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </Link>

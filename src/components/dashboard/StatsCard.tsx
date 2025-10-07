@@ -11,6 +11,8 @@ interface StatsCardProps {
   icon: LucideIcon
   iconColor?: string
   description?: string
+  onClick?: () => void
+  clickable?: boolean
 }
 
 export default function StatsCard({ 
@@ -19,7 +21,9 @@ export default function StatsCard({
   change, 
   icon: Icon, 
   iconColor = 'text-blue-600',
-  description 
+  description,
+  onClick,
+  clickable = false
 }: StatsCardProps) {
   const formatValue = (val: string | number) => {
     if (typeof val === 'number') {
@@ -40,7 +44,14 @@ export default function StatsCard({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
+    <div 
+      className={`bg-white rounded-lg shadow-sm p-6 border border-gray-200 transition-shadow ${
+        clickable 
+          ? 'hover:shadow-md cursor-pointer hover:border-gray-300' 
+          : 'hover:shadow-md'
+      }`}
+      onClick={clickable ? onClick : undefined}
+    >
       <div className="flex items-center">
         <div className="flex-shrink-0">
           <Icon className={`h-8 w-8 ${iconColor}`} />

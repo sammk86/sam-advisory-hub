@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Mail, Phone, MapPin, Twitter, Github, Heart } from 'lucide-react'
+import { Mail, Heart, Linkedin, Youtube } from 'lucide-react'
 import NewsletterSignupForm from '@/components/newsletter/NewsletterSignupForm'
 
 export default function Footer() {
@@ -25,25 +25,33 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <a 
-                href="#" 
-                className="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-800"
-                aria-label="Twitter"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a 
-                href="#" 
+                href="https://www.linkedin.com/in/sam-mokhtari-59b32971/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-800"
                 aria-label="LinkedIn"
               >
-                <div className="w-5 h-5 bg-gray-400 rounded"></div>
+                <Linkedin className="w-5 h-5" />
               </a>
               <a 
-                href="#" 
+                href="https://www.youtube.com/@aiiwisdom"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-800"
-                aria-label="GitHub"
+                aria-label="YouTube"
               >
-                <Github className="w-5 h-5" />
+                <Youtube className="w-5 h-5" />
+              </a>
+              <a 
+                href="https://medium.com/@sammokhtari"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-800"
+                aria-label="Medium"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75S24 8.83 24 12z"/>
+                </svg>
               </a>
             </div>
           </div>
@@ -108,15 +116,7 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-center space-x-3 text-gray-400">
                 <Mail className="w-4 h-4" />
-                <span>hello@mentorshiphub.com</span>
-              </li>
-              <li className="flex items-center space-x-3 text-gray-400">
-                <Phone className="w-4 h-4" />
-                <span>+1 (555) 123-4567</span>
-              </li>
-              <li className="flex items-center space-x-3 text-gray-400">
-                <MapPin className="w-4 h-4" />
-                <span>San Francisco, CA</span>
+                <span>sam.mokhtari87@gmail.com</span>
               </li>
             </ul>
             
@@ -128,7 +128,7 @@ export default function Footer() {
               </p>
               <NewsletterSignupForm 
                 variant="footer"
-                showInterests={true}
+                showInterests={false}
                 onSuccess={(subscriber) => {
                   // Track successful subscription
                   if (typeof window !== 'undefined' && window.gtag) {

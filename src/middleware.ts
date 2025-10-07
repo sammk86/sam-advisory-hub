@@ -22,6 +22,16 @@ export default withAuth(
       '/newsletters',
     ]
 
+    // Allow messaging for confirmed users
+    if (pathname.startsWith('/dashboard/messages') && token?.isConfirmed) {
+      return NextResponse.next()
+    }
+
+    // Skip confirmation for service detail pages
+    if (pathname.startsWith('/services/') && pathname !== '/services') {
+      return NextResponse.next()
+    }
+
     if (skipConfirmationRoutes.includes(pathname)) {
       return NextResponse.next()
     }
@@ -75,6 +85,11 @@ export default withAuth(
           '/rejected',
           '/test-users',
         ]
+
+        // Check if it's a service detail page (e.g., /services/mentorship, /services/advisory)
+        if (pathname.startsWith('/services/') && pathname !== '/services') {
+          return true
+        }
 
         // Allow access to static files in public folder
         if (pathname.startsWith('/animations/') || 

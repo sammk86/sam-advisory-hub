@@ -3,11 +3,55 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Calendar, Clock, Video, MessageCircle, Plus, Filter, Search } from 'lucide-react'
+import { 
+  Calendar, 
+  Clock, 
+  Video, 
+  MessageCircle, 
+  Plus, 
+  Filter, 
+  Search, 
+  Eye,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  User
+} from 'lucide-react'
 import Button from '@/components/ui/Button'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import DashboardCard from '@/components/dashboard/DashboardCard'
-import StatusBadge from '@/components/ui/StatusBadge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+
+interface MeetingRequest {
+  id: string
+  title: string
+  description?: string
+  requestedDate: string
+  requestedTime: string
+  timezone: string
+  duration: number
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROPOSED_ALTERNATIVE'
+  adminNotes?: string
+  proposedDate?: string
+  proposedTime?: string
+  approvedAt?: string
+  createdAt: string
+  enrollment: {
+    id: string
+    service: {
+      id: string
+      name: string
+      type: string
+    }
+  }
+  meeting?: {
+    id: string
+    title: string
+    scheduledAt: string
+    status: string
+    videoLink?: string
+  }
+}
 
 interface Session {
   id: string
@@ -28,13 +72,38 @@ interface Session {
   meetingUrl?: string
 }
 
+interface AssignedService {
+  id: string
+  name: string
+  description: string
+  type: string
+  status: string
+  hoursRemaining: number
+  enrolledAt: string
+  expiresAt: string | null
+}
+
 export default function SessionsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [sessions, setSessions] = useState<Session[]>([])
+  const [meetingRequests, setMeetingRequests] = useState<MeetingRequest[]>([])
+  const [assignedServices, setAssignedServices] = useState<AssignedService[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [sessionInactive, setSessionInactive] = useState(false)
+  const [showRequestForm, setShowRequestForm] = useState(false)
+  const [requestForm, setRequestForm] = useState({
+    enrollmentId: '',
+    title: '',
+    description: '',
+    requestedDate: '',
+    requestedTime: '',
+    timezone: 'America/Los_Angeles',
+    duration: 60
+  })
+  const [submittingRequest, setSubmittingRequest] = useState(false)
 
   useEffect(() => {
     if (status === 'loading') return
@@ -44,20 +113,93 @@ export default function SessionsPage() {
       return
     }
 
-    fetchSessions()
+    fetchData()
   }, [session, status, router])
 
-  const fetchSessions = async () => {
+  const fetchData = async () => {
     try {
-      const response = await fetch('/api/meetings')
-      if (!response.ok) {
-        throw new Error('Failed to fetch sessions')
+      // First check user session status
+      const userResponse = await fetch('/api/users/me')
+      if (userResponse.ok) {
+        const userData = await userResponse.json()
+        
+        // If user session is not active, show message
+        if (userData.user.sessionStatus !== 'ACTIVE') {
+          setSessions([])
+          setMeetingRequests([])
+          setAssignedServices([])
+          setSessionInactive(true)
+          setIsLoading(false)
+          return
+        }
       }
-      const data = await response.json()
-      setSessions(data.sessions || [])
+
+      // Fetch sessions, meeting requests, and assigned services
+      const [sessionsRes, requestsRes, enrollmentsRes] = await Promise.all([
+        fetch('/api/sessions'),
+        fetch('/api/meeting-requests'),
+        fetch('/api/test-enrollments')
+      ])
+
+      if (sessionsRes.ok) {
+        const sessionsData = await sessionsRes.json()
+        setSessions(sessionsData.sessions || [])
+      }
+
+      if (requestsRes.ok) {
+        const requestsData = await requestsRes.json()
+        setMeetingRequests(requestsData.data?.meetingRequests || [])
+      }
+
+      if (enrollmentsRes.ok) {
+        const enrollmentsData = await enrollmentsRes.json()
+        const allEnrollments = enrollmentsData.data?.enrollments || enrollmentsData.enrollments || []
+        
+        // Filter out expired services and map to assigned services format
+        const activeEnrollments = allEnrollments.filter((enrollment: any) => {
+          if (!enrollment.expiresAt) return true // No expiry date means it's active
+          return new Date(enrollment.expiresAt) > new Date()
+        }).map((enrollment: any) => ({
+          id: enrollment.id,
+          name: enrollment.service?.name || 'Unknown Service',
+          description: enrollment.service?.description || 'No description available',
+          type: enrollment.service?.type || 'UNKNOWN',
+          status: enrollment.status,
+          hoursRemaining: enrollment.hoursRemaining || 0,
+          enrolledAt: enrollment.enrolledAt,
+          expiresAt: enrollment.expiresAt
+        }))
+        setAssignedServices(activeEnrollments)
+      } else {
+        // If API fails, use mock data for development
+        setAssignedServices([
+          {
+            id: 'mock-enrollment-1',
+            name: 'Mentorship Program',
+            description: 'One-on-one mentorship program for professional development',
+            type: 'MENTORSHIP',
+            status: 'ACTIVE',
+            hoursRemaining: 10,
+            enrolledAt: '2024-01-01T10:00:00Z',
+            expiresAt: '2024-12-31T23:59:59Z'
+          }
+        ])
+      }
     } catch (error) {
-      console.error('Error fetching sessions:', error)
+      console.error('Error fetching data:', error)
       // Mock data for development
+      setAssignedServices([
+        {
+          id: 'mock-enrollment-1',
+          name: 'Mentorship Program',
+          description: 'One-on-one mentorship program for professional development',
+          type: 'MENTORSHIP',
+          status: 'ACTIVE',
+          hoursRemaining: 10,
+          enrolledAt: '2024-01-01T10:00:00Z',
+          expiresAt: '2024-12-31T23:59:59Z'
+        }
+      ])
       setSessions([
         {
           id: '1',
@@ -72,38 +214,70 @@ export default function SessionsPage() {
           },
           description: 'Regular weekly check-in to discuss progress and goals',
           meetingUrl: 'https://meet.google.com/abc-def-ghi'
-        },
-        {
-          id: '2',
-          title: 'Strategy Review Session',
-          type: 'ADVISORY',
-          scheduledAt: '2024-01-22T14:00:00Z',
-          duration: 90,
-          status: 'SCHEDULED',
-          advisor: {
-            name: 'Michael Chen',
-            title: 'Former VP of Product'
-          },
-          description: 'Review go-to-market strategy and next steps',
-          meetingUrl: 'https://meet.google.com/xyz-123-456'
-        },
-        {
-          id: '3',
-          title: 'Technical Architecture Review',
-          type: 'ADVISORY',
-          scheduledAt: '2024-01-15T10:00:00Z',
-          duration: 120,
-          status: 'COMPLETED',
-          advisor: {
-            name: 'Michael Chen',
-            title: 'Former VP of Product'
-          },
-          description: 'Deep dive into system architecture and scalability'
         }
       ])
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleSubmitRequest = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmittingRequest(true)
+
+    try {
+      const response = await fetch('/api/meeting-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestForm),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        alert('Meeting request submitted successfully!')
+        setShowRequestForm(false)
+        setRequestForm({
+          enrollmentId: '',
+          title: '',
+          description: '',
+          requestedDate: '',
+          requestedTime: '',
+          timezone: 'America/Los_Angeles',
+          duration: 60
+        })
+        fetchData() // Refresh data
+      } else {
+        alert(`Error: ${data.error}`)
+      }
+    } catch (error) {
+      console.error('Error submitting request:', error)
+      alert('Failed to submit meeting request')
+    } finally {
+      setSubmittingRequest(false)
+    }
+  }
+
+  const getRequestStatusBadge = (status: string) => {
+    const colors = {
+      PENDING: 'bg-yellow-100 text-yellow-800',
+      APPROVED: 'bg-green-100 text-green-800',
+      REJECTED: 'bg-red-100 text-red-800',
+      PROPOSED_ALTERNATIVE: 'bg-blue-100 text-blue-800'
+    }
+    const labels = {
+      PENDING: 'Pending',
+      APPROVED: 'Approved',
+      REJECTED: 'Rejected',
+      PROPOSED_ALTERNATIVE: 'Alternative Proposed'
+    }
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[status as keyof typeof colors]}`}>
+        {labels[status as keyof typeof labels]}
+      </span>
+    )
   }
 
   const filteredSessions = sessions.filter(session => {
@@ -133,18 +307,295 @@ export default function SessionsPage() {
     )
   }
 
+  if (sessionInactive) {
+    return (
+      <DashboardLayout
+        title="Sessions"
+        description="Manage your mentorship and advisory sessions"
+      >
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Session Access Restricted</h3>
+          <p className="text-gray-600 mb-4">
+            Your session access is currently inactive. Please contact the admin to activate your account.
+          </p>
+          <Button onClick={() => router.push('/dashboard/messages')}>
+            <MessageCircle className="w-4 h-4 mr-2" />
+            Contact Admin
+          </Button>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
   return (
     <DashboardLayout
       title="Sessions"
       description="Manage your mentorship and advisory sessions"
-      actions={
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Schedule Session
-        </Button>
-      }
     >
       <div className="space-y-6">
+        {/* Assigned Services */}
+        {assignedServices.length > 0 ? (
+          <DashboardCard title="Your Assigned Services" subtitle={`${assignedServices.length} active service(s)`}>
+            <div className="space-y-6">
+              {/* Services List */}
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {assignedServices.map((service) => (
+                  <div key={service.id} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-gray-900">{service.name}</h3>
+                      <StatusBadge status={service.status.toLowerCase() as any} />
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">{service.description}</p>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span className="text-gray-500">Hours Remaining:</span>
+                      <span className="font-medium text-blue-600">{service.hoursRemaining}</span>
+                    </div>
+                    {service.expiresAt && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Expires:</span>
+                        <span className={`font-medium ${
+                          new Date(service.expiresAt) < new Date() 
+                            ? 'text-red-600' 
+                            : new Date(service.expiresAt) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                            ? 'text-orange-600'
+                            : 'text-gray-600'
+                        }`}>
+                          {new Date(service.expiresAt).toLocaleDateString()}
+                          {new Date(service.expiresAt) < new Date() && ' (Expired)'}
+                          {new Date(service.expiresAt) > new Date() && new Date(service.expiresAt) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) && ' (Expires Soon)'}
+                        </span>
+                      </div>
+                    )}
+                    <div className="mt-3">
+                      <Button 
+                        size="sm" 
+                        className="w-full"
+                        onClick={() => {
+                          setRequestForm(prev => ({ ...prev, enrollmentId: service.id }))
+                          setShowRequestForm(true)
+                        }}
+                        disabled={service.expiresAt && new Date(service.expiresAt) < new Date()}
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Request Meeting
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Meeting Request Form */}
+              {showRequestForm && (
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Request a Meeting</h3>
+                  <form onSubmit={handleSubmitRequest} className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Meeting Title *
+                        </label>
+                        <input
+                          type="text"
+                          value={requestForm.title}
+                          onChange={(e) => setRequestForm({ ...requestForm, title: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                          placeholder="Enter meeting title"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Duration (minutes)
+                        </label>
+                        <select
+                          value={requestForm.duration}
+                          onChange={(e) => setRequestForm({ ...requestForm, duration: parseInt(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                        >
+                          <option value={30}>30 minutes</option>
+                          <option value={60}>1 hour</option>
+                          <option value={90}>1.5 hours</option>
+                          <option value={120}>2 hours</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Description
+                      </label>
+                      <textarea
+                        value={requestForm.description}
+                        onChange={(e) => setRequestForm({ ...requestForm, description: e.target.value })}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                        placeholder="Describe what you'd like to discuss..."
+                      />
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Preferred Date *
+                        </label>
+                        <input
+                          type="date"
+                          value={requestForm.requestedDate}
+                          onChange={(e) => setRequestForm({ ...requestForm, requestedDate: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Preferred Time *
+                        </label>
+                        <input
+                          type="time"
+                          value={requestForm.requestedTime}
+                          onChange={(e) => setRequestForm({ ...requestForm, requestedTime: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Timezone
+                        </label>
+                        <select
+                          value={requestForm.timezone}
+                          onChange={(e) => setRequestForm({ ...requestForm, timezone: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                        >
+                          <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                          <option value="America/Denver">Mountain Time (MT)</option>
+                          <option value="America/Chicago">Central Time (CT)</option>
+                          <option value="America/New_York">Eastern Time (ET)</option>
+                          <option value="Europe/London">London (GMT)</option>
+                          <option value="Europe/Paris">Paris (CET)</option>
+                          <option value="Asia/Tokyo">Tokyo (JST)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="flex space-x-3">
+                      <Button type="submit" disabled={submittingRequest}>
+                        {submittingRequest ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        ) : (
+                          <Plus className="w-4 h-4 mr-2" />
+                        )}
+                        Submit Request
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setShowRequestForm(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+          </DashboardCard>
+        ) : (
+          <DashboardCard title="No Active Services" subtitle="You don't have any active services assigned">
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Services</h3>
+              <p className="text-gray-600 mb-4">
+                You don't have any active services assigned. Contact the admin to get services assigned to you.
+              </p>
+              <Button onClick={() => router.push('/dashboard/messages')}>
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Contact Admin
+              </Button>
+            </div>
+          </DashboardCard>
+        )}
+
+        {/* Meeting Requests */}
+        {meetingRequests.length > 0 && (
+          <DashboardCard title="Meeting Requests" subtitle={`${meetingRequests.length} request(s)`}>
+            <div className="space-y-4">
+              {meetingRequests.map((request) => (
+                <div key={request.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900">{request.title}</h4>
+                      <p className="text-sm text-gray-600">{request.enrollment.service.name}</p>
+                    </div>
+                    {getRequestStatusBadge(request.status)}
+                  </div>
+                  
+                  {request.description && (
+                    <p className="text-gray-700 mb-3">{request.description}</p>
+                  )}
+
+                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-500">Requested:</span>
+                      <span className="ml-2 text-gray-900">
+                        {new Date(request.requestedDate).toLocaleDateString()} at {request.requestedTime} ({request.timezone})
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Duration:</span>
+                      <span className="ml-2 text-gray-900">{request.duration} minutes</span>
+                    </div>
+                  </div>
+
+                  {request.status === 'PROPOSED_ALTERNATIVE' && request.proposedDate && (
+                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h5 className="font-medium text-blue-900 mb-1">Admin Proposed Alternative:</h5>
+                      <p className="text-blue-800">
+                        {new Date(request.proposedDate).toLocaleDateString()} at {request.proposedTime} ({request.timezone})
+                      </p>
+                      {request.adminNotes && (
+                        <p className="text-blue-700 mt-1">{request.adminNotes}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {request.status === 'REJECTED' && request.adminNotes && (
+                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <h5 className="font-medium text-red-900 mb-1">Admin Notes:</h5>
+                      <p className="text-red-800">{request.adminNotes}</p>
+                    </div>
+                  )}
+
+                  {request.status === 'APPROVED' && request.meeting && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <h5 className="font-medium text-green-900 mb-1">Meeting Approved:</h5>
+                      <p className="text-green-800 mb-2">
+                        Scheduled for {new Date(request.meeting.scheduledAt).toLocaleDateString()} at {new Date(request.meeting.scheduledAt).toLocaleTimeString()}
+                      </p>
+                      {request.meeting.videoLink && (
+                        <a 
+                          href={request.meeting.videoLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-3 py-1 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors"
+                        >
+                          <Video className="w-4 h-4 mr-1" />
+                          Join Meeting
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </DashboardCard>
+        )}
+
         {/* Filters and Search */}
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
@@ -239,22 +690,20 @@ export default function SessionsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-2 ml-4">
-                    {session.status === 'SCHEDULED' && session.meetingUrl && (
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                  <div className="flex items-center space-x-2">
+                    {session.meetingUrl && (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => window.open(session.meetingUrl, '_blank')}
+                      >
                         <Video className="w-4 h-4 mr-1" />
-                        Join
+                        Join Meeting
                       </Button>
                     )}
-                    <Button variant="outline" size="sm">
-                      <MessageCircle className="w-4 h-4 mr-1" />
-                      Message
+                    <Button size="sm" variant="outline">
+                      <Eye className="w-4 h-4" />
                     </Button>
-                    {session.status === 'SCHEDULED' && (
-                      <Button variant="outline" size="sm">
-                        Reschedule
-                      </Button>
-                    )}
                   </div>
                 </div>
               </DashboardCard>
@@ -262,16 +711,12 @@ export default function SessionsPage() {
           </div>
         ) : (
           <DashboardCard>
-            <div className="text-center py-12">
+            <div className="text-center py-8">
               <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Sessions Found</h3>
-              <p className="text-gray-600 mb-4">
-                {searchQuery ? 'No sessions match your search criteria.' : 'You don\'t have any sessions scheduled.'}
+              <p className="text-gray-600">
+                {searchQuery ? 'No sessions match your search criteria.' : 'You don\'t have any sessions yet.'}
               </p>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Schedule Your First Session
-              </Button>
             </div>
           </DashboardCard>
         )}
@@ -279,5 +724,3 @@ export default function SessionsPage() {
     </DashboardLayout>
   )
 }
-
-

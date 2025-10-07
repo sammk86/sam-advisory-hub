@@ -29,15 +29,24 @@ export async function GET(request: NextRequest) {
 
       const enrollments = await prisma.enrollment.findMany({
         where,
-        include: {
+        select: {
+          id: true,
+          userId: true,
+          serviceId: true,
+          planType: true,
+          status: true,
+          enrolledAt: true,
+          expiresAt: true,
+          hoursRemaining: true,
+          stripeCustomerId: true,
+          stripeSubscriptionId: true,
           service: {
             select: {
               id: true,
               name: true,
               description: true,
               type: true,
-              singleSessionPrice: true,
-              monthlyPlanPrice: true,
+              oneOffPrice: true,
               hourlyRate: true,
             },
           },
