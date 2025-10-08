@@ -1,4 +1,5 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react'
+import { cn } from '@/lib/utils'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
@@ -24,7 +25,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       lg: 'h-11 px-8 text-lg'
     }
 
-    const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`.trim()
+    const classes = cn(baseClasses, variants[variant], sizes[size], className)
 
     return (
       <button
