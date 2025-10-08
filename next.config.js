@@ -24,6 +24,18 @@ const nextConfig = {
     // your project has type errors.
     ignoreBuildErrors: true,
   },
+  webpack: (config, { isServer }) => {
+    // Ensure proper module resolution
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+    }
+    
+    // Add explicit extensions
+    config.resolve.extensions = ['.tsx', '.ts', '.jsx', '.js', '.json']
+    
+    return config
+  },
 }
 
 module.exports = nextConfig
