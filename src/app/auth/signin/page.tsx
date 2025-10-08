@@ -16,15 +16,17 @@ const signinSchema = z.object({
 
 type SigninFormData = z.infer<typeof signinSchema>
 
+export const dynamic = 'force-dynamic'
+
 export default function SigninPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
-  const service = searchParams.get('service')
+  // const searchParams = useSearchParams()
+  const callbackUrl = '/dashboard' // searchParams.get('callbackUrl') || '/dashboard'
+  const service = null // searchParams.get('service')
 
   const {
     register,

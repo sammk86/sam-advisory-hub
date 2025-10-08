@@ -17,7 +17,7 @@ import {
   AlertCircle,
   User
 } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import DashboardCard from '@/components/dashboard/DashboardCard'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -118,28 +118,68 @@ export default function SessionsPage() {
 
   const fetchData = async () => {
     try {
-      // First check user session status
-      const userResponse = await fetch('/api/users/me')
+      // Fetch all data first - use fixed enrollments API
+      const timestamp = Date.now()
+      const [userResponse, sessionsRes, requestsRes, enrollmentsRes] = await Promise.all([
+        fetch(`/api/users/me?t=${timestamp}`),
+        fetch(`/api/sessions?t=${timestamp}`),
+        fetch(`/api/meeting-requests?t=${timestamp}`),
+        fetch(`/api/enrollments?t=${timestamp}`) // Use fixed enrollments API
+      ])
+
+      // Check user session status and enrollments
+      let userData = null
+      let hasActiveEnrollments = false
+      let assignedServices = []
+
       if (userResponse.ok) {
-        const userData = await userResponse.json()
-        
-        // If user session is not active, show message
-        if (userData.user.sessionStatus !== 'ACTIVE') {
-          setSessions([])
-          setMeetingRequests([])
-          setAssignedServices([])
-          setSessionInactive(true)
-          setIsLoading(false)
-          return
-        }
+        userData = await userResponse.json()
       }
 
-      // Fetch sessions, meeting requests, and assigned services
-      const [sessionsRes, requestsRes, enrollmentsRes] = await Promise.all([
-        fetch('/api/sessions'),
-        fetch('/api/meeting-requests'),
-        fetch('/api/test-enrollments')
-      ])
+      if (enrollmentsRes.ok) {
+        const enrollmentsData = await enrollmentsRes.json()
+        assignedServices = enrollmentsData.data?.assignedServices || []
+        hasActiveEnrollments = assignedServices.length > 0
+        
+        console.log('🔍 hasActiveEnrollments check:')
+        console.log('Enrollments response ok:', enrollmentsRes.ok)
+        console.log('Enrollments response status:', enrollmentsRes.status)
+        console.log('Enrollments success:', enrollmentsData.success)
+        console.log('Enrollments data structure:', Object.keys(enrollmentsData))
+        console.log('Assigned services count:', assignedServices.length)
+        console.log('hasActiveEnrollments:', hasActiveEnrollments)
+        console.log('assignedServices:', assignedServices)
+        
+        if (assignedServices.length > 0) {
+          console.log('✅ Services found in enrollments API')
+        } else {
+          console.log('❌ No services found in enrollments API')
+        }
+      } else {
+        console.log('❌ Enrollments API failed:', enrollmentsRes.status)
+        console.log('Enrollments response:', enrollmentsRes)
+      }
+
+      // Block access only if user has no active enrollments
+      // Session status is now automatically managed based on enrollments
+      console.log('🔍 Final access control check:')
+      console.log('hasActiveEnrollments:', hasActiveEnrollments)
+      console.log('assignedServices.length:', assignedServices.length)
+      
+      if (assignedServices.length === 0) {
+        console.log('🚫 Blocking access - no assigned services found')
+        console.log('This is why you see "No Active Services" message')
+        setSessions([])
+        setMeetingRequests([])
+        setAssignedServices([])
+        setSessionInactive(true)
+        setIsLoading(false)
+        return
+      } else {
+        console.log('✅ Allowing access - assigned services found')
+        console.log('Setting assigned services:', assignedServices)
+        setAssignedServices(assignedServices)
+      }
 
       if (sessionsRes.ok) {
         const sessionsData = await sessionsRes.json()
@@ -151,71 +191,21 @@ export default function SessionsPage() {
         setMeetingRequests(requestsData.data?.meetingRequests || [])
       }
 
-      if (enrollmentsRes.ok) {
-        const enrollmentsData = await enrollmentsRes.json()
-        const allEnrollments = enrollmentsData.data?.enrollments || enrollmentsData.enrollments || []
-        
-        // Filter out expired services and map to assigned services format
-        const activeEnrollments = allEnrollments.filter((enrollment: any) => {
-          if (!enrollment.expiresAt) return true // No expiry date means it's active
-          return new Date(enrollment.expiresAt) > new Date()
-        }).map((enrollment: any) => ({
-          id: enrollment.id,
-          name: enrollment.service?.name || 'Unknown Service',
-          description: enrollment.service?.description || 'No description available',
-          type: enrollment.service?.type || 'UNKNOWN',
-          status: enrollment.status,
-          hoursRemaining: enrollment.hoursRemaining || 0,
-          enrolledAt: enrollment.enrolledAt,
-          expiresAt: enrollment.expiresAt
-        }))
-        setAssignedServices(activeEnrollments)
-      } else {
-        // If API fails, use mock data for development
-        setAssignedServices([
-          {
-            id: 'mock-enrollment-1',
-            name: 'Mentorship Program',
-            description: 'One-on-one mentorship program for professional development',
-            type: 'MENTORSHIP',
-            status: 'ACTIVE',
-            hoursRemaining: 10,
-            enrolledAt: '2024-01-01T10:00:00Z',
-            expiresAt: '2024-12-31T23:59:59Z'
-          }
-        ])
-      }
+      // Assigned services are now set above in the access control logic
     } catch (error) {
       console.error('Error fetching data:', error)
-      // Mock data for development
-      setAssignedServices([
-        {
-          id: 'mock-enrollment-1',
-          name: 'Mentorship Program',
-          description: 'One-on-one mentorship program for professional development',
-          type: 'MENTORSHIP',
-          status: 'ACTIVE',
-          hoursRemaining: 10,
-          enrolledAt: '2024-01-01T10:00:00Z',
-          expiresAt: '2024-12-31T23:59:59Z'
-        }
-      ])
-      setSessions([
-        {
-          id: '1',
-          title: 'Weekly Check-in',
-          type: 'MENTORSHIP',
-          scheduledAt: '2024-01-20T15:00:00Z',
-          duration: 60,
-          status: 'SCHEDULED',
-          mentor: {
-            name: 'Sarah Johnson',
-            title: 'Senior Engineering Manager'
-          },
-          description: 'Regular weekly check-in to discuss progress and goals',
-          meetingUrl: 'https://meet.google.com/abc-def-ghi'
-        }
-      ])
+      console.log('Debug info:', {
+        userResponse: userResponse?.ok,
+        sessionsRes: sessionsRes?.ok,
+        requestsRes: requestsRes?.ok,
+        enrollmentsRes: enrollmentsRes?.ok
+      })
+      
+      // If API fails, show no services (don't use mock data)
+      setSessions([])
+      setMeetingRequests([])
+      setAssignedServices([])
+      setSessionInactive(true)
     } finally {
       setIsLoading(false)
     }
@@ -226,6 +216,12 @@ export default function SessionsPage() {
     setSubmittingRequest(true)
 
     try {
+      // Validate form data
+      if (!requestForm.enrollmentId) {
+        alert('Please select a service')
+        return
+      }
+
       const response = await fetch('/api/meeting-requests', {
         method: 'POST',
         headers: {
@@ -254,7 +250,7 @@ export default function SessionsPage() {
       }
     } catch (error) {
       console.error('Error submitting request:', error)
-      alert('Failed to submit meeting request')
+      alert('Failed to submit meeting request. Please try again.')
     } finally {
       setSubmittingRequest(false)
     }
@@ -297,8 +293,8 @@ export default function SessionsPage() {
   if (status === 'loading' || isLoading) {
     return (
       <DashboardLayout
-        title="Sessions"
-        description="Manage your mentorship and advisory sessions"
+        title="Services"
+        description="Manage your assigned services and request meetings"
       >
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -310,16 +306,16 @@ export default function SessionsPage() {
   if (sessionInactive) {
     return (
       <DashboardLayout
-        title="Sessions"
-        description="Manage your mentorship and advisory sessions"
+        title="Services"
+        description="Manage your assigned services and request meetings"
       >
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Session Access Restricted</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Services</h3>
           <p className="text-gray-600 mb-4">
-            Your session access is currently inactive. Please contact the admin to activate your account.
+            You don't have any active services assigned. Please contact the admin to assign services to you.
           </p>
           <Button onClick={() => router.push('/dashboard/messages')}>
             <MessageCircle className="w-4 h-4 mr-2" />
@@ -332,8 +328,8 @@ export default function SessionsPage() {
 
   return (
     <DashboardLayout
-      title="Sessions"
-      description="Manage your mentorship and advisory sessions"
+      title="Services"
+      description="Manage your assigned services and request meetings"
     >
       <div className="space-y-6">
         {/* Assigned Services */}
@@ -377,10 +373,17 @@ export default function SessionsPage() {
                           setRequestForm(prev => ({ ...prev, enrollmentId: service.id }))
                           setShowRequestForm(true)
                         }}
-                        disabled={service.expiresAt && new Date(service.expiresAt) < new Date()}
+                        disabled={
+                          service.status !== 'ACTIVE' || 
+                          (service.expiresAt && new Date(service.expiresAt) < new Date()) ||
+                          (service.hoursRemaining !== null && service.hoursRemaining <= 0)
+                        }
                       >
                         <Plus className="w-4 h-4 mr-1" />
-                        Request Meeting
+                        {service.status !== 'ACTIVE' ? 'Service Inactive' :
+                         service.expiresAt && new Date(service.expiresAt) < new Date() ? 'Service Expired' :
+                         service.hoursRemaining !== null && service.hoursRemaining <= 0 ? 'No Hours Remaining' :
+                         'Request Meeting'}
                       </Button>
                     </div>
                   </div>

@@ -12,15 +12,13 @@ import {
   CheckCircle,
   XCircle,
   Eye,
-  MousePointer,
-  Calendar,
   Download,
   RefreshCw
 } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { DashboardCard } from '@/components/dashboard/DashboardCard'
-import { StatsCard } from '@/components/dashboard/StatsCard'
-import { ProgressBar } from '@/components/dashboard/ProgressBar'
+import StatsCard from '@/components/dashboard/StatsCard'
+import ProgressBar from '@/components/dashboard/ProgressBar'
 
 interface AnalyticsData {
   userStats: {
@@ -449,5 +447,6 @@ export default function AnalyticsDashboard() {
     </div>
   )
 }
+
 
 

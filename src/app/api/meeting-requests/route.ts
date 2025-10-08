@@ -110,20 +110,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify the enrollment belongs to the user
+    // Verify the enrollment belongs to the user and is active
     const enrollment = await prisma.enrollment.findFirst({
       where: {
         id: enrollmentId,
         userId: session.user.id,
-        expiresAt: {
-          gt: new Date() // Only active enrollments
-        }
+        status: 'ACTIVE'
       }
     })
 
     if (!enrollment) {
       return NextResponse.json(
-        { error: 'Invalid or expired enrollment' },
+        { error: 'Invalid or inactive enrollment' },
+        { status: 400 }
+      )
+    }
+
+    // Check if enrollment is expired (if it has an expiry date)
+    if (enrollment.expiresAt && new Date(enrollment.expiresAt) <= new Date()) {
+      return NextResponse.json(
+        { error: 'Enrollment has expired' },
+        { status: 400 }
+      )
+    }
+
+    // Check if user has hours remaining (if applicable)
+    if (enrollment.hoursRemaining !== null && enrollment.hoursRemaining <= 0) {
+      return NextResponse.json(
+        { error: 'No hours remaining for this service' },
         { status: 400 }
       )
     }
@@ -175,3 +189,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+

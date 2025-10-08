@@ -1,7 +1,7 @@
 'use client'
 
 import { Check, Star, ArrowRight, Clock, Target } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { ServiceType, PlanType } from '../RegistrationFlow'
 
 interface PlanSelectionProps {
@@ -214,5 +214,6 @@ export default function PlanSelection({ service, selectedPlan, onPlanSelect, onN
     </div>
   )
 }
+
 
 

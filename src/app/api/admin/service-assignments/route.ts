@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create enrollment (service assignment)
+    // Create enrollment (service assignment) and automatically activate user session
     const enrollment = await prisma.enrollment.create({
       data: {
         userId,
@@ -218,6 +218,16 @@ export async function POST(request: NextRequest) {
             createdAt: true,
           }
         }
+      }
+    })
+
+    // Automatically activate user session when service is assigned
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        sessionStatus: 'ACTIVE',
+        sessionActivatedAt: new Date(),
+        sessionActivatedBy: session.user.id
       }
     })
 
@@ -279,6 +289,26 @@ export async function DELETE(request: NextRequest) {
     await prisma.enrollment.delete({
       where: { id: enrollmentId }
     })
+
+    // Check if user has any remaining active enrollments
+    const remainingEnrollments = await prisma.enrollment.count({
+      where: {
+        userId: enrollment.userId,
+        status: 'ACTIVE'
+      }
+    })
+
+    // If no active enrollments remain, deactivate user session
+    if (remainingEnrollments === 0) {
+      await prisma.user.update({
+        where: { id: enrollment.userId },
+        data: {
+          sessionStatus: 'INACTIVE',
+          sessionActivatedAt: null,
+          sessionActivatedBy: null
+        }
+      })
+    }
 
     return NextResponse.json({
       success: true,

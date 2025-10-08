@@ -1,14 +1,17 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Search, Filter, Grid, List, Heart, Star, Clock, Users, DollarSign, ChevronDown, X } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import DashboardCard from '@/components/dashboard/DashboardCard'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import ServiceDetailsModal from '@/components/services/ServiceDetailsModal'
 import ClientOnly from '@/components/ui/ClientOnly'
+import FeedbackGrid from '@/components/ui/FeedbackGrid'
 
 interface Service {
   id: string
@@ -49,7 +52,7 @@ interface ServiceFilters {
 }
 
 export default function ServicesPage() {
-  const searchParams = useSearchParams()
+  // const searchParams = useSearchParams()
   const [services, setServices] = useState<Service[]>([])
   const [filteredServices, setFilteredServices] = useState<Service[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -79,13 +82,13 @@ export default function ServicesPage() {
 
   useEffect(() => {
     // Initialize filters from URL params
-    const type = searchParams.get('type') as 'MENTORSHIP' | 'ADVISORY' | null
-    const search = searchParams.get('search') || ''
+    const type = null as 'MENTORSHIP' | 'ADVISORY' | null // searchParams.get('type') as 'MENTORSHIP' | 'ADVISORY' | null
+    const search = '' // searchParams.get('search') || ''
     
     if (type) {
       setFilters(prev => ({ ...prev, type: type || 'ALL', search }))
     }
-  }, [searchParams])
+  }, []) // [searchParams])
 
   const fetchServices = async () => {
     try {
@@ -493,6 +496,16 @@ export default function ServicesPage() {
             </div>
           </DashboardCard>
         )}
+      </div>
+
+      {/* Feedback Section */}
+      <div className="mt-16">
+        <FeedbackGrid 
+          maxItems={6}
+          showHeader={true}
+          backgroundClass="bg-white"
+          className="border-t border-gray-200"
+        />
       </div>
 
       {/* Service Details Modal */}

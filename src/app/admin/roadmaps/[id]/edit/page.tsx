@@ -12,7 +12,7 @@ import {
   User,
   BookOpen
 } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import DashboardCard from '@/components/dashboard/DashboardCard'
 
 interface Task {
@@ -602,3 +602,4 @@ export default function RoadmapEditPage({ params }: RoadmapEditPageProps) {
     </div>
   )
 }
+

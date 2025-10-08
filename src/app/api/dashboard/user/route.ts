@@ -16,9 +16,11 @@ export async function GET() {
     const enrollments = await prisma.enrollment.findMany({
       where: { 
         userId,
-        expiresAt: {
-          gt: new Date() // Only active enrollments
-        }
+        status: 'ACTIVE',
+        OR: [
+          { expiresAt: null }, // No expiry date
+          { expiresAt: { gt: new Date() } } // Not expired
+        ]
       },
       include: {
         service: {
@@ -91,8 +93,21 @@ export async function GET() {
     // For now, we'll create a placeholder structure
     const upcomingSessions = [] // This would be populated from a sessions table
 
-    // Calculate roadmap progress
-    const roadmapProgress = enrollments.map(enrollment => {
+    // Create assigned services list (all enrollments)
+    const assignedServices = enrollments.map(enrollment => ({
+      id: enrollment.id,
+      name: enrollment.service.name,
+      description: enrollment.service.description,
+      type: enrollment.service.type,
+      status: enrollment.status,
+      enrolledAt: enrollment.enrolledAt,
+      expiresAt: enrollment.expiresAt,
+      hoursRemaining: enrollment.hoursRemaining,
+      hasRoadmap: !!enrollment.roadmap
+    }))
+
+    // Calculate roadmap progress (only enrollments with roadmaps)
+    const roadmapProgress = enrollments.filter(enrollment => enrollment.roadmap).map(enrollment => {
       if (!enrollment.roadmap) {
         return {
           enrollmentId: enrollment.id,
@@ -159,6 +174,7 @@ export async function GET() {
           email: session.user.email,
           role: session.user.role
         },
+        assignedServices,
         roadmapProgress,
         overallProgress,
         stats: {

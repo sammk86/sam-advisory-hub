@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { LucideIcon } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 
 interface EmptyStateProps {
   icon: LucideIcon
@@ -30,5 +30,6 @@ export default function EmptyState({ icon: Icon, title, description, action, chi
     </div>
   )
 }
+
 
 

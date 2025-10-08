@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js'
 import { ArrowRight, AlertCircle } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 
 interface PaymentFormProps {
   onSuccess: (paymentMethodId: string) => void
@@ -95,5 +95,6 @@ export default function PaymentForm({ onSuccess, onError, isLoading }: PaymentFo
     </form>
   )
 }
+
 
 

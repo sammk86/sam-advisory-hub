@@ -8,8 +8,8 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
+import { Button } from '@/components/ui/button'
+import Input from '@/components/ui/input'
 
 const signinSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -195,5 +195,6 @@ export default function SigninForm({ onSuccess, onSwitchToSignup, service, plan 
     </div>
   )
 }
+
 
 

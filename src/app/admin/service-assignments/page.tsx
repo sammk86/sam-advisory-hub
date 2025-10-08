@@ -19,7 +19,7 @@ import {
   Package,
   Settings
 } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { DashboardCard } from '@/components/dashboard/DashboardCard'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 

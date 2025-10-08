@@ -18,7 +18,8 @@ import {
   MessageCircle,
   Package,
   Target,
-  Calendar
+  Calendar,
+  MessageSquare
 } from 'lucide-react'
 import { useState } from 'react'
 import { LoadingPage } from '@/components/ui/LoadingStates'
@@ -119,6 +120,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       name: 'Meeting Requests',
       href: '/admin/meeting-requests',
       icon: Calendar,
+      current: false,
+    },
+    {
+      name: 'Feedback',
+      href: '/admin/feedback',
+      icon: MessageSquare,
       current: false,
     },
     {

@@ -17,10 +17,22 @@ import {
   ArrowRight,
   Bell
 } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import DashboardCard from '@/components/dashboard/DashboardCard'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+
+interface AssignedService {
+  id: string
+  name: string
+  description: string
+  type: string
+  status: string
+  enrolledAt: string
+  expiresAt: string | null
+  hoursRemaining: number | null
+  hasRoadmap: boolean
+}
 
 interface DashboardData {
   user: {
@@ -29,6 +41,7 @@ interface DashboardData {
     email: string
     role: string
   }
+  assignedServices: AssignedService[]
   roadmapProgress: Array<{
     enrollmentId: string
     serviceName: string
@@ -85,18 +98,20 @@ interface DashboardData {
   }>
 }
 
+export const dynamic = 'force-dynamic'
+
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const searchParams = useSearchParams()
+  // const searchParams = useSearchParams()
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
   // Check for success message from registration
-  const isNewRegistration = searchParams.get('success') === 'true'
-  const enrollmentId = searchParams.get('enrollment')
-  const subscriptionId = searchParams.get('subscription')
+  const isNewRegistration = false // searchParams.get('success') === 'true'
+  const enrollmentId = null // searchParams.get('enrollment')
+  const subscriptionId = null // searchParams.get('subscription')
 
   useEffect(() => {
     if (status === 'loading') return
@@ -272,9 +287,9 @@ export default function DashboardPage() {
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Target className="w-8 h-8 text-blue-600" />
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">No Active Programs</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">No Assigned Services</h2>
           <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            You don't have any active programs. Contact the admin to get started.
+            You don't have any assigned services yet. Contact the admin to get services assigned to you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
@@ -311,6 +326,80 @@ export default function DashboardPage() {
             Here's your learning progress and latest updates
           </p>
         </div>
+
+        {/* Assigned Services */}
+        {dashboardData.assignedServices.length > 0 && (
+          <DashboardCard title="Your Assigned Services" subtitle={`${dashboardData.assignedServices.length} active service(s)`}>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {dashboardData.assignedServices.map((service) => (
+                <div key={service.id} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900">{service.name}</h3>
+                    <StatusBadge status={service.status.toLowerCase() as any} />
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">{service.description}</p>
+                  
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">Type:</span>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        service.type === 'MENTORSHIP' 
+                          ? 'bg-blue-100 text-blue-800' 
+                          : 'bg-purple-100 text-purple-800'
+                      }`}>
+                        {service.type}
+                      </span>
+                    </div>
+                    
+                    {service.hoursRemaining !== null && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500">Hours Remaining:</span>
+                        <span className="font-medium text-blue-600">{service.hoursRemaining}</span>
+                      </div>
+                    )}
+                    
+                    {service.expiresAt && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500">Expires:</span>
+                        <span className={`font-medium text-sm ${
+                          new Date(service.expiresAt) < new Date() 
+                            ? 'text-red-600' 
+                            : new Date(service.expiresAt) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                            ? 'text-orange-600'
+                            : 'text-gray-600'
+                        }`}>
+                          {new Date(service.expiresAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 flex gap-2">
+                    <Button 
+                      size="sm" 
+                      onClick={() => router.push('/dashboard/sessions')}
+                      className="flex-1"
+                    >
+                      <Calendar className="w-4 h-4 mr-1" />
+                      Manage Service
+                    </Button>
+                    {service.hasRoadmap && (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => router.push('/dashboard/roadmap')}
+                        className="flex-1"
+                      >
+                        <BookOpen className="w-4 h-4 mr-1" />
+                        View Roadmap
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </DashboardCard>
+        )}
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -561,14 +650,14 @@ export default function DashboardPage() {
                       const calendlyUrl = 'https://calendly.com/sam-mokhtari'
                       window.open(calendlyUrl, '_blank')
                     } else {
-                      // Otherwise, go to sessions page
+                      // Otherwise, go to services page
                       router.push('/dashboard/sessions')
                     }
                   }}
                   className="w-full justify-start"
                 >
                   <Calendar className="w-4 h-4 mr-2" />
-                  Schedule Session
+                  Manage Services
                 </Button>
                 <Button
                   variant="outline"

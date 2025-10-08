@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { X, Star, Clock, Users, DollarSign, CheckCircle, Heart, Share2 } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 
 interface ServiceDetailsModalProps {

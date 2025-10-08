@@ -7,6 +7,7 @@ import MentoringSection from '@/components/landing/MentoringSection'
 import BlogSection from '@/components/landing/BlogSection'
 import VideoSection from '@/components/landing/VideoSection'
 import PricingSection from '@/components/landing/PricingSection'
+import FeedbackGrid from '@/components/ui/FeedbackGrid'
 import Footer from '@/components/landing/Footer'
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
         <BlogSection />
         <VideoSection />
       </div>
+      <FeedbackGrid backgroundClass="bg-gray-900" />
       <Footer />
     </main>
   )

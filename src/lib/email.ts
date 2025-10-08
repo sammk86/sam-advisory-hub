@@ -650,3 +650,94 @@ export async function getNewsletterAnalytics(): Promise<{
     }
   }
 }
+
+export async function sendPasswordResetEmail(
+  email: string, 
+  name: string, 
+  resetToken: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`
+    
+    const emailData: EmailData = {
+      to: email,
+      subject: 'Password Reset Request - SamAdvisoryHub',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">SamAdvisoryHub</h1>
+          </div>
+          
+          <div style="padding: 30px 20px;">
+            <h2 style="color: #333; margin-bottom: 20px;">Password Reset Request</h2>
+            
+            <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+              Hello ${name},
+            </p>
+            
+            <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+              You have requested a password reset for your SamAdvisoryHub account. Click the button below to reset your password:
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" 
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                        color: white; 
+                        padding: 12px 30px; 
+                        text-decoration: none; 
+                        border-radius: 5px; 
+                        display: inline-block;
+                        font-weight: bold;">
+                Reset Password
+              </a>
+            </div>
+            
+            <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+              If the button doesn't work, you can copy and paste this link into your browser:
+            </p>
+            
+            <p style="color: #667eea; word-break: break-all; margin-bottom: 20px;">
+              ${resetUrl}
+            </p>
+            
+            <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+              This link will expire in 24 hours for security reasons.
+            </p>
+            
+            <p style="color: #666; line-height: 1.6;">
+              If you didn't request this password reset, please ignore this email or contact support if you have concerns.
+            </p>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 20px; text-align: center; color: #666;">
+            <p style="margin: 0;">© 2024 SamAdvisoryHub. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+      text: `
+        Password Reset Request - SamAdvisoryHub
+        
+        Hello ${name},
+        
+        You have requested a password reset for your SamAdvisoryHub account. 
+        Click the link below to reset your password:
+        
+        ${resetUrl}
+        
+        This link will expire in 24 hours for security reasons.
+        
+        If you didn't request this password reset, please ignore this email or contact support if you have concerns.
+        
+        © 2024 SamAdvisoryHub. All rights reserved.
+      `,
+      type: 'PASSWORD_RESET' as EmailType,
+      userId: '' // We don't have userId in this context
+    }
+
+    const result = await sendEmail(emailData)
+    return result
+  } catch (error) {
+    console.error('Error sending password reset email:', error)
+    return { success: false, error: 'Failed to send password reset email' }
+  }
+}

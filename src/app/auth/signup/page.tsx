@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -31,9 +33,9 @@ export default function SignupPage() {
   const [success, setSuccess] = useState(false)
   
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const service = searchParams.get('service')
-  const plan = searchParams.get('plan')
+  // const searchParams = useSearchParams()
+  const service = null // searchParams.get('service')
+  const plan = null // searchParams.get('plan')
 
   const {
     register,

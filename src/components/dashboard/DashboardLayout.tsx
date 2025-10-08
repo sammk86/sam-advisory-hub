@@ -19,9 +19,10 @@ import {
   Users,
   Target,
   BarChart3,
-  Briefcase
+  Briefcase,
+  MessageSquare
 } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import MessageNotifications from '@/components/messaging/MessageNotifications'
 
 interface DashboardLayoutProps {
@@ -46,8 +47,9 @@ export default function DashboardLayout({ children, title, description, actions 
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ] : [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
-    { name: 'Sessions', href: '/dashboard/sessions', icon: Calendar },
+    { name: 'Services', href: '/dashboard/sessions', icon: Calendar },
     { name: 'Roadmap', href: '/dashboard/roadmap', icon: Target },
+    { name: 'Feedback', href: '/dashboard/feedback', icon: MessageSquare },
     { name: 'Messages', href: '/dashboard/messages', icon: MessageCircle },
     { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
     { name: 'Profile', href: '/dashboard/profile', icon: User },

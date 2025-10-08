@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Calendar, MessageCircle } from 'lucide-react'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import DashboardCard from '@/components/dashboard/DashboardCard'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 
 export default function CalendarPage() {
   const { data: session, status } = useSession()
@@ -132,3 +132,4 @@ export default function CalendarPage() {
     </DashboardLayout>
   )
 }
+

@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Users, Target, DollarSign, Calendar, TrendingUp, AlertCircle, Clock, CheckCircle, Activity, Mail, XCircle } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Users, Target, DollarSign, TrendingUp, AlertCircle, Clock, CheckCircle, Activity, Mail } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import DashboardCard from '@/components/dashboard/DashboardCard'
 import StatsCard from '@/components/dashboard/StatsCard'
 import ProgressBar from '@/components/dashboard/ProgressBar'
@@ -131,7 +131,7 @@ export default function AdminDashboard() {
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-600 mb-4">You don't have permission to access this page.</p>
+          <p className="text-gray-600 mb-4">You don&apos;t have permission to access this page.</p>
           <Button onClick={() => router.push('/dashboard')}>
             Go to Dashboard
           </Button>
@@ -273,7 +273,7 @@ export default function AdminDashboard() {
                     </div>
                     {activity.messagePreview && (
                       <div className="text-sm text-gray-600 mt-1 italic">
-                        "{activity.messagePreview}"
+                        &ldquo;{activity.messagePreview}&rdquo;
                       </div>
                     )}
                   </div>

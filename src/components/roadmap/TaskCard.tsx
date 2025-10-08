@@ -1,7 +1,7 @@
 'use client'
 
 import { CheckCircle, Clock, AlertCircle, Calendar, ExternalLink } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 
 interface Task {
@@ -181,3 +181,4 @@ export default function TaskCard({
     </div>
   )
 }
+

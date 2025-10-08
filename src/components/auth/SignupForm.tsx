@@ -7,8 +7,8 @@ import { Eye, EyeOff, Mail, Lock, User, ArrowRight, AlertCircle } from 'lucide-r
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
+import { Button } from '@/components/ui/button'
+import Input from '@/components/ui/input'
 
 const signupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -289,5 +289,6 @@ export default function SignupForm({ onSuccess, onSwitchToSignin, service, plan 
     </div>
   )
 }
+
 
 

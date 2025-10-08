@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { sendEmail } from '@/lib/email'
-import { renderConfirmationEmail } from '@/lib/email-templates'
+import { getEmailTemplate } from '@/lib/email-templates'
 
 const confirmUserSchema = z.object({
   adminId: z.string(),
@@ -90,7 +90,7 @@ export async function POST(
 
     // Send confirmation email
     try {
-      const emailTemplate = await renderConfirmationEmail({
+      const emailTemplate = getEmailTemplate('ACCOUNT_CONFIRMED', {
         userName: user.name || 'User',
         userEmail: user.email,
         platformName: 'SamAdvisoryHub',

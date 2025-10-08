@@ -1,287 +1,87 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { withAuth, withValidation } from '@/lib/auth-middleware'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { z } from 'zod'
 
-// Validation schema for enrollment creation
-const createEnrollmentSchema = z.object({
-  serviceId: z.string().min(1, 'Service ID is required'),
-  planType: z.enum(['SINGLE_SESSION', 'MONTHLY_PLAN', 'CONSULTATION', 'PACKAGE', 'RETAINER']),
-  advisoryPackageId: z.string().optional(),
-  stripePaymentIntentId: z.string().min(1, 'Payment confirmation is required'),
-})
-
-export async function GET(request: NextRequest) {
-  return withAuth(request, async (req) => {
-    try {
-      const { searchParams } = new URL(request.url)
-      const serviceType = searchParams.get('serviceType')
-      const status = searchParams.get('status')
-
-      // Build where clause
-      const where: any = {
-        userId: req.user!.id,
-      }
-
-      if (status && ['ACTIVE', 'PAUSED', 'CANCELLED', 'COMPLETED'].includes(status)) {
-        where.status = status
-      }
-
-      const enrollments = await prisma.enrollment.findMany({
-        where,
-        select: {
-          id: true,
-          userId: true,
-          serviceId: true,
-          planType: true,
-          status: true,
-          enrolledAt: true,
-          expiresAt: true,
-          hoursRemaining: true,
-          stripeCustomerId: true,
-          stripeSubscriptionId: true,
-          service: {
-            select: {
-              id: true,
-              name: true,
-              description: true,
-              type: true,
-              oneOffPrice: true,
-              hourlyRate: true,
-            },
-          },
-          advisoryPackage: {
-            select: {
-              id: true,
-              name: true,
-              hours: true,
-              price: true,
-            },
-          },
-          roadmap: {
-            select: {
-              id: true,
-              title: true,
-              description: true,
-              milestones: {
-                select: {
-                  id: true,
-                  title: true,
-                  status: true,
-                  order: true,
-                  _count: {
-                    select: {
-                      tasks: true,
-                    },
-                  },
-                },
-                orderBy: { order: 'asc' },
-              },
-            },
-          },
-          deliverables: {
-            select: {
-              id: true,
-              title: true,
-              type: true,
-              status: true,
-              dueDate: true,
-              completedAt: true,
-            },
-          },
-          _count: {
-            select: {
-              meetings: true,
-              payments: true,
-            },
-          },
-        },
-        orderBy: { enrolledAt: 'desc' },
-      })
-
-      // Filter by service type if specified
-      const filteredEnrollments = serviceType
-        ? enrollments.filter(enrollment => enrollment.service.type === serviceType)
-        : enrollments
-
-      return NextResponse.json({
-        success: true,
-        data: { enrollments: filteredEnrollments },
-      })
-    } catch (error) {
-      console.error('Get enrollments error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'DATABASE_ERROR',
-            message: 'Failed to fetch enrollments',
-          },
-        },
-        { status: 500 }
-      )
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-  })
-}
 
-export async function POST(request: NextRequest) {
-  return withValidation(createEnrollmentSchema, request, async (req, validatedData) => {
-    try {
-      // Check if user is already enrolled in this service
-      const existingEnrollment = await prisma.enrollment.findUnique({
-        where: {
-          userId_serviceId: {
-            userId: req.user!.id,
-            serviceId: validatedData.serviceId,
+    console.log('🔍 Enrollments API Debug:')
+    console.log('User ID:', session.user.id)
+    console.log('Current time:', new Date().toISOString())
+
+    const enrollments = await prisma.enrollment.findMany({
+      where: {
+        userId: session.user.id,
+        status: 'ACTIVE', // Only get active enrollments
+        OR: [
+          { expiresAt: null }, // No expiry date
+          { expiresAt: { gt: new Date() } } // Not expired
+        ]
+      },
+      select: {
+        id: true,
+        userId: true,
+        serviceId: true,
+        planType: true,
+        status: true,
+        enrolledAt: true,
+        expiresAt: true,
+        hoursRemaining: true,
+        service: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            type: true,
           },
         },
-      })
+      },
+      orderBy: { enrolledAt: 'desc' },
+    })
 
-      if (existingEnrollment) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: 'ALREADY_ENROLLED',
-              message: 'User is already enrolled in this service',
-            },
-          },
-          { status: 409 }
-        )
-      }
+    console.log('Found enrollments:', enrollments.length)
+    console.log('Enrollments:', enrollments.map(e => ({
+      id: e.id,
+      serviceName: e.service?.name,
+      status: e.status,
+      expiresAt: e.expiresAt
+    })))
 
-      // Verify service exists
-      const service = await prisma.service.findUnique({
-        where: { id: validatedData.serviceId },
-        include: {
-          advisoryService: {
-            include: {
-              packages: true,
-            },
-          },
-        },
-      })
+    // Create assigned services list (same format as dashboard API)
+    const assignedServices = enrollments.map(enrollment => ({
+      id: enrollment.id,
+      name: enrollment.service.name,
+      description: enrollment.service.description,
+      type: enrollment.service.type,
+      status: enrollment.status,
+      enrolledAt: enrollment.enrolledAt,
+      expiresAt: enrollment.expiresAt,
+      hoursRemaining: enrollment.hoursRemaining,
+      hasRoadmap: false // We don't include roadmap in enrollments API
+    }))
 
-      if (!service) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: 'SERVICE_NOT_FOUND',
-              message: 'Service not found',
-            },
-          },
-          { status: 404 }
-        )
-      }
-
-      // Verify advisory package if specified
-      let advisoryPackage = null
-      if (validatedData.advisoryPackageId) {
-        advisoryPackage = await prisma.advisoryPackage.findUnique({
-          where: { id: validatedData.advisoryPackageId },
-        })
-
-        if (!advisoryPackage) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: {
-                code: 'PACKAGE_NOT_FOUND',
-                message: 'Advisory package not found',
-              },
-            },
-            { status: 404 }
-          )
+    return NextResponse.json({
+      success: true,
+      data: {
+        enrollments,
+        assignedServices, // Add assignedServices in same format as dashboard
+        user: {
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.name
         }
       }
-
-      // Create enrollment
-      const enrollment = await prisma.enrollment.create({
-        data: {
-          userId: req.user!.id,
-          serviceId: validatedData.serviceId,
-          planType: validatedData.planType,
-          status: 'ACTIVE',
-          advisoryPackageId: validatedData.advisoryPackageId,
-          hoursRemaining: advisoryPackage?.hours,
-          // Note: In a real implementation, you'd verify the Stripe payment
-          // and set stripeCustomerId and stripeSubscriptionId
-        },
-        include: {
-          service: {
-            select: {
-              id: true,
-              name: true,
-              type: true,
-            },
-          },
-          advisoryPackage: {
-            select: {
-              id: true,
-              name: true,
-              hours: true,
-              price: true,
-            },
-          },
-        },
-      })
-
-      // Create default roadmap for mentorship services
-      if (service.type === 'MENTORSHIP') {
-        await prisma.roadmap.create({
-          data: {
-            enrollmentId: enrollment.id,
-            title: `${service.name} - Learning Path`,
-            description: 'Your personalized learning journey',
-            milestones: {
-              create: [
-                {
-                  title: 'Getting Started',
-                  description: 'Initial assessment and goal setting',
-                  order: 1,
-                  status: 'NOT_STARTED',
-                  tasks: {
-                    create: [
-                      {
-                        title: 'Complete initial assessment',
-                        description: 'Evaluate current skills and experience',
-                        order: 1,
-                        status: 'NOT_STARTED',
-                      },
-                      {
-                        title: 'Define learning goals',
-                        description: 'Set specific, measurable objectives',
-                        order: 2,
-                        status: 'NOT_STARTED',
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        })
-      }
-
-      return NextResponse.json({
-        success: true,
-        data: { enrollment },
-      })
-    } catch (error) {
-      console.error('Create enrollment error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'DATABASE_ERROR',
-            message: 'Failed to create enrollment',
-          },
-        },
-        { status: 500 }
-      )
-    }
-  })
+    })
+  } catch (error) {
+    console.error('Get enrollments error:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch enrollments' },
+      { status: 500 }
+    )
+  }
 }
-
-

@@ -83,28 +83,23 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Content */}
           <div>
-            <h3 className="text-lg font-semibold mb-6">Company</h3>
+            <h3 className="text-lg font-semibold mb-6">Content</h3>
             <ul className="space-y-4">
               <li>
-                <Link href="#about" className="text-gray-400 hover:text-white transition-colors">
-                  About Us
+                <Link href="/blogs" className="text-gray-400 hover:text-white transition-colors">
+                  Blogs
                 </Link>
               </li>
               <li>
-                <Link href="#careers" className="text-gray-400 hover:text-white transition-colors">
-                  Careers
+                <Link href="/videos" className="text-gray-400 hover:text-white transition-colors">
+                  Videos
                 </Link>
               </li>
               <li>
-                <Link href="#blog" className="text-gray-400 hover:text-white transition-colors">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="#press" className="text-gray-400 hover:text-white transition-colors">
-                  Press
+                <Link href="/newsletters" className="text-gray-400 hover:text-white transition-colors">
+                  Newsletters
                 </Link>
               </li>
             </ul>
@@ -158,13 +153,13 @@ export default function Footer() {
               </div>
             </div>
             <div className="flex space-x-6 text-sm">
-              <Link href="#privacy" className="text-gray-400 hover:text-white transition-colors">
+              <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
                 Privacy Policy
               </Link>
-              <Link href="#terms" className="text-gray-400 hover:text-white transition-colors">
+              <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">
                 Terms of Service
               </Link>
-              <Link href="#cookies" className="text-gray-400 hover:text-white transition-colors">
+              <Link href="/cookies" className="text-gray-400 hover:text-white transition-colors">
                 Cookie Policy
               </Link>
             </div>

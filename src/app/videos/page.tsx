@@ -120,6 +120,29 @@ const VideosPage = () => {
               Watch my latest videos covering Data & AI topics, tutorials, and insights to help you advance your knowledge and career.
             </p>
             
+            {/* YouTube Subscription Section */}
+            <div className="mb-16 text-center">
+              <div className="bg-gradient-to-r from-red-500/10 to-red-600/10 rounded-2xl p-8 border border-red-200/20">
+                <h3 className="text-2xl font-bold text-foreground mb-4">
+                  Subscribe to My YouTube Channel
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Stay updated with the latest videos on Data & AI, technology trends, and career insights. 
+                  Don't miss out on new content!
+                </p>
+                <a
+                  href="https://www.youtube.com/@aiiwisdom"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-red-600 hover:bg-red-700 text-white transition-colors gap-3 hover:shadow-lg hover:scale-105 transform duration-200"
+                >
+                  <FaYoutube className="w-6 h-6" />
+                  <span className="font-medium">Subscribe Now</span>
+                  <FaExternalLinkAlt className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="bg-card rounded-lg border border-border p-6 animate-pulse">
@@ -147,6 +170,29 @@ const VideosPage = () => {
           <p className="text-muted-foreground text-lg mb-12">
             Watch my latest videos covering Data & AI topics, tutorials, and insights to help you advance your knowledge and career.
           </p>
+          
+          {/* YouTube Subscription Section */}
+          <div className="mb-16 text-center">
+            <div className="bg-gradient-to-r from-red-500/10 to-red-600/10 rounded-2xl p-8 border border-red-200/20">
+              <h3 className="text-2xl font-bold text-foreground mb-4">
+                Subscribe to My YouTube Channel
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Stay updated with the latest videos on Data & AI, technology trends, and career insights. 
+                Don't miss out on new content!
+              </p>
+              <a
+                href="https://www.youtube.com/@aiiwisdom"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-red-600 hover:bg-red-700 text-white transition-colors gap-3 hover:shadow-lg hover:scale-105 transform duration-200"
+              >
+                <FaYoutube className="w-6 h-6" />
+                <span className="font-medium">Subscribe Now</span>
+                <FaExternalLinkAlt className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
           
           {error && (
             <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
@@ -207,26 +253,6 @@ const VideosPage = () => {
             </div>
           )}
 
-          <div className="mt-16 text-center">
-            <div className="bg-gradient-to-r from-primary/10 to-accent-foreground/10 rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-foreground mb-4">
-                Subscribe to My YouTube Channel
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                Stay updated with the latest videos on Data & AI, technology trends, and career insights.
-              </p>
-              <a
-                href="https://www.youtube.com/@aiiwisdom"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-red-600 hover:bg-red-700 text-white transition-colors gap-3"
-              >
-                <FaYoutube className="w-6 h-6" />
-                <span className="font-medium">Subscribe Now</span>
-                <FaExternalLinkAlt className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
         </div>
       </div>
       <Footer />

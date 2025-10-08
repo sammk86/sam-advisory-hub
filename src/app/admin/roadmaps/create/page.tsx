@@ -13,7 +13,7 @@ import {
   Trash2,
   Save
 } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import DashboardCard from '@/components/dashboard/DashboardCard'
 
 interface User {

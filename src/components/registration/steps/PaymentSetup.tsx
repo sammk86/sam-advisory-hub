@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { ArrowRight, CreditCard, Shield } from 'lucide-react'
-import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
+import { Button } from '@/components/ui/button'
+import Input from '@/components/ui/input'
 import StripeProvider from '@/components/payment/StripeProvider'
 import PaymentForm from '@/components/payment/PaymentForm'
 import { ServiceType, PlanType } from '../RegistrationFlow'

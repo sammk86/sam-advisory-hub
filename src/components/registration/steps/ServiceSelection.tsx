@@ -1,7 +1,7 @@
 'use client'
 
 import { Users, Target, CheckCircle, ArrowRight } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { ServiceType } from '../RegistrationFlow'
 
 interface ServiceSelectionProps {
@@ -150,5 +150,6 @@ export default function ServiceSelection({ selectedService, onServiceSelect, onN
     </div>
   )
 }
+
 
 

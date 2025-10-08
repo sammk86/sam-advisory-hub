@@ -1,6 +1,6 @@
 import Header from '@/components/landing/Header'
 import Footer from '@/components/landing/Footer'
-import SuccessStoriesSection from '@/components/landing/SuccessStoriesSection'
+import FeedbackGrid from '@/components/ui/FeedbackGrid'
 import Link from 'next/link'
 import { ArrowRight, Users, Target, Clock, CheckCircle, Star, Zap, DollarSign } from 'lucide-react'
 import { PrismaClient } from '@prisma/client'
@@ -246,7 +246,12 @@ export default async function ServicesPage() {
       </div>
 
       {/* Success Stories Section */}
-      <SuccessStoriesSection />
+      <FeedbackGrid 
+        maxItems={6}
+        showHeader={true}
+        backgroundClass="bg-gray-900"
+        className="text-white"
+      />
       
       <Footer />
     </main>

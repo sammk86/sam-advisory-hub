@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -10,9 +12,9 @@ import Link from 'next/link'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
+  // const searchParams = useSearchParams()
   const { data: session, status } = useSession()
-  const serviceType = searchParams.get('service') || 'mentorship'
+  const serviceType = 'mentorship' // searchParams.get('service') || 'mentorship'
 
   const [formData, setFormData] = useState({
     firstName: '',

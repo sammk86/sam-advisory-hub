@@ -9,7 +9,7 @@ import PlanSelection from './steps/PlanSelection'
 import ProfileSetup from './steps/ProfileSetup'
 import PaymentSetup from './steps/PaymentSetup'
 import RegistrationSummary from './steps/RegistrationSummary'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 
 export type ServiceType = 'mentorship' | 'advisory'
 export type PlanType = 'starter' | 'pro' | 'package-3' | 'package-6' | 'hourly'
@@ -63,13 +63,13 @@ export default function RegistrationFlow() {
   const [isLoading, setIsLoading] = useState(false)
 
   const router = useRouter()
-  const searchParams = useSearchParams()
+  // const searchParams = useSearchParams()
   const { data: session, status } = useSession()
 
   // Initialize from URL parameters
   useEffect(() => {
-    const service = searchParams.get('service') as ServiceType
-    const plan = searchParams.get('plan') as PlanType
+    const service = 'MENTORSHIP' as ServiceType // searchParams.get('service') as ServiceType
+    const plan = 'STARTER' as PlanType // searchParams.get('plan') as PlanType
 
     if (service) {
       setRegistrationData(prev => ({ ...prev, service }))
