@@ -62,7 +62,7 @@ export default function ServicesSection() {
 
   const formatPrice = (price: number | null) => {
     if (price === null) return null
-    return `$${price.toFixed(0)}`
+    return `$${price.toFixed(0)}+`
   }
 
   const getServiceIcon = (type: string) => {
@@ -217,7 +217,7 @@ export default function ServicesSection() {
                     <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-white/50">
                       <div className="flex items-center justify-between mb-4">
                         <span className="text-gray-600">
-                          {service.pricing.monthly ? 'Starting from' : service.pricing.hourly ? 'Hourly rate' : 'Pricing'}
+                          {service.pricing.monthly ? 'Starting from' : service.pricing.hourly ? 'Starting from' : 'Pricing'}
                         </span>
                         <div className="flex items-center space-x-1">
                           {[1, 2, 3, 4, 5].map((i) => (
@@ -328,20 +328,20 @@ export default function ServicesSection() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <Link
-                        href={`/register?service=${service.type.toLowerCase()}`}
-                        className={`group w-full ${getServiceButtonColor(service.type)} text-white py-3 sm:py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl`}
+                    <Link
+                      href={`/services/${service.id}`}
+                      className={`group w-full ${getServiceButtonColor(service.type)} text-white py-3 sm:py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl`}
+                    >
+                      <span>
+                        {service.type === 'MENTORSHIP' ? 'Start Mentorship Journey' : 'Book Advisory Session'}
+                      </span>
+                      <motion.div
+                        animate={{ x: [0, 4, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                       >
-                        <span>
-                          {service.type === 'MENTORSHIP' ? 'Start Mentorship Journey' : 'Book Advisory Session'}
-                        </span>
-                        <motion.div
-                          animate={{ x: [0, 4, 0] }}
-                          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                        >
-                          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </motion.div>
-                      </Link>
+                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </motion.div>
+                    </Link>
                     </motion.div>
                   </motion.div>
                 </ClientOnly>

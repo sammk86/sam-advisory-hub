@@ -110,7 +110,7 @@ export default function ServicesPage() {
           description: 'A comprehensive mentorship program to become a future-proof software engineer with modern technologies and best practices.',
           type: 'MENTORSHIP',
           status: 'PUBLISHED',
-          monthlyPlanPrice: 99999, // $999.99 in cents
+          monthlyPlanPrice: 7500, // $75.00 in cents
           createdAt: '2024-01-01T00:00:00Z',
           mentorshipProgram: {
             format: 'INDIVIDUAL',
@@ -129,7 +129,7 @@ export default function ServicesPage() {
           description: 'Expert review and guidance on your project\'s technical architecture with actionable recommendations.',
           type: 'ADVISORY',
           status: 'PUBLISHED',
-          hourlyRate: 49999, // $499.99 in cents
+          hourlyRate: 15000, // $150.00 in cents
           createdAt: '2024-01-02T00:00:00Z',
           advisoryService: {
             idealClientProfile: 'CTOs, Engineering Managers, and Senior Developers',
@@ -151,7 +151,7 @@ export default function ServicesPage() {
                 id: 'pkg-1',
                 name: 'Standard Review',
                 hours: 4,
-                price: 199999, // $1999.99
+                price: 20000, // $200.00
                 description: '4-hour comprehensive architecture review'
               }
             ]
@@ -163,7 +163,7 @@ export default function ServicesPage() {
           description: 'Learn product management from industry experts with hands-on experience and real-world projects.',
           type: 'MENTORSHIP',
           status: 'PUBLISHED',
-          monthlyPlanPrice: 79999, // $799.99 in cents
+          monthlyPlanPrice: 15000, // $150.00 in cents
           createdAt: '2024-01-03T00:00:00Z',
           mentorshipProgram: {
             format: 'GROUP',

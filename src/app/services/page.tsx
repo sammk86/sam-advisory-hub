@@ -56,7 +56,7 @@ export default async function ServicesPage() {
 
   const formatPrice = (price: number | null) => {
     if (price === null) return null
-    return `$${price.toFixed(0)}`
+    return `$${price.toFixed(0)}+`
   }
 
   const getServiceIcon = (type: string) => {
@@ -190,7 +190,7 @@ export default async function ServicesPage() {
                   <div className="bg-card/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-border">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-muted-foreground text-sm sm:text-base">
-                        {service.pricing.oneOff ? 'One-time fee' : service.pricing.hourly ? 'Hourly rate' : 'Pricing'}
+                        Starting from
                       </span>
                       <div className="flex items-center space-x-1">
                         {[1, 2, 3, 4, 5].map((i) => (
@@ -207,14 +207,13 @@ export default async function ServicesPage() {
                         {service.pricing.oneOff ? '' : service.pricing.hourly ? '/hour' : ''}
                       </span>
                     </div>
+                    <div className="text-center mt-2">
+                      <span className="text-xs text-muted-foreground">*Pricing varies based on specific needs</span>
+                    </div>
                   </div>
 
                   <Link
-                    href={
-                      service.name.toLowerCase().includes('team upskilling') 
-                        ? '/services/team-upskilling'
-                        : `/services/${service.type.toLowerCase()}`
-                    }
+                    href={`/services/${service.id}`}
                     className={`group w-full ${getServiceButtonColor(service.type)} text-white py-3 sm:py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl`}
                   >
                     <span>
@@ -235,12 +234,12 @@ export default async function ServicesPage() {
               <div className="font-semibold text-card-foreground">Not sure which service fits you?</div>
               <div className="text-muted-foreground text-sm">Get a free consultation to find your perfect match</div>
             </div>
-            <a
-              href="mailto:sam.mokhtari87@gmail.com"
+            <Link
+              href="/contact"
               className="bg-gradient-magenta-cyan text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all duration-300 whitespace-nowrap"
             >
               Contact for Consultation
-            </a>
+            </Link>
           </div>
         </div>
       </div>

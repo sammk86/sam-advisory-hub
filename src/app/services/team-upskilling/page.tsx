@@ -276,12 +276,12 @@ export default function TeamUpskillingPage() {
                   <p className="text-sm text-muted-foreground text-center mb-4">
                     Need more information or have questions?
                   </p>
-                  <a
-                    href="mailto:sam.mokhtari87@gmail.com"
+                  <Link
+                    href="/contact"
                     className="block w-full text-center py-3 px-4 border border-border rounded-xl text-card-foreground hover:bg-card/50 transition-colors"
                   >
                     Contact for Consultation
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

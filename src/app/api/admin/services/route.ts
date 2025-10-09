@@ -108,8 +108,7 @@ export async function POST(request: NextRequest) {
         description,
         type,
         status: status || 'DRAFT',
-        singleSessionPrice: singleSessionPrice ? Math.round(singleSessionPrice * 100) : null,
-        monthlyPlanPrice: monthlyPlanPrice ? Math.round(monthlyPlanPrice * 100) : null,
+        oneOffPrice: singleSessionPrice ? Math.round(singleSessionPrice * 100) : null,
         hourlyRate: hourlyRate ? Math.round(hourlyRate * 100) : null,
       },
     })

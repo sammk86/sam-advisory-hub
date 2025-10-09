@@ -188,13 +188,13 @@
 /* HTML Article Content Styles */
 .html-article-content {
   /* Override HTML article styles to respect theme */
-  color: hsl(var(--foreground)) !important;
+  color: var(--foreground) !important;
   background-color: transparent !important;
 }
 
 .html-article-content body {
   background-color: transparent !important;
-  color: hsl(var(--foreground)) !important;
+  color: var(--foreground) !important;
   font-family: var(--font-sans) !important;
 }
 
@@ -214,7 +214,7 @@
 .html-article-content td,
 .html-article-content th,
 .html-article-content label {
-  color: hsl(var(--foreground)) !important;
+  color: var(--foreground) !important;
 }
 
 /* Specific color class overrides */
@@ -223,107 +223,107 @@
 .html-article-content .text-gray-800,
 .html-article-content .text-gray-900,
 .html-article-content .text-black {
-  color: hsl(var(--foreground)) !important;
+  color: var(--foreground) !important;
 }
 
 .html-article-content .text-slate-600,
 .html-article-content .text-slate-700,
 .html-article-content .text-gray-600,
 .html-article-content .text-gray-700 {
-  color: hsl(var(--muted-foreground)) !important;
+  color: var(--muted-foreground) !important;
 }
 
 .html-article-content .text-slate-500,
 .html-article-content .text-gray-500 {
-  color: hsl(var(--muted-foreground)) !important;
+  color: var(--muted-foreground) !important;
 }
 
 /* Background overrides */
 .html-article-content .bg-slate-50,
 .html-article-content .bg-gray-50 {
-  background-color: hsl(var(--background)) !important;
+  background-color: var(--background) !important;
 }
 
 .html-article-content .bg-white {
-  background-color: hsl(var(--card)) !important;
-  color: hsl(var(--card-foreground)) !important;
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
 }
 
 .html-article-content .bg-gray-100,
 .html-article-content .bg-slate-100 {
-  background-color: hsl(var(--muted)) !important;
-  color: hsl(var(--foreground)) !important;
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
 }
 
 /* Border overrides */
 .html-article-content .border-slate-200,
 .html-article-content .border-gray-200,
 .html-article-content .border-gray-300 {
-  border-color: hsl(var(--border)) !important;
+  border-color: var(--border) !important;
 }
 
 /* Primary color overrides */
 .html-article-content .text-blue-600,
 .html-article-content .text-blue-500 {
-  color: hsl(var(--primary)) !important;
+  color: var(--primary) !important;
 }
 
 .html-article-content .bg-blue-600,
 .html-article-content .bg-blue-500 {
-  background-color: hsl(var(--primary)) !important;
-  color: hsl(var(--primary-foreground)) !important;
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
 }
 
 .html-article-content .hover\:bg-blue-700:hover,
 .html-article-content .hover\:bg-blue-600:hover {
-  background-color: hsl(var(--primary)) !important;
+  background-color: var(--primary) !important;
 }
 
 .html-article-content .focus\:ring-blue-500:focus {
-  --tw-ring-color: hsl(var(--ring)) !important;
+  --tw-ring-color: var(--ring) !important;
 }
 
 .html-article-content .focus\:border-blue-500:focus {
-  border-color: hsl(var(--ring)) !important;
+  border-color: var(--ring) !important;
 }
 
 /* Ensure interactive elements work properly */
 .html-article-content button,
 .html-article-content select,
 .html-article-content input {
-  background-color: hsl(var(--input)) !important;
-  color: hsl(var(--foreground)) !important;
-  border-color: hsl(var(--border)) !important;
+  background-color: var(--input) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
 }
 
 .html-article-content button:hover {
-  background-color: hsl(var(--accent)) !important;
-  color: hsl(var(--accent-foreground)) !important;
+  background-color: var(--accent) !important;
+  color: var(--accent-foreground) !important;
 }
 
 /* Specific overrides for common hardcoded colors */
 .html-article-content [style*="color: #4A4A4A"],
 .html-article-content [style*="color:#4A4A4A"],
 .html-article-content [style*="color: rgb(74, 74, 74)"] {
-  color: hsl(var(--foreground)) !important;
+  color: var(--foreground) !important;
 }
 
 .html-article-content [style*="color: #6c757d"],
 .html-article-content [style*="color:#6c757d"] {
-  color: hsl(var(--muted-foreground)) !important;
+  color: var(--muted-foreground) !important;
 }
 
 /* Override any hardcoded dark colors that might be invisible in dark mode */
 .html-article-content [style*="color: #000"],
 .html-article-content [style*="color:#000"],
 .html-article-content [style*="color: black"] {
-  color: hsl(var(--foreground)) !important;
+  color: var(--foreground) !important;
 }
 
 /* Ensure vendor matrix dots are visible */
 .html-article-content .matrix-dot {
   color: white !important;
-  background-color: hsl(var(--primary)) !important;
+  background-color: var(--primary) !important;
 }
 
 body {

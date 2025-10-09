@@ -54,7 +54,7 @@ export default function PlanSelection({ service, selectedPlan, onPlanSelect, onN
       popular: false,
       features: [
         'Everything in Pro plan',
-        '15% discount (save $135)',
+        '15% discount (save $11)',
         'Guaranteed mentor consistency',
         'Quarterly progress review',
         'Extended goal planning session',
@@ -70,7 +70,7 @@ export default function PlanSelection({ service, selectedPlan, onPlanSelect, onN
       popular: false,
       features: [
         'Everything in Pro plan',
-        '20% discount (save $360)',
+        '20% discount (save $30)',
         'Guaranteed mentor consistency',
         'Monthly progress reviews',
         'Career transition support',

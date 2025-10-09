@@ -9,7 +9,7 @@ export default function PricingSection() {
   const mentorshipPlans = [
     {
       name: "Starter",
-      price: 199,
+      price: 75,
       period: "month",
       description: "Perfect for early-career professionals",
       features: [
@@ -26,7 +26,7 @@ export default function PricingSection() {
     },
     {
       name: "Professional",
-      price: 299,
+      price: 150,
       period: "month",
       description: "Most popular for mid-level professionals",
       features: [
@@ -44,7 +44,7 @@ export default function PricingSection() {
     },
     {
       name: "Executive",
-      price: 499,
+      price: 300,
       period: "month",
       description: "For senior professionals & leaders",
       features: [
@@ -267,9 +267,15 @@ export default function PricingSection() {
                     </motion.div>
                     <h4 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{plan.name}</h4>
                     <p className="text-gray-600 mb-4 text-sm sm:text-base">{plan.description}</p>
+                    <div className="text-center mb-2">
+                      <span className="text-sm text-gray-600">Starting from</span>
+                    </div>
                     <div className="flex items-baseline justify-center space-x-2">
-                      <span className="text-3xl sm:text-4xl font-bold text-gray-900">${plan.price}</span>
+                      <span className="text-3xl sm:text-4xl font-bold text-gray-900">${plan.price}+</span>
                       <span className="text-gray-600">/{plan.period}</span>
+                    </div>
+                    <div className="text-center mt-2">
+                      <span className="text-xs text-gray-500">*Pricing varies based on specific needs</span>
                     </div>
                   </div>
 

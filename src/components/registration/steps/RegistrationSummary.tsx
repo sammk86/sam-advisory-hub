@@ -22,10 +22,10 @@ export default function RegistrationSummary({
   const getPlanDetails = () => {
     const plans = {
       mentorship: {
-        starter: { price: 199, name: 'Mentorship Starter' },
-        pro: { price: 299, name: 'Mentorship Pro' },
-        'package-3': { price: 254, name: '3-Month Package', originalPrice: 299 },
-        'package-6': { price: 239, name: '6-Month Package', originalPrice: 299 },
+        starter: { price: 75, name: 'Mentorship Starter' },
+        pro: { price: 150, name: 'Mentorship Pro' },
+        'package-3': { price: 127, name: '3-Month Package', originalPrice: 150 },
+        'package-6': { price: 119, name: '6-Month Package', originalPrice: 150 },
       },
       advisory: {
         hourly: { price: 150, name: 'Advisory Services', unit: 'hour' },
@@ -108,8 +108,11 @@ export default function RegistrationSummary({
                 <span className="font-medium">{planDetails.name}</span>
               </div>
               <div className="flex justify-between text-lg font-semibold pt-3 border-t">
-                <span>Monthly Cost</span>
-                <span>${planDetails.price}/{planDetails.unit || 'month'}</span>
+                <span>Starting from</span>
+                <span>${planDetails.price}+/{planDetails.unit || 'month'}</span>
+              </div>
+              <div className="text-xs text-gray-500 mt-2 text-center">
+                *Final pricing depends on specific requirements
               </div>
             </div>
           </div>
