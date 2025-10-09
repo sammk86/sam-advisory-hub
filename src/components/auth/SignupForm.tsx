@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/Button'
-import Input from '@/components/ui/input'
+import Input from '@/components/ui/Input'
 
 const signupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),

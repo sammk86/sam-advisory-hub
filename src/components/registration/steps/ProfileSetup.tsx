@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import Input from '@/components/ui/input'
+import Input from '@/components/ui/Input'
 import { ServiceType } from '../RegistrationFlow'
 
 const profileSchema = z.object({
