@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js'
 import { ArrowRight, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 
 interface PaymentFormProps {
   onSuccess: (paymentMethodId: string) => void

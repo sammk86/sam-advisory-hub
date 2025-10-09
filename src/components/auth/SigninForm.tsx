@@ -8,7 +8,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import Input from '@/components/ui/input'
 
 const signinSchema = z.object({

@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { MessageCircle, CreditCard, Clock } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import DashboardCard from '@/components/dashboard/DashboardCard'
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { CheckCircle, User, CreditCard, Target, Calendar } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import { RegistrationData } from '../RegistrationFlow'
 
 interface RegistrationSummaryProps {

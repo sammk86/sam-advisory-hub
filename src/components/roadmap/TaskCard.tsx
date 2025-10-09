@@ -1,7 +1,7 @@
 'use client'
 
 import { CheckCircle, Clock, AlertCircle, Calendar, ExternalLink } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 
 interface Task {

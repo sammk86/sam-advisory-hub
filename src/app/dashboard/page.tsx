@@ -17,7 +17,7 @@ import {
   ArrowRight,
   Bell
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import DashboardCard from '@/components/dashboard/DashboardCard'
 import { StatusBadge } from '@/components/ui/StatusBadge'

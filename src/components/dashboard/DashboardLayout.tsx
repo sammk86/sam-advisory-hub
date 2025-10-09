@@ -22,7 +22,7 @@ import {
   Briefcase,
   MessageSquare
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import MessageNotifications from '@/components/messaging/MessageNotifications'
 
 interface DashboardLayoutProps {

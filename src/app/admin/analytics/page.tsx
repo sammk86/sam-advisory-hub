@@ -15,7 +15,7 @@ import {
   Download,
   RefreshCw
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import { DashboardCard } from '@/components/dashboard/DashboardCard'
 import StatsCard from '@/components/dashboard/StatsCard'
 import ProgressBar from '@/components/dashboard/ProgressBar'
