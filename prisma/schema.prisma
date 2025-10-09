@@ -8,38 +8,41 @@ datasource db {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  email              String              @unique
-  name               String?
-  image              String?
-  role               UserRole            @default(CLIENT)
-  emailVerified      DateTime?
-  stripeCustomerId   String?             @unique
-  isConfirmed        Boolean?            @default(false)
-  confirmedAt        DateTime?
-  confirmedBy        String?
-  rejectionReason    String?
-  sessionStatus      SessionStatus       @default(INACTIVE)
-  sessionActivatedAt DateTime?
-  sessionActivatedBy String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  password           String?
-  accounts           Account[]
-  emailNotifications EmailNotification[]
-  enrollments        Enrollment[]
-  sessions           Session[]
-  meetings           Meeting[]           @relation("MeetingToUser")
-  meetingRequests    MeetingRequest[]
+  id                     String              @id @default(cuid())
+  email                  String              @unique
+  name                   String?
+  image                  String?
+  role                   UserRole            @default(CLIENT)
+  emailVerified          DateTime?
+  stripeCustomerId       String?             @unique
+  isConfirmed            Boolean?            @default(false)
+  confirmedAt            DateTime?
+  confirmedBy            String?
+  rejectionReason        String?
+  sessionStatus          SessionStatus       @default(INACTIVE)
+  sessionActivatedAt     DateTime?
+  sessionActivatedBy     String?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  password               String?
+  passwordResetToken     String?
+  passwordResetExpiry    DateTime?
+  accounts               Account[]
+  emailNotifications     EmailNotification[]
+  enrollments            Enrollment[]
+  sessions               Session[]
+  meetings               Meeting[]           @relation("MeetingToUser")
+  meetingRequests        MeetingRequest[]
   approvedMeetingRequests MeetingRequest[] @relation("MeetingRequestApprover")
-  sentMessages       Message[]           @relation("MessageSender")
-  conversations      ConversationParticipant[] @relation("ConversationParticipant")
-  feedbacks          Feedback[]
+  sentMessages           Message[]           @relation("MessageSender")
+  conversations          ConversationParticipant[] @relation("ConversationParticipant")
+  feedbacks              Feedback[]
 
   @@index([email])
   @@index([role])
   @@index([stripeCustomerId])
   @@index([isConfirmed])
+  @@index([passwordResetToken])
   @@map("users")
 }
 
@@ -316,15 +319,15 @@ model VerificationToken {
 }
 
 model EmailNotification {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   userId       String
-  type         String
+  type         EmailType
   sentAt       DateTime
-  status       String
+  status       EmailStatus
   errorMessage String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([type])
@@ -582,6 +585,14 @@ enum MessageType {
 enum ParticipantRole {
   ADMIN
   MEMBER
+}
+
+enum EmailType {
+  WELCOME
+  PASSWORD_RESET
+  NEWSLETTER
+  NOTIFICATION
+  CONFIRMATION
 }
 
 model Feedback {

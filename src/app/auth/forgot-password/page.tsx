@@ -31,12 +31,25 @@ export default function ForgotPasswordPage() {
     setError('')
 
     try {
-      // TODO: Implement password reset functionality
-      // For now, simulate the API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      const response = await fetch('/api/password-reset/forgot', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send reset email')
+      }
+
       setSuccess(true)
     } catch (error) {
-      setError('An unexpected error occurred. Please try again.')
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.')
     } finally {
       setIsLoading(false)
     }

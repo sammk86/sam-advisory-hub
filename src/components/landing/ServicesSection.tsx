@@ -223,7 +223,7 @@ export default function ServicesSection() {
                           {[1, 2, 3, 4, 5].map((i) => (
                             <Star key={i} className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-current" />
                           ))}
-                          <span className="text-xs sm:text-sm text-gray-600 ml-2">(4.9/5)</span>
+                          <span className="text-xs sm:text-sm text-gray-600 ml-2">(5/5)</span>
                         </div>
                       </div>
                       <div className="flex items-baseline space-x-2">
@@ -311,7 +311,7 @@ export default function ServicesSection() {
                           {[1, 2, 3, 4, 5].map((i) => (
                             <Star key={i} className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-current" />
                           ))}
-                          <span className="text-xs sm:text-sm text-gray-600 ml-2">(4.9/5)</span>
+                          <span className="text-xs sm:text-sm text-gray-600 ml-2">(5/5)</span>
                         </div>
                       </div>
                       <div className="flex items-baseline space-x-2">

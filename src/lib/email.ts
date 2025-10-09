@@ -654,10 +654,11 @@ export async function getNewsletterAnalytics(): Promise<{
 export async function sendPasswordResetEmail(
   email: string, 
   name: string, 
-  resetToken: string
+  resetToken: string,
+  userId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`
+    const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`
     
     const emailData: EmailData = {
       to: email,
@@ -731,7 +732,7 @@ export async function sendPasswordResetEmail(
         © 2024 SamAdvisoryHub. All rights reserved.
       `,
       type: 'PASSWORD_RESET' as EmailType,
-      userId: '' // We don't have userId in this context
+      userId: userId
     }
 
     const result = await sendEmail(emailData)

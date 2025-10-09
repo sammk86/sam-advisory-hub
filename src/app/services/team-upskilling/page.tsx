@@ -242,7 +242,7 @@ export default function TeamUpskillingPage() {
                   {[1, 2, 3, 4, 5].map((i) => (
                     <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
                   ))}
-                  <span className="text-sm text-muted-foreground ml-3">(4.9/5 rating)</span>
+                  <span className="text-sm text-muted-foreground ml-3">(5/5 rating)</span>
                 </div>
                 
                 <div className="text-4xl font-bold text-card-foreground mb-2">

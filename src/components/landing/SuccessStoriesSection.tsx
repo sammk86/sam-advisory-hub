@@ -70,7 +70,7 @@ export default function SuccessStoriesSection() {
   const stats = [
     { number: "95%", label: "Success Rate", icon: TrendingUp },
     { number: "10k+", label: "Professionals Mentored", icon: Users },
-    { number: "4.9/5", label: "Average Rating", icon: Star }
+    { number: "5/5", label: "Average Rating", icon: Star }
   ]
 
   return (
