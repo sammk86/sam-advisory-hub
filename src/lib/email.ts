@@ -655,10 +655,11 @@ export async function sendPasswordResetEmail(
   email: string, 
   name: string, 
   resetToken: string,
-  userId: string
+  userId: string,
+  baseUrl?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`
+    const resetUrl = `${baseUrl || process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`
     
     const emailData: EmailData = {
       to: email,

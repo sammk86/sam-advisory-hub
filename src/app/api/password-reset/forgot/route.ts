@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendPasswordResetEmail } from '@/lib/email'
+import { getBaseUrl } from '@/lib/utils'
 import crypto from 'crypto'
 
 export async function POST(request: NextRequest) {
@@ -8,6 +9,11 @@ export async function POST(request: NextRequest) {
     console.log('Forgot password API called')
     const { email } = await request.json()
     console.log('Email received:', email)
+
+    // Get the base URL dynamically from the request
+    // This handles various deployment scenarios (Vercel, Netlify, etc.)
+    const baseUrl = getBaseUrl(request)
+    console.log('Constructed base URL:', baseUrl)
 
     // Validate email
     if (!email || typeof email !== 'string') {
@@ -50,14 +56,15 @@ export async function POST(request: NextRequest) {
       user.email,
       user.name || 'User',
       resetToken,
-      user.id
+      user.id,
+      baseUrl
     )
 
     if (!emailResult.success) {
       console.error('Failed to send password reset email:', emailResult.error)
       // For development/testing, we'll still return success but log the error
       console.log('Password reset token generated:', resetToken)
-      console.log('Reset URL would be:', `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`)
+      console.log('Reset URL would be:', `${baseUrl}/auth/reset-password?token=${resetToken}`)
     }
 
     return NextResponse.json({
