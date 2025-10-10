@@ -21,6 +21,12 @@ interface Service {
 
 const prisma = new PrismaClient()
 
+// Get base URL with better fallback
+const baseUrl = process.env.NEXTAUTH_URL || 
+                (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+                (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null) ||
+                'http://localhost:3000'
+
 export const metadata: Metadata = {
   title: 'Professional Services | Mentorship & Advisory - SamAdvisoryHub',
   description: 'Expert mentorship and advisory services by Dr. Sam Mokhtari. Accelerate your career with personalized guidance in Data & AI. Starting from $75+ for mentorship, $150+ for advisory.',
@@ -42,13 +48,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: `${getBaseUrlFromEnv()}/services`,
+    url: `${baseUrl}/services`,
     siteName: 'SamAdvisoryHub',
     title: 'Professional Services | Mentorship & Advisory - SamAdvisoryHub',
     description: 'Expert mentorship and advisory services by Dr. Sam Mokhtari. Accelerate your career with personalized guidance in Data & AI. Starting from $75+ for mentorship, $150+ for advisory.',
     images: [
       {
-        url: `${getBaseUrlFromEnv()}/api/og/services`,
+        url: `${baseUrl}/api/og/services`,
         width: 1200,
         height: 630,
         alt: 'SamAdvisoryHub Professional Services - Mentorship & Advisory',
@@ -62,7 +68,7 @@ export const metadata: Metadata = {
     creator: '@SamMokhtari87',
     title: 'Professional Services | Mentorship & Advisory - SamAdvisoryHub',
     description: 'Expert mentorship and advisory services by Dr. Sam Mokhtari. Accelerate your career with personalized guidance in Data & AI.',
-    images: [`${getBaseUrlFromEnv()}/api/og/services`],
+    images: [`${baseUrl}/api/og/services`],
   },
   
   robots: {
@@ -78,7 +84,7 @@ export const metadata: Metadata = {
   },
   
   alternates: {
-    canonical: `${getBaseUrlFromEnv()}/services`,
+    canonical: `${baseUrl}/services`,
   },
 }
 

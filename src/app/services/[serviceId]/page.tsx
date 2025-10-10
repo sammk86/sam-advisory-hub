@@ -88,7 +88,12 @@ export async function generateMetadata({
     }
   }
 
-  const baseUrl = getBaseUrlFromEnv()
+    // Get base URL with better fallback
+    const baseUrl = process.env.NEXTAUTH_URL || 
+                    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+                    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null) ||
+                    'http://localhost:3000'
+  
   const formatPrice = (price: number | null) => {
     if (price === null) return null
     const priceInDollars = price / 100
