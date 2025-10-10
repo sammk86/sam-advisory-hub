@@ -1,9 +1,11 @@
+import { Metadata } from 'next'
 import Header from '@/components/landing/Header'
 import Footer from '@/components/landing/Footer'
 import FeedbackGrid from '@/components/ui/FeedbackGrid'
 import Link from 'next/link'
 import { ArrowRight, Users, Target, Clock, CheckCircle, Star, Zap, DollarSign } from 'lucide-react'
 import { PrismaClient } from '@prisma/client'
+import { getBaseUrlFromEnv } from '@/lib/utils'
 
 interface Service {
   id: string
@@ -18,6 +20,67 @@ interface Service {
 }
 
 const prisma = new PrismaClient()
+
+export const metadata: Metadata = {
+  title: 'Professional Services | Mentorship & Advisory - SamAdvisoryHub',
+  description: 'Expert mentorship and advisory services by Dr. Sam Mokhtari. Accelerate your career with personalized guidance in Data & AI. Starting from $75+ for mentorship, $150+ for advisory.',
+  keywords: [
+    'Data & AI Expert',
+    'Mentorship',
+    'Advisory Services',
+    'Career Growth',
+    'Professional Development',
+    'Dr. Sam Mokhtari',
+    'Data Engineering',
+    'Machine Learning',
+    'Leadership Coaching'
+  ],
+  authors: [{ name: 'Dr. Sam Mokhtari' }],
+  creator: 'Dr. Sam Mokhtari',
+  publisher: 'SamAdvisoryHub',
+  
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: `${getBaseUrlFromEnv()}/services`,
+    siteName: 'SamAdvisoryHub',
+    title: 'Professional Services | Mentorship & Advisory - SamAdvisoryHub',
+    description: 'Expert mentorship and advisory services by Dr. Sam Mokhtari. Accelerate your career with personalized guidance in Data & AI. Starting from $75+ for mentorship, $150+ for advisory.',
+    images: [
+      {
+        url: `${getBaseUrlFromEnv()}/api/og/services`,
+        width: 1200,
+        height: 630,
+        alt: 'SamAdvisoryHub Professional Services - Mentorship & Advisory',
+      },
+    ],
+  },
+  
+  twitter: {
+    card: 'summary_large_image',
+    site: '@SamMokhtari87',
+    creator: '@SamMokhtari87',
+    title: 'Professional Services | Mentorship & Advisory - SamAdvisoryHub',
+    description: 'Expert mentorship and advisory services by Dr. Sam Mokhtari. Accelerate your career with personalized guidance in Data & AI.',
+    images: [`${getBaseUrlFromEnv()}/api/og/services`],
+  },
+  
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  
+  alternates: {
+    canonical: `${getBaseUrlFromEnv()}/services`,
+  },
+}
 
 export default async function ServicesPage() {
   let services: Service[] = []

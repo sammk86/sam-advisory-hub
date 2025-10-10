@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
 import Header from '@/components/landing/Header'
 import Footer from '@/components/landing/Footer'
 import { ArrowLeft, Users, Target, CheckCircle, Star } from 'lucide-react'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
+import { getBaseUrlFromEnv } from '@/lib/utils'
 
 interface Service {
   id: string
@@ -67,6 +69,104 @@ async function getService(serviceId: string): Promise<Service | null> {
   } catch (error) {
     console.error('Error fetching service:', error)
     return null
+  }
+}
+
+// Generate metadata for social media previews
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ serviceId: string }>
+}): Promise<Metadata> {
+  const { serviceId } = await params
+  const service = await getService(serviceId)
+  
+  if (!service) {
+    return {
+      title: 'Service Not Found | SamAdvisoryHub',
+      description: 'The requested service could not be found.'
+    }
+  }
+
+  const baseUrl = getBaseUrlFromEnv()
+  const formatPrice = (price: number | null) => {
+    if (price === null) return null
+    const priceInDollars = price / 100
+    return `$${priceInDollars.toFixed(0)}+`
+  }
+
+  const price = formatPrice(service.oneOffPrice || service.hourlyRate)
+  const priceText = price ? `Starting from ${price}` : 'Contact for pricing'
+  const serviceTypeText = service.type === 'MENTORSHIP' ? 'Mentorship Program' : 'Advisory Service'
+  
+  const title = `${service.name} | ${serviceTypeText} - SamAdvisoryHub`
+  const description = `${service.description} ${priceText}. Expert ${serviceTypeText.toLowerCase()} by Dr. Sam Mokhtari.`
+  
+  // Create a service-specific image URL (you can customize this)
+  const imageUrl = `${baseUrl}/api/og/service?title=${encodeURIComponent(service.name)}&type=${encodeURIComponent(serviceTypeText)}&price=${encodeURIComponent(price || 'Contact')}`
+
+  return {
+    title,
+    description,
+    keywords: [
+      service.name,
+      serviceTypeText,
+      'Dr. Sam Mokhtari',
+      'Data & AI Expert',
+      'Mentorship',
+      'Advisory',
+      'Career Growth',
+      'Professional Development'
+    ],
+    authors: [{ name: 'Dr. Sam Mokhtari' }],
+    creator: 'Dr. Sam Mokhtari',
+    publisher: 'SamAdvisoryHub',
+    
+    // Open Graph
+    openGraph: {
+      type: 'website',
+      locale: 'en_US',
+      url: `${baseUrl}/services/${serviceId}`,
+      siteName: 'SamAdvisoryHub',
+      title,
+      description,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${service.name} - ${serviceTypeText}`,
+        },
+      ],
+    },
+    
+    // Twitter Card
+    twitter: {
+      card: 'summary_large_image',
+      site: '@SamMokhtari87', // Replace with actual Twitter handle if available
+      creator: '@SamMokhtari87',
+      title,
+      description,
+      images: [imageUrl],
+    },
+    
+    // Additional meta tags
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    
+    // Canonical URL
+    alternates: {
+      canonical: `${baseUrl}/services/${serviceId}`,
+    },
   }
 }
 
