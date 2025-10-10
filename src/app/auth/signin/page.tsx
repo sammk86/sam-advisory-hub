@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -18,15 +18,15 @@ type SigninFormData = z.infer<typeof signinSchema>
 
 export const dynamic = 'force-dynamic'
 
-export default function SigninPage() {
+function SigninForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   
   const router = useRouter()
-  // const searchParams = useSearchParams()
-  const callbackUrl = '/dashboard' // searchParams.get('callbackUrl') || '/dashboard'
-  const service = null // searchParams.get('service')
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+  const service = searchParams.get('service')
 
   const {
     register,
@@ -56,6 +56,14 @@ export default function SigninPage() {
         const session = await getSession()
         
         if (session?.user) {
+          console.log('User session data:', {
+            id: session.user.id,
+            email: session.user.email,
+            role: session.user.role,
+            isConfirmed: session.user.isConfirmed,
+            rejectionReason: session.user.rejectionReason
+          })
+          
           // Redirect based on user role and confirmation status
           if (session.user.role === 'ADMIN') {
             router.push('/admin/dashboard')
@@ -66,12 +74,19 @@ export default function SigninPage() {
             } else {
               router.push('/pending')
             }
-          } else if (service) {
-            router.push(`/dashboard?service=${service}`)
           } else {
-            // For regular users, always redirect to dashboard
-            router.push('/dashboard')
+            // User is confirmed - redirect to original destination or dashboard
+            if (service) {
+              router.push(`/dashboard?service=${service}`)
+            } else if (callbackUrl && callbackUrl !== '/dashboard') {
+              router.push(callbackUrl)
+            } else {
+              router.push('/dashboard')
+            }
           }
+        } else {
+          console.error('No session data received after successful authentication')
+          setError('Authentication successful but session data is missing. Please try again.')
         }
       }
     } catch (error) {
@@ -248,5 +263,41 @@ export default function SigninPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+function SigninLoading() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-center">
+          <div className="flex items-center">
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xl">M</span>
+            </div>
+            <span className="ml-2 text-2xl font-bold text-gray-900">SamAdvisoryHub</span>
+          </div>
+        </div>
+        <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
+          Welcome back
+        </h2>
+      </div>
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+          <p className="mt-4 text-center text-gray-600">Loading...</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function SigninPage() {
+  return (
+    <Suspense fallback={<SigninLoading />}>
+      <SigninForm />
+    </Suspense>
   )
 }
