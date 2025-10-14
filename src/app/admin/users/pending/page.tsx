@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/Button'
 import { DashboardCard } from '@/components/dashboard/DashboardCard'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import UserActionEmailModal from '@/components/admin/UserActionEmailModal'
 
 interface PendingUser {
   id: string
@@ -35,6 +36,15 @@ export default function PendingUsersPage() {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [bulkActionLoading, setBulkActionLoading] = useState(false)
+  const [emailModal, setEmailModal] = useState<{
+    isOpen: boolean
+    user: PendingUser | null
+    action: 'approve' | 'reject' | null
+  }>({
+    isOpen: false,
+    user: null,
+    action: null
+  })
 
   useEffect(() => {
     if (status === 'loading') return
@@ -91,7 +101,7 @@ export default function PendingUsersPage() {
     }
   }
 
-  const handleUserAction = async (userId: string, action: 'approve' | 'reject', reason?: string) => {
+  const handleUserAction = async (userId: string, action: 'approve' | 'reject', reason?: string, customMessage?: string) => {
     setActionLoading(userId)
     try {
       const response = await fetch(`/api/admin/users/${userId}/${action}`, {
@@ -99,13 +109,14 @@ export default function PendingUsersPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ reason }),
+        body: JSON.stringify({ reason, customMessage }),
       })
 
       if (response.ok) {
         // Remove user from pending list
         setPendingUsers(pendingUsers.filter(user => user.id !== userId))
         setSelectedUsers(selectedUsers.filter(id => id !== userId))
+        setEmailModal({ isOpen: false, user: null, action: null })
       } else {
         console.error('Error performing user action')
       }
@@ -114,6 +125,21 @@ export default function PendingUsersPage() {
     } finally {
       setActionLoading(null)
     }
+  }
+
+  const openEmailModal = (user: PendingUser, action: 'approve' | 'reject') => {
+    setEmailModal({ isOpen: true, user, action })
+  }
+
+  const closeEmailModal = () => {
+    setEmailModal({ isOpen: false, user: null, action: null })
+  }
+
+  const handleEmailModalSubmit = async (customMessage?: string) => {
+    if (!emailModal.user || !emailModal.action) return
+    
+    const reason = emailModal.action === 'reject' ? 'Application rejected' : undefined
+    await handleUserAction(emailModal.user.id, emailModal.action, reason, customMessage)
   }
 
   const handleBulkApprove = async () => {
@@ -323,7 +349,7 @@ export default function PendingUsersPage() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Button
-                        onClick={() => handleUserAction(user.id, 'approve')}
+                        onClick={() => openEmailModal(user, 'approve')}
                         disabled={actionLoading === user.id}
                         className="flex items-center space-x-1"
                       >
@@ -332,12 +358,7 @@ export default function PendingUsersPage() {
                       </Button>
                       <Button
                         variant="outline"
-                        onClick={() => {
-                          const reason = prompt('Rejection reason:')
-                          if (reason) {
-                            handleUserAction(user.id, 'reject', reason)
-                          }
-                        }}
+                        onClick={() => openEmailModal(user, 'reject')}
                         disabled={actionLoading === user.id}
                         className="flex items-center space-x-1"
                       >
@@ -381,6 +402,16 @@ export default function PendingUsersPage() {
           </Button>
         </div>
       </DashboardCard>
+
+      {/* Email Modal */}
+      <UserActionEmailModal
+        isOpen={emailModal.isOpen}
+        onClose={closeEmailModal}
+        user={emailModal.user}
+        action={emailModal.action}
+        onSubmit={handleEmailModalSubmit}
+        isLoading={actionLoading === emailModal.user?.id}
+      />
     </div>
   )
 }

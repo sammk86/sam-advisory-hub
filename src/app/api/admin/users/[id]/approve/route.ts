@@ -7,7 +7,7 @@ import { getEmailTemplate } from '@/lib/email-templates'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -16,7 +16,9 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = params.id
+    const { id: userId } = await params
+    const body = await request.json()
+    const { customMessage } = body
 
     // Get user details
     const user = await prisma.user.findUnique({
@@ -60,8 +62,9 @@ export async function POST(
         userEmail: user.email,
         confirmationDate: new Date().toLocaleDateString(),
         adminName: session.user.name || 'Administrator',
-        platformUrl: process.env.NEXTAUTH_URL || 'https://mentorshiphub.com',
-        supportEmail: process.env.SUPPORT_EMAIL || 'support@mentorshiphub.com',
+        platformUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+        supportEmail: process.env.SUPPORT_EMAIL || 'support@samadvisoryhub.com',
+        customMessage: customMessage,
       })
 
       await sendEmail({
@@ -69,7 +72,7 @@ export async function POST(
         subject: template.subject,
         html: template.html,
         text: template.text,
-        type: 'ACCOUNT_CONFIRMED',
+        type: 'CONFIRMATION',
         userId: user.id,
       })
     } catch (emailError) {

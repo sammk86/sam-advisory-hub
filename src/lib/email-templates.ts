@@ -26,7 +26,7 @@ export function getEmailTemplate(type: string, data: TemplateData = {}): EmailTe
 
 function getWelcomeTemplate(data: TemplateData): EmailTemplate {
   const userName = data?.userName || 'there'
-  const platformUrl = data?.platformUrl || process.env.NEXTAUTH_URL || 'https://mentorshiphub.com'
+  const platformUrl = data?.platformUrl || process.env.NEXTAUTH_URL || 'http://localhost:3000'
 
   return {
     subject: 'Welcome to SamAdvisoryHub! Your Account is Pending Review',
@@ -114,8 +114,14 @@ If you didn't create an account, please ignore this email.
 
 function getAccountConfirmedTemplate(data: TemplateData): EmailTemplate {
   const userName = data?.userName || 'there'
-  const platformUrl = data?.platformUrl || process.env.NEXTAUTH_URL || 'https://mentorshiphub.com'
+  const platformUrl = data?.platformUrl || process.env.NEXTAUTH_URL || 'http://localhost:3000'
   const confirmationDate = data?.confirmationDate || new Date().toLocaleDateString()
+  const customMessage = data?.customMessage
+
+  // Use custom message if provided, otherwise use default
+  const messageContent = customMessage || `Great news! Your SamAdvisoryHub account has been confirmed and you now have full access to our platform.
+
+Welcome to the SamAdvisoryHub community! We're excited to support your professional growth.`
 
   return {
     subject: '🎉 Your SamAdvisoryHub Account is Confirmed!',
@@ -134,6 +140,7 @@ function getAccountConfirmedTemplate(data: TemplateData): EmailTemplate {
           .button { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
           .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
           .success-badge { background: #d1fae5; color: #065f46; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+          .message-content { white-space: pre-line; margin: 20px 0; }
         </style>
       </head>
       <body>
@@ -144,7 +151,6 @@ function getAccountConfirmedTemplate(data: TemplateData): EmailTemplate {
           </div>
           <div class="content">
             <h2>Hi ${userName},</h2>
-            <p>Great news! Your SamAdvisoryHub account has been confirmed and you now have full access to our platform.</p>
             
             <div style="text-align: center; margin: 30px 0;">
               <span class="success-badge">✅ Account Confirmed</span>
@@ -152,17 +158,41 @@ function getAccountConfirmedTemplate(data: TemplateData): EmailTemplate {
             
             <p><strong>Confirmed on:</strong> ${confirmationDate}</p>
             
-            <div style="text-align: center;">
+            <div class="message-content">${messageContent}</div>
+            
+            <div style="text-align: center; margin: 30px 0;">
               <a href="${platformUrl}/dashboard" class="button">Access Your Dashboard</a>
             </div>
             
-            <p>Welcome to the SamAdvisoryHub community! We're excited to support your professional growth.</p>
+            <div style="background: #f8fafc; padding: 25px; border-radius: 8px; margin: 30px 0;">
+              <h3 style="margin: 0 0 20px 0; color: #1e40af; font-size: 18px;">🚀 Explore SamAdvisoryHub</h3>
+              <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+                <div style="text-align: center;">
+                  <a href="${platformUrl}/services" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 500; margin: 5px;">
+                    📋 View Our Services
+                  </a>
+                </div>
+                <div style="text-align: center;">
+                  <a href="${platformUrl}/videos" style="display: inline-block; background: #10b981; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 500; margin: 5px;">
+                    🎥 Watch Educational Videos
+                  </a>
+                </div>
+                <div style="text-align: center;">
+                  <a href="${platformUrl}/newsletters" style="display: inline-block; background: #8b5cf6; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: 500; margin: 5px;">
+                    📧 Subscribe to Newsletter
+                  </a>
+                </div>
+              </div>
+              <p style="margin: 20px 0 0 0; text-align: center; color: #64748b; font-size: 14px;">
+                Get the most out of your SamAdvisoryHub experience
+              </p>
+            </div>
             
             <p>Best regards,<br>The SamAdvisoryHub Team</p>
           </div>
           <div class="footer">
             <p>This email was sent to you because your SamAdvisoryHub account was confirmed.</p>
-            <p>If you have any questions, contact us at ${data?.supportEmail || 'support@mentorshiphub.com'}</p>
+            <p>If you have any questions, contact us at ${data?.supportEmail || process.env.SUPPORT_EMAIL || 'support@samadvisoryhub.com'}</p>
           </div>
         </div>
       </body>
@@ -173,21 +203,26 @@ function getAccountConfirmedTemplate(data: TemplateData): EmailTemplate {
 
 Hi ${userName},
 
-Great news! Your SamAdvisoryHub account has been confirmed and you now have full access to our platform.
-
 ACCOUNT STATUS: ✅ Confirmed
 Confirmed on: ${confirmationDate}
 
+${messageContent}
+
 Access Your Dashboard: ${platformUrl}/dashboard
 
-Welcome to the SamAdvisoryHub community! We're excited to support your professional growth.
+🚀 EXPLORE SAMADVISORYHUB:
+📋 Services: ${platformUrl}/services
+🎥 Videos: ${platformUrl}/videos  
+📧 Newsletter: ${platformUrl}/newsletters
+
+Get the most out of your SamAdvisoryHub experience!
 
 Best regards,
 The SamAdvisoryHub Team
 
 ---
 This email was sent to you because your SamAdvisoryHub account was confirmed.
-If you have any questions, contact us at ${data?.supportEmail || 'support@mentorshiphub.com'}
+If you have any questions, contact us at ${data?.supportEmail || process.env.SUPPORT_EMAIL || 'support@samadvisoryhub.com'}
     `,
   }
 }
@@ -195,8 +230,16 @@ If you have any questions, contact us at ${data?.supportEmail || 'support@mentor
 function getAccountRejectedTemplate(data: TemplateData): EmailTemplate {
   const userName = data?.userName || 'there'
   const rejectionReason = data?.rejectionReason || 'did not meet our current criteria'
-  const supportEmail = data?.supportEmail || 'support@mentorshiphub.com'
-  const platformUrl = data?.platformUrl || process.env.NEXTAUTH_URL || 'https://mentorshiphub.com'
+  const supportEmail = data?.supportEmail || process.env.SUPPORT_EMAIL || 'support@samadvisoryhub.com'
+  const platformUrl = data?.platformUrl || process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const customMessage = data?.customMessage
+
+  // Use custom message if provided, otherwise use default
+  const messageContent = customMessage || `We appreciate your interest in SamAdvisoryHub. After careful review, we're unable to approve your application at this time.
+
+This decision is not permanent. We encourage you to reapply in the future.
+
+If you have any questions about this decision, please contact our support team.`
 
   return {
     subject: 'Important: Your SamAdvisoryHub Account Status',
@@ -215,6 +258,7 @@ function getAccountRejectedTemplate(data: TemplateData): EmailTemplate {
           .button { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
           .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
           .rejection-badge { background: #fee2e2; color: #991b1b; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+          .message-content { white-space: pre-line; margin: 20px 0; }
         </style>
       </head>
       <body>
@@ -225,22 +269,21 @@ function getAccountRejectedTemplate(data: TemplateData): EmailTemplate {
           </div>
           <div class="content">
             <h2>Hi ${userName},</h2>
-            <p>We appreciate your interest in SamAdvisoryHub. After careful review, we're unable to approve your application at this time.</p>
             
             <div style="text-align: center; margin: 30px 0;">
               <span class="rejection-badge">❌ Application Not Approved</span>
             </div>
             
+            ${!customMessage ? `
             <h3>Reason for Rejection:</h3>
             <p><strong>${rejectionReason}</strong></p>
+            ` : ''}
             
-            <p>This decision is not permanent. We encourage you to reapply in the future.</p>
+            <div class="message-content">${messageContent}</div>
             
             <div style="text-align: center;">
               <a href="${platformUrl}" class="button">Learn More About SamAdvisoryHub</a>
             </div>
-            
-            <p>If you have any questions about this decision, please contact our support team.</p>
             
             <p>Best regards,<br>The SamAdvisoryHub Team</p>
           </div>
@@ -257,18 +300,14 @@ Important: Your SamAdvisoryHub Account Status
 
 Hi ${userName},
 
-We appreciate your interest in SamAdvisoryHub. After careful review, we're unable to approve your application at this time.
-
 ACCOUNT STATUS: ❌ Application Not Approved
 
-Reason for Rejection:
+${!customMessage ? `Reason for Rejection:
 ${rejectionReason}
 
-This decision is not permanent. We encourage you to reapply in the future.
+` : ''}${messageContent}
 
 Learn More: ${platformUrl}
-
-If you have any questions about this decision, please contact our support team.
 
 Best regards,
 The SamAdvisoryHub Team
