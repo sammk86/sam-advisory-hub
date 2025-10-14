@@ -4,6 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { 
   Users, 
   Mail, 
@@ -31,6 +32,7 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -76,7 +78,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     },
     {
       name: 'Messages',
-      href: '/dashboard/messages',
+      href: '/admin/messages',
       icon: MessageCircle,
       current: false,
     },
@@ -179,17 +181,26 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </button>
           </div>
           <nav className="flex-1 px-4 py-4 space-y-1">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <item.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-                {item.name}
-              </Link>
-            ))}
+            {navigation.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    isActive
+                      ? 'bg-blue-100 text-blue-900'
+                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                  }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <item.icon className={`mr-3 h-5 w-5 ${
+                    isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
+                  }`} />
+                  {item.name}
+                </Link>
+              )
+            })}
           </nav>
           <div className="border-t border-gray-200 p-4">
             <button
@@ -215,16 +226,25 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </div>
           </div>
           <nav className="flex-1 px-4 py-4 space-y-1">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900"
-              >
-                <item.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-                {item.name}
-              </Link>
-            ))}
+            {navigation.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    isActive
+                      ? 'bg-blue-100 text-blue-900'
+                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                  }`}
+                >
+                  <item.icon className={`mr-3 h-5 w-5 ${
+                    isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
+                  }`} />
+                  {item.name}
+                </Link>
+              )
+            })}
           </nav>
           <div className="border-t border-gray-200 p-4">
             <button
