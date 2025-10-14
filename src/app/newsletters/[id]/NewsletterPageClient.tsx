@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LoadingPage } from '@/components/ui/LoadingStates';
+import Header from '@/components/landing/Header';
 
 interface Newsletter {
   id: string;
@@ -9,7 +10,8 @@ interface Newsletter {
   subject: string;
   content: string;
   textContent: string;
-  sentAt: string;
+  status: 'DRAFT' | 'SCHEDULED' | 'SENDING' | 'SENT' | 'FAILED';
+  sentAt: string | null;
   totalSent: number;
   createdAt: string;
 }
@@ -38,7 +40,7 @@ export default function NewsletterPageClient({ newsletterId }: NewsletterPageCli
         }
         
         const data = await response.json();
-        setNewsletter(data.data.newsletter);
+        setNewsletter(data.data);
       } catch (error) {
         console.error('Error fetching newsletter:', error);
         setError('Failed to load newsletter');
@@ -106,7 +108,9 @@ export default function NewsletterPageClient({ newsletterId }: NewsletterPageCli
 
   if (error || !newsletter) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <div className="flex items-center justify-center mt-24">
         <div className="bg-card border border-border rounded-2xl p-8 max-w-md mx-auto shadow-lg">
           <div className="flex items-center justify-center w-16 h-16 bg-destructive/10 rounded-full mx-auto mb-4">
             <div className="w-8 h-8 bg-destructive rounded-full flex items-center justify-center">
@@ -126,13 +130,15 @@ export default function NewsletterPageClient({ newsletterId }: NewsletterPageCli
             </button>
           </div>
         </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Header />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-24">
         {/* Back Button */}
         <div className="mb-6">
           <button 
@@ -210,7 +216,7 @@ export default function NewsletterPageClient({ newsletterId }: NewsletterPageCli
                   {newsletter.subject}
                 </p>
                 <p className="text-sm text-slate-400">
-                  Published: {new Date(newsletter.sentAt).toLocaleDateString()}
+                  {newsletter.sentAt ? `Published: ${new Date(newsletter.sentAt).toLocaleDateString()}` : `Created: ${new Date(newsletter.createdAt).toLocaleDateString()}`}
                 </p>
               </div>
             </div>
@@ -227,7 +233,7 @@ export default function NewsletterPageClient({ newsletterId }: NewsletterPageCli
             <div className="flex items-center justify-center gap-6 text-muted-foreground mb-8">
               <div className="flex items-center gap-2">
                 <span>📅</span>
-                <span>{new Date(newsletter.sentAt).toLocaleDateString('en-US', { 
+                <span>{new Date(newsletter.sentAt || newsletter.createdAt).toLocaleDateString('en-US', { 
                   year: 'numeric', 
                   month: 'long', 
                   day: 'numeric' 

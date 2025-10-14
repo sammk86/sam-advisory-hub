@@ -44,44 +44,47 @@ const NewsletterCard: React.FC<{ newsletter: Newsletter; onReadMore: (newsletter
   };
 
   const truncateContent = (content: string, maxLength: number = 150) => {
-    const textContent = content.replace(/<[^>]*>/g, ''); // Remove HTML tags
+    // Remove HTML tags
+    let textContent = content.replace(/<[^>]*>/g, '');
+    
+    // Remove CSS styling and other unwanted content
+    textContent = textContent
+      .replace(/body\s*\{[^}]*\}/g, '') // Remove body CSS rules
+      .replace(/@media[^{]*\{[^}]*\}/g, '') // Remove media queries
+      .replace(/[.#][a-zA-Z0-9_-]*\s*\{[^}]*\}/g, '') // Remove CSS class/id rules
+      .replace(/margin:\s*[^;]*;/g, '') // Remove margin rules
+      .replace(/padding:\s*[^;]*;/g, '') // Remove padding rules
+      .replace(/-webkit-[^;]*;/g, '') // Remove webkit rules
+      .replace(/-ms-[^;]*;/g, '') // Remove ms rules
+      .replace(/font-[^;]*;/g, '') // Remove font rules
+      .replace(/color:\s*[^;]*;/g, '') // Remove color rules
+      .replace(/background[^;]*;/g, '') // Remove background rules
+      .replace(/border[^;]*;/g, '') // Remove border rules
+      .replace(/\{[^}]*\}/g, '') // Remove any remaining CSS blocks
+      .replace(/View in browser/g, '') // Remove "View in browser" text
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .trim();
+    
+    // Find the actual newsletter content (skip the CSS and get to the real content)
+    const contentMatch = textContent.match(/(Weekly AI Intelligence Brief|SamAdvisoryHub|This week's AI landscape)/i);
+    if (contentMatch) {
+      const startIndex = textContent.indexOf(contentMatch[0]);
+      textContent = textContent.substring(startIndex);
+    }
+    
     if (textContent.length <= maxLength) return textContent;
     return textContent.substring(0, maxLength) + '...';
   };
 
-  const getStatusInfo = (status: string) => {
-    switch (status) {
-      case 'DRAFT':
-        return { text: 'Draft', color: 'bg-gray-100 text-gray-800', icon: '📝' };
-      case 'SCHEDULED':
-        return { text: 'Scheduled', color: 'bg-yellow-100 text-yellow-800', icon: '⏰' };
-      case 'SENDING':
-        return { text: 'Sending', color: 'bg-blue-100 text-blue-800', icon: '📤' };
-      case 'SENT':
-        return { text: 'Published', color: 'bg-green-100 text-green-800', icon: '✅' };
-      case 'FAILED':
-        return { text: 'Failed', color: 'bg-red-100 text-red-800', icon: '❌' };
-      default:
-        return { text: 'Unknown', color: 'bg-gray-100 text-gray-800', icon: '❓' };
-    }
-  };
-
-  const statusInfo = getStatusInfo(newsletter.status);
   const displayDate = newsletter.sentAt || newsletter.createdAt;
 
   return (
     <div className="bg-card rounded-lg border border-border hover:border-primary transition-all overflow-hidden flex flex-col h-full">
       <div className="p-6 flex flex-col flex-grow">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <FaCalendarAlt className="w-4 h-4 text-primary" />
-            <span className="text-sm text-muted-foreground">
-              {formatDate(displayDate)}
-            </span>
-          </div>
-          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
-            <span className="mr-1">{statusInfo.icon}</span>
-            {statusInfo.text}
+        <div className="flex items-center gap-2 mb-3">
+          <FaCalendarAlt className="w-4 h-4 text-primary" />
+          <span className="text-sm text-muted-foreground">
+            {formatDate(displayDate)}
           </span>
         </div>
         
@@ -90,42 +93,14 @@ const NewsletterCard: React.FC<{ newsletter: Newsletter; onReadMore: (newsletter
         </h3>
         
         <p className="text-muted-foreground text-sm mb-4 flex-grow">
-          {truncateContent(newsletter.content)}
+          {truncateContent(newsletter.textContent || newsletter.content)}
         </p>
         
         <div className="flex items-center gap-4 mb-4 text-xs text-muted-foreground">
-          {newsletter.status === 'SENT' ? (
-            <>
-              <div className="flex items-center gap-1">
-                <FaUsers className="w-3 h-3" />
-                <span>{newsletter.totalSent} sent</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <FaCheck className="w-3 h-3" />
-                <span>Published</span>
-              </div>
-            </>
-          ) : newsletter.status === 'SENDING' ? (
-            <div className="flex items-center gap-1">
-              <span className="animate-pulse">📤</span>
-              <span>Sending in progress...</span>
-            </div>
-          ) : newsletter.status === 'SCHEDULED' ? (
-            <div className="flex items-center gap-1">
-              <span>⏰</span>
-              <span>Scheduled for later</span>
-            </div>
-          ) : newsletter.status === 'FAILED' ? (
-            <div className="flex items-center gap-1">
-              <span>❌</span>
-              <span>Failed to send</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1">
-              <span>📝</span>
-              <span>Draft version</span>
-            </div>
-          )}
+          <div className="flex items-center gap-1">
+            <FaCheck className="w-3 h-3" />
+            <span>Published</span>
+          </div>
         </div>
         
         <div className="mt-auto pt-4">

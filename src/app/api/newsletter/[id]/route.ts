@@ -8,11 +8,10 @@ export async function GET(
   try {
     const { id } = await params
 
-    // Get newsletter by ID
+    // Get newsletter by ID (allow access to all newsletters regardless of status)
     const newsletter = await prisma.newsletterCampaign.findUnique({
       where: { 
-        id,
-        status: 'SENT' // Only allow access to published newsletters
+        id
       },
       select: {
         id: true,
@@ -20,6 +19,7 @@ export async function GET(
         subject: true,
         content: true,
         textContent: true,
+        status: true,
         sentAt: true,
         totalSent: true,
         createdAt: true,

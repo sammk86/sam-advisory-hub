@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const data = await response.json();
-    const newsletter = data.data?.newsletter;
+    const newsletter = data.data;
 
     if (!newsletter) {
       return {
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         images: ['https://samadvisoryhub.com/images/newsletter-og-preview.svg'],
         url: `https://samadvisoryhub.com/newsletters/${id}`,
         siteName: 'SamAdvisoryHub',
-        publishedTime: newsletter.sentAt,
+        publishedTime: newsletter.sentAt || newsletter.createdAt,
       },
       twitter: {
         card: 'summary_large_image',
