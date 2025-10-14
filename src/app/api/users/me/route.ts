@@ -6,11 +6,12 @@ import { prisma } from '@/lib/prisma'
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
+    
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get current user with session status
+    // Fetch fresh user data from database
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
         sessionActivatedBy: true,
         createdAt: true,
         updatedAt: true,
-      }
+      },
     })
 
     if (!user) {
@@ -35,15 +36,19 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      success: true,
-      user
+      user: {
+        ...user,
+        confirmedAt: user.confirmedAt?.toISOString() || null,
+        sessionActivatedAt: user.sessionActivatedAt?.toISOString() || null,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
+      },
     })
   } catch (error) {
-    console.error('Get user error:', error)
+    console.error('Error fetching user data:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch user data' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
-

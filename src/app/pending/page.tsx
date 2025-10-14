@@ -15,11 +15,25 @@ export default function PendingPage() {
   const handleRefreshStatus = async () => {
     setIsRefreshing(true)
     try {
-      // Force session update to get fresh user data
-      await updateSession()
-      // The useEffect will handle the redirect if user is now confirmed
+      // Fetch fresh user data from API
+      const response = await fetch('/api/users/me')
+      if (response.ok) {
+        const data = await response.json()
+        const user = data.user
+        
+        // Check if user is now confirmed
+        if (user.isConfirmed === true) {
+          // Update session with fresh data and redirect
+          await updateSession()
+          router.push('/dashboard')
+          return
+        }
+        
+        // If still not confirmed, force session update
+        await updateSession()
+      }
     } catch (error) {
-      console.error('Error refreshing session:', error)
+      console.error('Error refreshing user status:', error)
     } finally {
       setIsRefreshing(false)
     }
@@ -46,6 +60,31 @@ export default function PendingPage() {
       return
     }
   }, [session, status, router])
+
+  // Auto-check user status every 30 seconds
+  useEffect(() => {
+    if (!session || session.user.isConfirmed === true) return
+
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch('/api/users/me')
+        if (response.ok) {
+          const data = await response.json()
+          const user = data.user
+          
+          if (user.isConfirmed === true) {
+            // User is now confirmed, redirect to dashboard
+            await updateSession()
+            router.push('/dashboard')
+          }
+        }
+      } catch (error) {
+        console.error('Error checking user status:', error)
+      }
+    }, 30000) // Check every 30 seconds
+
+    return () => clearInterval(interval)
+  }, [session, router, updateSession])
 
   if (status === 'loading') {
     return (

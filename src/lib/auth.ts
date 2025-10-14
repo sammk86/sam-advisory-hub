@@ -93,61 +93,16 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
-      if (token && token.id) {
-        // Fetch fresh user data from database to ensure we have the latest confirmation status
-        try {
-          const user = await prisma.user.findUnique({
-            where: { id: token.id as string },
-            select: {
-              id: true,
-              email: true,
-              name: true,
-              role: true,
-              isConfirmed: true,
-              confirmedAt: true,
-              confirmedBy: true,
-              rejectionReason: true,
-              sessionStatus: true,
-              sessionActivatedAt: true,
-              sessionActivatedBy: true,
-            }
-          })
-
-          if (user) {
-            session.user.id = user.id
-            session.user.role = user.role as any
-            session.user.isConfirmed = user.isConfirmed ?? false
-            session.user.confirmedAt = user.confirmedAt?.toISOString() || null
-            session.user.confirmedBy = user.confirmedBy
-            session.user.rejectionReason = user.rejectionReason
-            session.user.sessionStatus = user.sessionStatus as any
-            session.user.sessionActivatedAt = user.sessionActivatedAt?.toISOString() || null
-            session.user.sessionActivatedBy = user.sessionActivatedBy
-          } else {
-            // Fallback to token data if user not found
-            session.user.id = token.id as string
-            session.user.role = token.role as any
-            session.user.isConfirmed = token.isConfirmed as boolean
-            session.user.confirmedAt = token.confirmedAt as string
-            session.user.confirmedBy = token.confirmedBy as string
-            session.user.rejectionReason = token.rejectionReason as string
-            session.user.sessionStatus = token.sessionStatus as any
-            session.user.sessionActivatedAt = token.sessionActivatedAt as string
-            session.user.sessionActivatedBy = token.sessionActivatedBy as string
-          }
-        } catch (error) {
-          console.error('Error fetching user data in session callback:', error)
-          // Fallback to token data on error
-          session.user.id = token.id as string
-          session.user.role = token.role as any
-          session.user.isConfirmed = token.isConfirmed as boolean
-          session.user.confirmedAt = token.confirmedAt as string
-          session.user.confirmedBy = token.confirmedBy as string
-          session.user.rejectionReason = token.rejectionReason as string
-          session.user.sessionStatus = token.sessionStatus as any
-          session.user.sessionActivatedAt = token.sessionActivatedAt as string
-          session.user.sessionActivatedBy = token.sessionActivatedBy as string
-        }
+      if (token) {
+        session.user.id = token.id as string
+        session.user.role = token.role as string
+        session.user.isConfirmed = token.isConfirmed as boolean
+        session.user.confirmedAt = token.confirmedAt as string
+        session.user.confirmedBy = token.confirmedBy as string
+        session.user.rejectionReason = token.rejectionReason as string
+        session.user.sessionStatus = token.sessionStatus as string
+        session.user.sessionActivatedAt = token.sessionActivatedAt as string
+        session.user.sessionActivatedBy = token.sessionActivatedBy as string
       }
       return session
     },
