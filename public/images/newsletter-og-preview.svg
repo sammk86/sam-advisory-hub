@@ -1,0 +1,63 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1e3a8a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)" />
+  
+  <!-- Header section -->
+  <rect x="0" y="0" width="1200" height="120" fill="rgba(15, 23, 42, 0.8)" />
+  
+  <!-- Profile Photo -->
+  <defs>
+    <clipPath id="profileClip">
+      <circle cx="100" cy="60" r="30"/>
+    </clipPath>
+  </defs>
+  <circle cx="100" cy="60" r="32" fill="url(#accentGradient)" stroke="#06b6d4" stroke-width="2"/>
+  <image href="/images/4.png" x="70" y="30" width="60" height="60" clip-path="url(#profileClip)"/>
+  
+  <!-- Author info -->
+  <text x="160" y="45" fill="white" font-family="Arial, sans-serif" font-size="28" font-weight="600">Dr. Sam Mokhtari</text>
+  <text x="160" y="75" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="18">Data &amp; AI Expert | Mentor &amp; Advisor</text>
+  
+  <!-- Newsletter badge -->
+  <rect x="900" y="30" width="200" height="40" rx="20" fill="url(#accentGradient)" />
+  <text x="1000" y="55" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="600">Newsletter</text>
+  
+  <!-- Main content area -->
+  <rect x="80" y="180" width="1040" height="300" rx="20" fill="rgba(30, 58, 138, 0.3)" stroke="#1e40af" stroke-width="2" />
+  
+  <!-- AI icon -->
+  <circle cx="150" cy="330" r="40" fill="url(#accentGradient)" />
+  <path d="M130 330c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20zm20-10c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10-4.5-10-10-10zm-5 25v10h10v-10h-10zm5 15c-8.3 0-15 6.7-15 15v5h30v-5c0-8.3-6.7-15-15-15z" fill="white"/>
+  
+  <!-- Title placeholder -->
+  <text x="220" y="280" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="700">AI Newsletter</text>
+  <text x="220" y="320" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="20">Latest insights on AI architecture and innovation</text>
+  <text x="220" y="360" fill="#94a3b8" font-family="Arial, sans-serif" font-size="16">Discover cutting-edge AI strategies and expert guidance</text>
+  
+  <!-- Call to action -->
+  <rect x="220" y="380" width="200" height="50" rx="25" fill="url(#accentGradient)" />
+  <text x="320" y="410" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="600">Read Full Article</text>
+  
+  <!-- Footer -->
+  <rect x="0" y="550" width="1200" height="80" fill="rgba(15, 23, 42, 0.9)" />
+  <text x="600" y="590" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="16">Powered by</text>
+  <text x="600" y="615" text-anchor="middle" fill="#06b6d4" font-family="Arial, sans-serif" font-size="20" font-weight="600">SamAdvisoryHub</text>
+  
+  <!-- Decorative elements -->
+  <circle cx="1000" cy="200" r="60" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0.3" />
+  <circle cx="1100" cy="150" r="40" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.3" />
+  <circle cx="1050" cy="250" r="30" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0.3" />
+</svg>

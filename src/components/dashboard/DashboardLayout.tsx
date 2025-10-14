@@ -181,9 +181,17 @@ export default function DashboardLayout({ children, title, description, actions 
           
           <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
             <div className="flex items-center w-full">
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-gray-600" />
-              </div>
+              {session?.user?.image ? (
+                <img
+                  src={session.user.image}
+                  alt={session.user.name || 'User'}
+                  className="w-10 h-10 rounded-full object-cover border-2 border-gray-300"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-gray-600" />
+                </div>
+              )}
               <div className="ml-3 flex-1">
                 <p className="text-sm font-medium text-gray-700 truncate">{session?.user?.name}</p>
                 <p className="text-xs text-gray-500 truncate">{session?.user?.email}</p>
