@@ -3,8 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Header from '@/components/landing/Header';
 import Footer from '@/components/landing/Footer';
-import { FaEnvelope, FaCalendarAlt, FaUsers, FaCheck, FaArrowLeft, FaExternalLinkAlt } from 'react-icons/fa';
+import { getNewsletterPreviewUrl, getNewsletterOgImageUrl } from '@/lib/newsletter-previews';
+import dynamic from 'next/dynamic';
+import Head from 'next/head';
+// Icons replaced with HTML/CSS alternatives
 import { LoadingPage } from '@/components/ui/LoadingStates';
+
+// Dynamically import Lottie to avoid SSR issues
+const Lottie = dynamic(() => import("lottie-react"), { 
+  ssr: false,
+  loading: () => <div className="w-full h-64 bg-muted rounded-lg animate-pulse" />
+});
 
 interface Newsletter {
   id: string;
@@ -26,12 +35,26 @@ const NewsletterPage = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
+  const [previewAnimation, setPreviewAnimation] = useState(null);
+
 
   useEffect(() => {
     if (params.id) {
       loadNewsletter(params.id as string);
+      loadPreviewAnimation(params.id as string);
     }
   }, [params.id]);
+
+  const loadPreviewAnimation = async (newsletterId: string) => {
+    try {
+      const animationUrl = getNewsletterPreviewUrl(newsletterId);
+      const response = await fetch(animationUrl);
+      const animationData = await response.json();
+      setPreviewAnimation(animationData);
+    } catch (error) {
+      console.error('Error loading preview animation:', error);
+    }
+  };
 
   const loadNewsletter = async (id: string) => {
     try {
@@ -122,15 +145,17 @@ const NewsletterPage = () => {
         
         <div className="container mt-24 mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-16">
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-8 max-w-md mx-auto">
-              <FaEnvelope className="w-16 h-16 text-destructive mx-auto mb-6" />
+            <div className="bg-card border border-border rounded-2xl p-8 max-w-md mx-auto shadow-lg">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-8 h-8 bg-destructive rounded text-destructive-foreground flex items-center justify-center text-sm font-bold">!</div>
+              </div>
               <h1 className="text-2xl font-bold text-destructive mb-4">Newsletter Not Found</h1>
               <p className="text-muted-foreground mb-6">{error}</p>
               <button 
                 onClick={handleBackToList}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-all duration-200"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground rounded-lg font-medium transition-colors duration-200"
               >
-                <FaArrowLeft className="w-4 h-4" />
+                <span className="text-lg">←</span>
                 Back to Newsletters
               </button>
             </div>
@@ -147,110 +172,152 @@ const NewsletterPage = () => {
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-background text-foreground">
-      <Header />
+    <>
+      <Head>
+        <title>{newsletter ? `${newsletter.title} | SamAdvisoryHub` : 'Newsletter | SamAdvisoryHub'}</title>
+        <meta name="description" content={newsletter ? newsletter.subject : 'Latest insights on AI architecture and innovation'} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={newsletter ? newsletter.title : 'AI Newsletter | SamAdvisoryHub'} />
+        <meta property="og:description" content={newsletter ? newsletter.subject : 'Latest insights on AI architecture and innovation'} />
+        <meta property="og:image" content={newsletter ? getNewsletterOgImageUrl(newsletter.id) : '/animations/ai-brain.json'} />
+        <meta property="og:url" content={`${typeof window !== 'undefined' ? window.location.href : ''}`} />
+        <meta property="og:site_name" content="SamAdvisoryHub" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={newsletter ? newsletter.title : 'AI Newsletter | SamAdvisoryHub'} />
+        <meta name="twitter:description" content={newsletter ? newsletter.subject : 'Latest insights on AI architecture and innovation'} />
+        <meta name="twitter:image" content={newsletter ? getNewsletterOgImageUrl(newsletter.id) : '/animations/ai-brain.json'} />
+      </Head>
+      
+      <main className="flex min-h-screen flex-col bg-background text-foreground">
+        <Header />
       
       <div className="container mt-24 mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <div className="mb-6">
           <button 
             onClick={handleBackToList}
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-secondary hover:text-secondary/80 font-medium transition-colors"
           >
-            <FaArrowLeft className="w-4 h-4" />
+            <span className="text-lg">←</span>
             Back to Newsletter Archive
           </button>
         </div>
 
-        {/* Subscribe Section - Top of Page */}
-        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8 md:p-12 text-center mb-12">
-          <div className="max-w-2xl mx-auto">
-            <div className="flex justify-center mb-6">
-              <div className="p-4 bg-primary/20 rounded-full">
-                <FaEnvelope className="w-8 h-8 text-primary" />
-              </div>
-            </div>
-            
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-              Subscribe for More Insights
-            </h2>
-            
-            <p className="text-muted-foreground text-lg mb-8">
-              Get the latest newsletters, articles, and insights on Data & AI delivered straight to your inbox. 
-              Join our community of professionals transforming their careers and organizations.
-            </p>
-
+        {/* Subscribe Section - Website Styling */}
+        <div className="bg-card rounded-2xl p-8 mb-12 border border-border shadow-lg">
+          <div className="max-w-lg mx-auto text-center">
             {isSubmitted ? (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-lg">
+              <div className="bg-card border border-border text-foreground px-6 py-4 rounded-xl">
                 <div className="flex items-center justify-center gap-2">
-                  <FaCheck className="w-5 h-5" />
-                  <span className="font-medium">Thank you for subscribing! Check your email for confirmation.</span>
+                  <span className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">✓</span>
+                  <span className="font-medium">Thank you for subscribing!</span>
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
-                  required
-                  className="flex-1 px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-                <button
-                  type="submit"
-                  disabled={isSubscribing}
-                  className="px-6 py-3 bg-gradient-magenta-cyan hover:opacity-90 text-white rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubscribing ? 'Subscribing...' : 'Subscribe'}
-                </button>
-              </form>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-4">Stay Updated</h3>
+                <form onSubmit={handleSubscribe} className="flex gap-3">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email to subscribe"
+                    required
+                    className="flex-1 px-4 py-3 rounded-xl border border-border bg-input text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring shadow-sm"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubscribing}
+                    className="px-8 py-3 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                  >
+                    {isSubscribing ? 'Subscribing...' : 'Subscribe'}
+                  </button>
+                </form>
+              </div>
             )}
+          </div>
+        </div>
 
-            <p className="text-sm text-muted-foreground mt-4">
-              No spam, unsubscribe at any time. We respect your privacy.
-            </p>
+        {/* Preview Animation */}
+        <div className="mb-12">
+          <div className="bg-card rounded-2xl p-8 border border-border shadow-lg">
+            <div className="max-w-2xl mx-auto text-center">
+              <h3 className="text-xl font-semibold text-foreground mb-4">AI Insights Preview</h3>
+              <div className="w-full h-64 bg-background rounded-xl overflow-hidden">
+                {previewAnimation ? (
+                  <Lottie
+                    animationData={previewAnimation}
+                    loop={true}
+                    autoplay={true}
+                    style={{ width: '100%', height: '100%' }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full mx-auto mb-4 animate-pulse"></div>
+                      <p className="text-muted-foreground">Loading AI preview...</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground mt-4">
+                Discover the latest in AI architecture and innovation
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Newsletter Content */}
-        <article className="max-w-4xl mx-auto">
+        <article className="max-w-4xl mx-auto text-center">
           {/* Newsletter Header */}
-          <header className="text-center mb-12">
+          <header className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <FaCalendarAlt className="w-4 h-4 text-primary" />
+              <span className="w-4 h-4 bg-muted rounded flex items-center justify-center text-muted-foreground text-xs">📅</span>
               <span className="text-sm text-muted-foreground">
                 Published on {formatDate(newsletter.sentAt)}
               </span>
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
-              {newsletter.title}
+              <span className="text-gradient-magenta-cyan">{newsletter.title}</span>
             </h1>
-            
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <FaUsers className="w-4 h-4" />
-                <span>{newsletter.totalSent} subscribers</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="w-4 h-4" />
-                <span>Published</span>
-              </div>
-            </div>
           </header>
 
           {/* Newsletter Content */}
-          <div className="bg-card rounded-lg border border-border p-8 md:p-12">
+          <div className="bg-card rounded-2xl shadow-lg border border-border p-8 md:p-12 overflow-hidden">
             <div 
-              className="prose prose-lg max-w-none prose-headings:text-foreground prose-h1:text-foreground prose-h2:text-foreground prose-h3:text-foreground prose-h4:text-foreground prose-p:text-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-accent-foreground prose-pre:bg-muted prose-blockquote:border-primary prose-blockquote:text-foreground prose-li:text-foreground prose-ul:text-foreground prose-ol:text-foreground"
+              className="prose prose-lg max-w-none 
+                prose-headings:text-foreground prose-h1:text-foreground prose-h2:text-foreground prose-h3:text-foreground prose-h4:text-foreground
+                prose-p:text-muted-foreground prose-p:leading-relaxed
+                prose-a:text-secondary prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-foreground prose-b:text-foreground
+                prose-code:text-foreground prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+                prose-pre:bg-muted prose-pre:text-foreground prose-pre:border prose-pre:border-border
+                prose-blockquote:border-l-primary prose-blockquote:bg-muted prose-blockquote:border-l-4 prose-blockquote:pl-6 prose-blockquote:py-4 prose-blockquote:text-muted-foreground
+                prose-li:text-muted-foreground prose-ul:text-muted-foreground prose-ol:text-muted-foreground
+                prose-img:rounded-lg prose-img:shadow-md
+                prose-table:text-sm prose-th:bg-muted prose-th:text-foreground prose-td:text-muted-foreground prose-td:border prose-td:border-border
+                prose-hr:border-border
+                [&_table]:bg-card [&_table]:border-border [&_table]:rounded-lg [&_table]:overflow-hidden
+                [&_td]:bg-card [&_td]:border-border
+                [&_tr]:bg-card
+                [&_body]:bg-card
+                [&_html]:bg-card
+                [&_*]:!bg-card [&_*]:!color-foreground
+                [&_.container]:bg-card
+                [&_table[role='presentation']]:bg-card
+                [&_table[role='presentation']_td]:bg-card"
               dangerouslySetInnerHTML={{ __html: newsletter.content }}
             />
           </div>
 
           {/* Share Section */}
           <div className="mt-12 text-center">
-            <div className="bg-muted/50 rounded-lg p-6">
+            <div className="bg-card rounded-2xl p-8 border border-border shadow-lg">
               <h3 className="text-lg font-semibold text-foreground mb-4">Share this Newsletter</h3>
               <div className="flex justify-center gap-4">
                 <button
@@ -266,9 +333,9 @@ const NewsletterPage = () => {
                       alert('Link copied to clipboard!');
                     }
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-all duration-200"
+                  className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
-                  <FaExternalLinkAlt className="w-4 h-4" />
+                  <span className="w-4 h-4 bg-muted rounded flex items-center justify-center text-secondary text-xs">↗</span>
                   Share
                 </button>
               </div>
@@ -278,7 +345,8 @@ const NewsletterPage = () => {
       </div>
       
       <Footer />
-    </main>
+      </main>
+    </>
   );
 };
 

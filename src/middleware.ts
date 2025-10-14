@@ -96,6 +96,11 @@ export default withAuth(
           return true
         }
 
+        // Check if it's a newsletter detail page (e.g., /newsletters/[id])
+        if (pathname.startsWith('/newsletters/') && pathname !== '/newsletters') {
+          return true
+        }
+
         // Allow access to static files in public folder
         if (pathname.startsWith('/animations/') || 
             pathname.startsWith('/data/') || 

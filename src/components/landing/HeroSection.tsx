@@ -36,7 +36,7 @@ const HeroSection = () => {
                 1000,
                 "Data & AI Sales Specialist",
                 1000,
-                "Data & AI Adviser",
+                "Data & AI Advisor",
                 1000,
                 "Data & AI Mentor",
                 1000
