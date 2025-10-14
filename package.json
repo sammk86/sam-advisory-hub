@@ -16,6 +16,9 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
+    "migrate:subscribers": "node scripts/migrate-confirmed-users-to-subscribers.js",
+    "migrate:session-status": "node scripts/update-session-status.js",
+    "update:admin-photo": "node scripts/update-admin-profile-photo.js",
     "type-check": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch"
@@ -59,7 +62,7 @@
     "framer-motion": "^12.23.22",
     "gray-matter": "^4.0.3",
     "jsonwebtoken": "^9.0.2",
-    "lottie-react": "^2.4.0",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.544.0",
     "next": "^15.5.4",
     "next-auth": "^4.24.11",

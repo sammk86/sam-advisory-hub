@@ -3,17 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Header from '@/components/landing/Header';
 import Footer from '@/components/landing/Footer';
-import { getNewsletterPreviewUrl, getNewsletterOgImageUrl } from '@/lib/newsletter-previews';
-import dynamic from 'next/dynamic';
+import NewsletterPreviewCard from '@/components/newsletter/NewsletterPreviewCard';
 import Head from 'next/head';
-// Icons replaced with HTML/CSS alternatives
 import { LoadingPage } from '@/components/ui/LoadingStates';
-
-// Dynamically import Lottie to avoid SSR issues
-const Lottie = dynamic(() => import("lottie-react"), { 
-  ssr: false,
-  loading: () => <div className="w-full h-64 bg-muted rounded-lg animate-pulse" />
-});
 
 interface Newsletter {
   id: string;
@@ -35,26 +27,14 @@ const NewsletterPage = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
-  const [previewAnimation, setPreviewAnimation] = useState(null);
 
 
   useEffect(() => {
     if (params.id) {
       loadNewsletter(params.id as string);
-      loadPreviewAnimation(params.id as string);
     }
   }, [params.id]);
 
-  const loadPreviewAnimation = async (newsletterId: string) => {
-    try {
-      const animationUrl = getNewsletterPreviewUrl(newsletterId);
-      const response = await fetch(animationUrl);
-      const animationData = await response.json();
-      setPreviewAnimation(animationData);
-    } catch (error) {
-      console.error('Error loading preview animation:', error);
-    }
-  };
 
   const loadNewsletter = async (id: string) => {
     try {
@@ -181,7 +161,7 @@ const NewsletterPage = () => {
         <meta property="og:type" content="article" />
         <meta property="og:title" content={newsletter ? newsletter.title : 'AI Newsletter | SamAdvisoryHub'} />
         <meta property="og:description" content={newsletter ? newsletter.subject : 'Latest insights on AI architecture and innovation'} />
-        <meta property="og:image" content={newsletter ? getNewsletterOgImageUrl(newsletter.id) : '/animations/ai-brain.json'} />
+        <meta property="og:image" content="https://samadvisoryhub.com/images/newsletter-og-preview.svg" />
         <meta property="og:url" content={`${typeof window !== 'undefined' ? window.location.href : ''}`} />
         <meta property="og:site_name" content="SamAdvisoryHub" />
         
@@ -189,7 +169,7 @@ const NewsletterPage = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={newsletter ? newsletter.title : 'AI Newsletter | SamAdvisoryHub'} />
         <meta name="twitter:description" content={newsletter ? newsletter.subject : 'Latest insights on AI architecture and innovation'} />
-        <meta name="twitter:image" content={newsletter ? getNewsletterOgImageUrl(newsletter.id) : '/animations/ai-brain.json'} />
+        <meta name="twitter:image" content="https://samadvisoryhub.com/images/newsletter-og-preview.svg" />
       </Head>
       
       <main className="flex min-h-screen flex-col bg-background text-foreground">
@@ -242,34 +222,16 @@ const NewsletterPage = () => {
           </div>
         </div>
 
-        {/* Preview Animation */}
-        <div className="mb-12">
-          <div className="bg-card rounded-2xl p-8 border border-border shadow-lg">
-            <div className="max-w-2xl mx-auto text-center">
-              <h3 className="text-xl font-semibold text-foreground mb-4">AI Insights Preview</h3>
-              <div className="w-full h-64 bg-background rounded-xl overflow-hidden">
-                {previewAnimation ? (
-                  <Lottie
-                    animationData={previewAnimation}
-                    loop={true}
-                    autoplay={true}
-                    style={{ width: '100%', height: '100%' }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full mx-auto mb-4 animate-pulse"></div>
-                      <p className="text-muted-foreground">Loading AI preview...</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                Discover the latest in AI architecture and innovation
-              </p>
-            </div>
+        {/* Professional Preview Card */}
+        {newsletter && (
+          <div className="mb-12">
+            <NewsletterPreviewCard
+              title={newsletter.title}
+              subject={newsletter.subject}
+              publishedDate={newsletter.sentAt}
+            />
           </div>
-        </div>
+        )}
 
         {/* Newsletter Content */}
         <article className="max-w-4xl mx-auto text-center">

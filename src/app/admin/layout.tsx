@@ -304,11 +304,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               {/* Profile dropdown */}
               <div className="flex items-center gap-x-4">
                 <div className="flex items-center gap-x-3">
-                  <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {session.user?.name?.charAt(0) || 'A'}
-                    </span>
-                  </div>
+                  {session.user?.image ? (
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name || 'Admin'}
+                      className="h-8 w-8 rounded-full object-cover border-2 border-blue-600"
+                    />
+                  ) : (
+                    <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">
+                        {session.user?.name?.charAt(0) || 'A'}
+                      </span>
+                    </div>
+                  )}
                   <div className="hidden lg:block">
                     <p className="text-sm font-semibold text-gray-900">{session.user?.name}</p>
                     <p className="text-xs text-gray-500">Administrator</p>
