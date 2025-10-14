@@ -60,6 +60,7 @@ export default function CampaignsPage() {
   const [showViewModal, setShowViewModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
+  const [fixLoading, setFixLoading] = useState(false)
 
   useEffect(() => {
     fetchCampaigns()
@@ -194,6 +195,35 @@ export default function CampaignsPage() {
     }
   }
 
+  const handleFixStuckNewsletters = async () => {
+    try {
+      setFixLoading(true)
+      setError(null)
+      
+      const response = await fetch('/api/admin/newsletter/fix-stuck', {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to fix stuck newsletters')
+      }
+
+      const data = await response.json()
+      
+      // Refresh campaigns list
+      await fetchCampaigns()
+      
+      // Show success message
+      alert(`✅ ${data.message}\n\nProcessed: ${data.data.processed}\nUpdated to SENT: ${data.data.sent}\nUpdated to FAILED: ${data.data.failed}`)
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fix stuck newsletters')
+    } finally {
+      setFixLoading(false)
+    }
+  }
+
   if (loading && (campaigns?.length || 0) === 0) {
     return (
       <div className="space-y-6">
@@ -255,7 +285,15 @@ export default function CampaignsPage() {
                 <option value="FAILED">Failed</option>
               </select>
             </div>
-            <div className="flex items-end">
+            <div className="flex items-end space-x-2">
+              <button
+                onClick={handleFixStuckNewsletters}
+                disabled={fixLoading}
+                className="px-4 py-2 border border-orange-300 text-sm font-medium rounded-md text-orange-700 bg-orange-50 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
+                title="Fix newsletters stuck in SENDING status"
+              >
+                {fixLoading ? 'Fixing...' : 'Fix Stuck Newsletters'}
+              </button>
               <button
                 onClick={fetchCampaigns}
                 disabled={loading}

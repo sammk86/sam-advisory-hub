@@ -8,10 +8,8 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '12')
 
-    // Get published newsletters only
-    const where = {
-      status: 'SENT'
-    }
+    // Get all newsletters regardless of status
+    const where = {}
 
     // Get newsletters with pagination
     const [newsletters, total] = await Promise.all([
@@ -19,13 +17,17 @@ export async function GET(request: NextRequest) {
         where,
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { sentAt: 'desc' },
+        orderBy: [
+          { sentAt: 'desc' },
+          { createdAt: 'desc' }
+        ],
         select: {
           id: true,
           title: true,
           subject: true,
           content: true,
           textContent: true,
+          status: true,
           sentAt: true,
           totalSent: true,
           createdAt: true,
