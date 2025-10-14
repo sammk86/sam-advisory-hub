@@ -55,6 +55,51 @@ export async function POST(
       },
     })
 
+    // Add user to newsletter subscribers
+    try {
+      // Check if user is already a subscriber
+      const existingSubscriber = await prisma.newsletterSubscriber.findUnique({
+        where: { email: user.email },
+      })
+
+      if (!existingSubscriber) {
+        // Extract first and last name from user name
+        const nameParts = (user.name || '').split(' ')
+        const firstName = nameParts[0] || ''
+        const lastName = nameParts.slice(1).join(' ') || ''
+
+        // Create new newsletter subscriber
+        await prisma.newsletterSubscriber.create({
+          data: {
+            email: user.email,
+            firstName: firstName || null,
+            lastName: lastName || null,
+            interests: [], // Default empty interests
+            source: 'user-confirmation',
+            status: 'ACTIVE',
+          },
+        })
+
+        console.log(`User ${user.email} added to newsletter subscribers`)
+      } else if (existingSubscriber.status === 'UNSUBSCRIBED') {
+        // Reactivate subscription if previously unsubscribed
+        await prisma.newsletterSubscriber.update({
+          where: { id: existingSubscriber.id },
+          data: {
+            status: 'ACTIVE',
+            unsubscribedAt: null,
+          },
+        })
+
+        console.log(`User ${user.email} newsletter subscription reactivated`)
+      } else {
+        console.log(`User ${user.email} is already an active newsletter subscriber`)
+      }
+    } catch (subscriberError) {
+      console.error('Error adding user to newsletter subscribers:', subscriberError)
+      // Don't fail the approval if newsletter subscription fails
+    }
+
     // Send confirmation email
     try {
       const template = getEmailTemplate('ACCOUNT_CONFIRMED', {
