@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/landing/Header';
 import Footer from '@/components/landing/Footer';
-import { FaEnvelope, FaExternalLinkAlt, FaCalendarAlt, FaCheck, FaUsers, FaTimes } from 'react-icons/fa';
+import { FaEnvelope, FaExternalLinkAlt, FaCalendarAlt, FaCheck, FaUsers } from 'react-icons/fa';
 
 interface Newsletter {
   id: string;
@@ -103,7 +103,6 @@ const NewslettersPage = () => {
   });
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [selectedNewsletter, setSelectedNewsletter] = useState<Newsletter | null>(null);
 
   useEffect(() => {
     loadNewsletters();
@@ -159,11 +158,8 @@ const NewslettersPage = () => {
   };
 
   const handleReadMore = (newsletter: Newsletter) => {
-    setSelectedNewsletter(newsletter);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedNewsletter(null);
+    // Open newsletter in new tab
+    window.open(`/newsletters/${newsletter.id}`, '_blank');
   };
 
   const formatDate = (dateString: string) => {
@@ -326,41 +322,6 @@ const NewslettersPage = () => {
       </div>
       
       <Footer />
-
-      {/* Newsletter Modal */}
-      {selectedNewsletter && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-75 backdrop-blur-sm">
-          <div className="bg-black border border-border rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            {/* Modal Header */}
-            <div className="flex justify-between items-center p-6 border-b border-border bg-black">
-              <div>
-                <h2 className="text-2xl font-bold text-white">{selectedNewsletter.title}</h2>
-                <p className="text-gray-400 text-sm mt-1">
-                  Sent on {formatDate(selectedNewsletter.sentAt)} to {selectedNewsletter.totalSent} subscribers
-                </p>
-              </div>
-              <button
-                onClick={handleCloseModal}
-                className="text-gray-400 hover:text-white transition-colors p-2"
-              >
-                <FaTimes className="w-6 h-6" />
-              </button>
-            </div>
-            
-            {/* Modal Content */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)] bg-black">
-              <div 
-                className="prose prose-invert max-w-none text-white prose-headings:text-white prose-h1:text-white prose-h2:text-white prose-h3:text-white prose-h4:text-white prose-p:text-gray-200 prose-a:text-primary prose-strong:text-white prose-code:text-accent-foreground prose-pre:bg-gray-900 prose-blockquote:border-primary prose-blockquote:text-gray-300 prose-li:text-gray-200 prose-ul:text-gray-200 prose-ol:text-gray-200"
-                style={{
-                  color: '#ffffff',
-                  backgroundColor: 'transparent'
-                }}
-                dangerouslySetInnerHTML={{ __html: selectedNewsletter.content }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 };
