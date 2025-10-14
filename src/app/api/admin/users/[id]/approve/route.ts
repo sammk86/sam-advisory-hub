@@ -128,6 +128,7 @@ export async function POST(
     return NextResponse.json({
       message: 'User approved successfully',
       user: updatedUser,
+      sessionRefreshNeeded: true, // Indicate that the user should refresh their session
     })
   } catch (error) {
     console.error('Error approving user:', error)

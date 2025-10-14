@@ -2,14 +2,28 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Clock, Mail, CheckCircle, AlertCircle, ArrowRight, RefreshCw } from 'lucide-react'
 import { LoadingPage } from '@/components/ui/LoadingStates'
 
 export default function PendingPage() {
-  const { data: session, status } = useSession()
+  const { data: session, status, update: updateSession } = useSession()
   const router = useRouter()
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const handleRefreshStatus = async () => {
+    setIsRefreshing(true)
+    try {
+      // Force session update to get fresh user data
+      await updateSession()
+      // The useEffect will handle the redirect if user is now confirmed
+    } catch (error) {
+      console.error('Error refreshing session:', error)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
 
   useEffect(() => {
     if (status === 'loading') return
@@ -188,6 +202,14 @@ export default function PendingPage() {
               Our support team is here to help with any questions about your application.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={handleRefreshStatus}
+                disabled={isRefreshing}
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <RefreshCw className={`w-5 h-5 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing ? 'Checking...' : 'Check Status'}
+              </button>
               <Link
                 href="mailto:support@mentorshiphub.com"
                 className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
