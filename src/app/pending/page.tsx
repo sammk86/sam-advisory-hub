@@ -11,12 +11,14 @@ export default function PendingPage() {
   const { data: session, status, update: updateSession } = useSession()
   const router = useRouter()
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [lastChecked, setLastChecked] = useState<Date | null>(null)
 
   const handleRefreshStatus = async () => {
     setIsRefreshing(true)
     try {
       // Fetch fresh user data from API
       const response = await fetch('/api/users/me')
+      setLastChecked(new Date())
       if (response.ok) {
         const data = await response.json()
         const user = data.user
@@ -48,17 +50,32 @@ export default function PendingPage() {
       return
     }
 
-    // Redirect confirmed users to dashboard
-    if (session.user.isConfirmed === true) {
-      router.push('/dashboard')
-      return
+    // Check user status from API to ensure we have fresh data
+    const checkUserStatus = async () => {
+      try {
+        const response = await fetch('/api/users/me')
+        setLastChecked(new Date())
+        if (response.ok) {
+          const data = await response.json()
+          const user = data.user
+          
+          if (user.isConfirmed === true) {
+            router.push('/dashboard')
+            return
+          }
+          
+          if (user.isConfirmed === false && user.rejectionReason) {
+            router.push('/rejected')
+            return
+          }
+        }
+      } catch (error) {
+        console.error('Error checking user status:', error)
+      }
     }
 
-    // Redirect rejected users to rejected page
-    if (session.user.isConfirmed === false && session.user.rejectionReason) {
-      router.push('/rejected')
-      return
-    }
+    // Always check fresh status on page load
+    checkUserStatus()
   }, [session, status, router])
 
   // Auto-check user status every 30 seconds
@@ -68,6 +85,7 @@ export default function PendingPage() {
     const interval = setInterval(async () => {
       try {
         const response = await fetch('/api/users/me')
+        setLastChecked(new Date())
         if (response.ok) {
           const data = await response.json()
           const user = data.user
@@ -81,7 +99,7 @@ export default function PendingPage() {
       } catch (error) {
         console.error('Error checking user status:', error)
       }
-    }, 30000) // Check every 30 seconds
+    }, 10000) // Check every 10 seconds
 
     return () => clearInterval(interval)
   }, [session, router, updateSession])
@@ -240,6 +258,11 @@ export default function PendingPage() {
             <p className="text-gray-600 mb-4">
               Our support team is here to help with any questions about your application.
             </p>
+            {lastChecked && (
+              <p className="text-sm text-gray-500 mb-4">
+                Last checked: {lastChecked.toLocaleTimeString()}
+              </p>
+            )}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={handleRefreshStatus}
