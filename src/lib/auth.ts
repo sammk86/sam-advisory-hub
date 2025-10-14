@@ -55,6 +55,9 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        // Return user data even if not confirmed - we'll handle redirects in the frontend
+        // This allows us to access user information for proper routing
+
         return {
           id: user.id,
           email: user.email,
@@ -102,11 +105,21 @@ export const authOptions: NextAuthOptions = {
         session.user.sessionActivatedBy = token.sessionActivatedBy as string
       }
       return session
-    }
+    },
+    async signIn({ user, account, profile, email, credentials }) {
+      // This callback is called after authorize but before session creation
+      // We can handle redirects here if needed
+      return true
+    },
   },
   pages: {
     signIn: '/auth/signin',
     signUp: '/auth/signup',
+  },
+  events: {
+    async signIn(message) {
+      // Handle sign in events
+    },
   },
   debug: process.env.NODE_ENV === 'development',
 }

@@ -25,8 +25,8 @@ function SigninForm() {
   
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
-  const service = searchParams.get('service')
+  const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
+  const service = searchParams?.get('service')
 
   const {
     register,
@@ -48,7 +48,13 @@ function SigninForm() {
       })
 
       if (result?.error) {
-        throw new Error(result.error)
+        // Handle specific authentication errors
+        if (result.error === 'CredentialsSignin') {
+          setError('Invalid email or password. Please check your credentials and try again.')
+        } else {
+          setError(result.error)
+        }
+        return
       }
 
       if (result?.ok) {
@@ -72,6 +78,7 @@ function SigninForm() {
             if (session.user.rejectionReason) {
               router.push('/rejected')
             } else {
+              // User is pending approval
               router.push('/pending')
             }
           } else {
