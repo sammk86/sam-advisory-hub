@@ -52,6 +52,9 @@ export async function POST(
         confirmedAt: new Date(),
         confirmedBy: session.user.id,
         rejectionReason: null,
+        sessionStatus: 'ACTIVE',
+        sessionActivatedAt: new Date(),
+        sessionActivatedBy: session.user.id,
       },
     })
 

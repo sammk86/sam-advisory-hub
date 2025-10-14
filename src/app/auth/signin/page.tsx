@@ -73,8 +73,8 @@ function SigninForm() {
           // Redirect based on user role and confirmation status
           if (session.user.role === 'ADMIN') {
             router.push('/admin/dashboard')
-          } else if (!session.user.isConfirmed) {
-            // User is not confirmed - redirect to appropriate page
+          } else if (!session.user.isConfirmed || session.user.sessionStatus !== 'ACTIVE') {
+            // User is not confirmed or session is not active - redirect to appropriate page
             if (session.user.rejectionReason) {
               router.push('/rejected')
             } else {
@@ -82,7 +82,7 @@ function SigninForm() {
               router.push('/pending')
             }
           } else {
-            // User is confirmed - redirect to original destination or dashboard
+            // User is confirmed and session is active - redirect to original destination or dashboard
             if (service) {
               router.push(`/dashboard?service=${service}`)
             } else if (callbackUrl && callbackUrl !== '/dashboard') {

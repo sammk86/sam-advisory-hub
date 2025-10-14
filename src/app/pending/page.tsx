@@ -23,8 +23,8 @@ export default function PendingPage() {
         const data = await response.json()
         const user = data.user
         
-        // Check if user is now confirmed
-        if (user.isConfirmed === true) {
+        // Check if user is now confirmed and session is active
+        if (user.isConfirmed === true && user.sessionStatus === 'ACTIVE') {
           // Update session with fresh data and redirect
           await updateSession()
           router.push('/dashboard')
@@ -59,7 +59,7 @@ export default function PendingPage() {
           const data = await response.json()
           const user = data.user
           
-          if (user.isConfirmed === true) {
+          if (user.isConfirmed === true && user.sessionStatus === 'ACTIVE') {
             router.push('/dashboard')
             return
           }
@@ -90,8 +90,8 @@ export default function PendingPage() {
           const data = await response.json()
           const user = data.user
           
-          if (user.isConfirmed === true) {
-            // User is now confirmed, redirect to dashboard
+          if (user.isConfirmed === true && user.sessionStatus === 'ACTIVE') {
+            // User is now confirmed and session is active, redirect to dashboard
             await updateSession()
             router.push('/dashboard')
           }
