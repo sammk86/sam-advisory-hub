@@ -106,20 +106,10 @@ export const authOptions: NextAuthOptions = {
       }
       return session
     },
-    async signIn({ user, account, profile, email, credentials }) {
-      // This callback is called after authorize but before session creation
-      // We can handle redirects here if needed
-      return true
-    },
   },
   pages: {
     signIn: '/auth/signin',
     signUp: '/auth/signup',
-  },
-  events: {
-    async signIn(message) {
-      // Handle sign in events
-    },
   },
   debug: process.env.NODE_ENV === 'development',
 }
