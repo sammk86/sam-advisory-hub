@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
               type: 'article',
               title: newsletter.title,
               description: newsletter.subject,
-              images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
+              images: ['https://sammokhtari.com/images/4.png'],
               url: `https://sammokhtari.com/newsletters/${id}`,
               siteName: 'SamAdvisoryHub',
               publishedTime: newsletter.sentAt || newsletter.createdAt,
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
               card: 'summary_large_image',
               title: newsletter.title,
               description: newsletter.subject,
-              images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
+              images: ['https://sammokhtari.com/images/4.png'],
             },
           };
         }
@@ -59,14 +59,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         type: 'article',
         title: 'AI Newsletter | SamAdvisoryHub',
         description: 'Latest insights on AI architecture and innovation',
-        images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
+        images: ['https://sammokhtari.com/images/4.png'],
         siteName: 'SamAdvisoryHub',
       },
       twitter: {
         card: 'summary_large_image',
         title: 'AI Newsletter | SamAdvisoryHub',
         description: 'Latest insights on AI architecture and innovation',
-        images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
+        images: ['https://sammokhtari.com/images/4.png'],
       },
     };
   } catch (error) {
@@ -78,14 +78,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         type: 'article',
         title: 'AI Newsletter | SamAdvisoryHub',
         description: 'Latest insights on AI architecture and innovation',
-        images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
+        images: ['https://sammokhtari.com/images/4.png'],
         siteName: 'SamAdvisoryHub',
       },
       twitter: {
         card: 'summary_large_image',
         title: 'AI Newsletter | SamAdvisoryHub',
         description: 'Latest insights on AI architecture and innovation',
-        images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
+        images: ['https://sammokhtari.com/images/4.png'],
       },
     };
   }
