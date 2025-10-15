@@ -11,72 +11,62 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Await params to fix Next.js 15 async params issue
     const { id } = await params;
     
-    // Fetch newsletter data to generate dynamic metadata
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001';
-    const response = await fetch(`${baseUrl}/api/newsletter/${id}`, {
-      cache: 'no-store'
-    });
-    
-    if (!response.ok) {
-      return {
-        title: 'Newsletter | SamAdvisoryHub',
-        description: 'Latest insights on AI architecture and innovation',
-        openGraph: {
-          type: 'article',
-          title: 'AI Newsletter | SamAdvisoryHub',
-          description: 'Latest insights on AI architecture and innovation',
-          images: ['https://samadvisoryhub.com/images/newsletter-og-preview.svg'],
-          siteName: 'SamAdvisoryHub',
-        },
-        twitter: {
-          card: 'summary_large_image',
-          title: 'AI Newsletter | SamAdvisoryHub',
-          description: 'Latest insights on AI architecture and innovation',
-          images: ['https://samadvisoryhub.com/images/newsletter-og-preview.svg'],
-        },
-      };
+    // Try to fetch newsletter data, but don't fail if it's not available during build
+    try {
+      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001';
+      const response = await fetch(`${baseUrl}/api/newsletter/${id}`, {
+        cache: 'no-store',
+        // Add timeout to prevent hanging
+        signal: AbortSignal.timeout(5000)
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const newsletter = data.data;
+
+        if (newsletter) {
+          return {
+            title: `${newsletter.title} | SamAdvisoryHub`,
+            description: newsletter.subject,
+            openGraph: {
+              type: 'article',
+              title: newsletter.title,
+              description: newsletter.subject,
+              images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
+              url: `https://sammokhtari.com/newsletters/${id}`,
+              siteName: 'SamAdvisoryHub',
+              publishedTime: newsletter.sentAt || newsletter.createdAt,
+            },
+            twitter: {
+              card: 'summary_large_image',
+              title: newsletter.title,
+              description: newsletter.subject,
+              images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
+            },
+          };
+        }
+      }
+    } catch (fetchError) {
+      console.warn('Could not fetch newsletter for metadata:', fetchError);
+      // Continue with fallback metadata
     }
 
-    const data = await response.json();
-    const newsletter = data.data;
-
-    if (!newsletter) {
-      return {
-        title: 'Newsletter | SamAdvisoryHub',
-        description: 'Latest insights on AI architecture and innovation',
-        openGraph: {
-          type: 'article',
-          title: 'AI Newsletter | SamAdvisoryHub',
-          description: 'Latest insights on AI architecture and innovation',
-          images: ['https://samadvisoryhub.com/images/newsletter-og-preview.svg'],
-          siteName: 'SamAdvisoryHub',
-        },
-        twitter: {
-          card: 'summary_large_image',
-          title: 'AI Newsletter | SamAdvisoryHub',
-          description: 'Latest insights on AI architecture and innovation',
-          images: ['https://samadvisoryhub.com/images/newsletter-og-preview.svg'],
-        },
-      };
-    }
-
+    // Fallback metadata when newsletter data is not available
     return {
-      title: `${newsletter.title} | SamAdvisoryHub`,
-      description: newsletter.subject,
+      title: 'Newsletter | SamAdvisoryHub',
+      description: 'Latest insights on AI architecture and innovation',
       openGraph: {
         type: 'article',
-        title: newsletter.title,
-        description: newsletter.subject,
-        images: ['https://samadvisoryhub.com/images/newsletter-og-preview.svg'],
-        url: `https://samadvisoryhub.com/newsletters/${id}`,
+        title: 'AI Newsletter | SamAdvisoryHub',
+        description: 'Latest insights on AI architecture and innovation',
+        images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
         siteName: 'SamAdvisoryHub',
-        publishedTime: newsletter.sentAt || newsletter.createdAt,
       },
       twitter: {
         card: 'summary_large_image',
-        title: newsletter.title,
-        description: newsletter.subject,
-        images: ['https://samadvisoryhub.com/images/newsletter-og-preview.svg'],
+        title: 'AI Newsletter | SamAdvisoryHub',
+        description: 'Latest insights on AI architecture and innovation',
+        images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
       },
     };
   } catch (error) {
@@ -88,14 +78,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         type: 'article',
         title: 'AI Newsletter | SamAdvisoryHub',
         description: 'Latest insights on AI architecture and innovation',
-        images: ['https://samadvisoryhub.com/images/newsletter-og-preview.svg'],
+        images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
         siteName: 'SamAdvisoryHub',
       },
       twitter: {
         card: 'summary_large_image',
         title: 'AI Newsletter | SamAdvisoryHub',
         description: 'Latest insights on AI architecture and innovation',
-        images: ['https://samadvisoryhub.com/images/newsletter-og-preview.svg'],
+        images: ['https://sammokhtari.com/images/newsletter-og-preview.svg'],
       },
     };
   }
